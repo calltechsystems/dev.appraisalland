@@ -19,7 +19,6 @@ const nextConfig = {
   },
   images: {
     domains: [
-      // "res.cloudinary.com",
       "appraisalfile.s3.us-east-1.amazonaws.com",
       "appraisallandfiless.s3.amazonaws.com",
       "avatars.githubusercontent.com",
