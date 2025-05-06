@@ -1,1 +1,2 @@
-# dev.appraisalland
+# findhouse
+It's a react nextjs template
