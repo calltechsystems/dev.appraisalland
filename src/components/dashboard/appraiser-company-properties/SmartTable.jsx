@@ -88,11 +88,10 @@ function SmartTable(props) {
     ];
 
     getTheDownloadView(
-      "appraiserCompany_Datails",
+      "appraiserCompanyDetail",
       props.allProperties,
       "Appraiser Company Properties",
-      headers,
-      8
+      headers
     )
       .then((message) => {
         toast.success(message);
@@ -358,7 +357,7 @@ function SmartTable(props) {
 }
 
 SmartTable.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.Object),
+  data: PropTypes.arrayOf(PropTypes.object),
   rowsPerPage: PropTypes.number,
   rowsPerPageOptions: PropTypes.arrayOf(PropTypes.number),
   total: PropTypes.number,

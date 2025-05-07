@@ -123,9 +123,15 @@ const Index = () => {
       .put("/api/updateOrderStatus", encryptedBody)
       .then((res) => {
         toast.dismiss();
-        setIsLoading(false);
-        toast.success("Successfully updated!!");
-        location.reload(true);
+        const { success, data: orderData, message } = res?.data;
+        if (success) {
+          setIsLoading(false);
+          toast.success("Successfully updated!!");
+          location.reload(true);
+        }
+        else {
+          toast.error(message ?? "An error occurred while updating the record.");
+        }
       })
       .catch((err) => {
         toast.dismiss();
@@ -221,16 +227,16 @@ const Index = () => {
     setAssignModal(false);
     const data = JSON.parse(localStorage.getItem("user"));
     const payload = {
-      companyid: data.appraiserCompany_Datails.appraiserCompanyId,
-      propertyid: Number(assignPropertyId),
-      appraiserid: Number(
+      companyId: data?.appraiserCompanyDetail?.appraiserCompanyId,
+      propertyId: Number(assignPropertyId),
+      appraiserId: Number(
         selectedAppraiser === -1
-          ? assignAppraiser[0].item.id
+          ? assignAppraiser[0]?.item?.id
           : selectedAppraiser
       ),
     };
 
-    if (!payload.companyid || !payload.propertyid || !payload.appraiserid) {
+    if (!payload.companyId || !payload.propertyId || !payload.appraiserId) {
       toast.error("Invalid Fields. Please check the inputs and try again.");
       return;
     }
@@ -246,10 +252,16 @@ const Index = () => {
       .then((res) => {
         toast.dismiss();
         setIsLoading(false);
-        toast.success("Successfully assigned the property!");
-        setTimeout(() => {
-          location.reload(true); // Reload the page after a short delay
-        }, 1000); // Adjust the delay (in milliseconds) as needed
+        const { success, data: assignData, message } = res?.data;
+        if (success) {
+          toast.success("Successfully assigned the property!");
+          setTimeout(() => {
+            location.reload(true); // Reload the page after a short delay
+          }, 1000); // Adjust the delay (in milliseconds) as needed
+        }
+        else {
+          toast.error(message ?? "An error occurred while updating the record.");
+        }
       })
       .catch((err) => {
         toast.dismiss();
@@ -340,7 +352,7 @@ const Index = () => {
           return (
             //implment search over this only
             String(property.orderId).toLowerCase().includes(searchTerm) ||
-            String(property.zipCode).toLowerCase().includes(searchTerm) ||
+            String(property.postalCode).toLowerCase().includes(searchTerm) ||
             String(property.city).toLowerCase().includes(searchTerm) ||
             String(property.province).toLowerCase().includes(searchTerm)
           );
@@ -402,7 +414,7 @@ const Index = () => {
 
     const payload = {
       orderId: propertyId,
-      userid: data.userId,
+      userId: data.userId,
       status: true,
       token: data.token,
     };
@@ -420,8 +432,14 @@ const Index = () => {
       .then((res) => {
         toast.dismiss();
         setIsLoading(false);
-        toast.success("Archived property!");
-        location.reload(true);
+        const { success, data: archiveData, message } = res?.data;
+        if (success) {
+          toast.success("Archived property!");
+          location.reload(true);
+        }
+        else {
+          toast.error(message ?? "An error occurred while archiving the record.");
+        }
       })
       .catch((err) => {
         toast.dismiss();
@@ -430,29 +448,6 @@ const Index = () => {
       });
   };
 
-  const handleDelete = () => {
-    const data = JSON.parse(localStorage.getItem("user"));
-
-    toast.loading("deleting this property");
-    axios
-      .delete("/api/deleteBrokerPropertyById", {
-        headers: {
-          Authorization: `Bearer ${data.token}`,
-          "Content-Type": "application/json",
-        },
-        params: {
-          propertyId: property.propertyId,
-        },
-      })
-      .then((res) => {
-        setRerender(true);
-      })
-      .catch((err) => {
-        toast.error(err);
-      });
-    toast.dismiss();
-    closeModal();
-  };
 
   useEffect(() => {
     setIsLoading(false);
@@ -465,7 +460,7 @@ const Index = () => {
     if (!data) {
       router.push("/login");
     }
-    if (!data?.appraiserCompany_Datails?.firstName) {
+    if (!data?.appraiserCompanyDetail?.firstName) {
       router.push("appraiser-company-profile");
     }
     if (!data) {
@@ -478,143 +473,6 @@ const Index = () => {
     };
     fetchData();
   }, []);
-
-  const brokerInfoHandler = (orderId) => {
-    const printWindow = window.open("", "_blank");
-    printWindow.document.write("<html><head><title></title></head><body>");
-
-    // Add the header section
-    printWindow.document.write(`
-      <div class="col-lg-12">
-        <div class="row">
-          <div class="col-lg-12 text-center" style="margin-left:250px; margin-top:50px" >
-            <a href="/" class="">
-              <img width="40" height="45" class="logo1 img-fluid" style="margin-top:-20px" src="/assets/images/Appraisal_Land_Logo.png" alt="header-logo2.png" />
-              <span style="color:#2e008b; font-weight:bold; font-size:18px; margin-top:20px">
-                Appraisal
-              </span>
-              <span style="color:#97d700; font-weight:bold; font-size:18px; margin-top:20px">
-                Land
-              </span>
-            </a>
-          </div>
-        </div>
-        <hr style="width:27%; margin-left:200px; color:#2e008b" />
-      </div>
-    `);
-
-    printWindow.document.write(
-      `<h3 style="margin-left:200px;">Broker Details of Order No. ${orderId}</h3>`
-    );
-    printWindow.document.write(
-      '<button style="display:none;" onclick="window.print()">Print</button>'
-    );
-
-    // Clone the table-container and remove the action column
-    const tableContainer = document.getElementById("broker-info-container");
-    const table = tableContainer.querySelector("table");
-    const clonedTable = table.cloneNode(true);
-    const rows = clonedTable.querySelectorAll("tr");
-    rows.forEach((row) => {
-      const lastCell = row.querySelector("td:last-child");
-    });
-
-    // Remove the action heading from the table
-    const tableHead = clonedTable.querySelector("thead");
-    const tableHeadRows = tableHead.querySelectorAll("tr");
-    tableHeadRows.forEach((row) => {
-      const lastCell = row.querySelector("th:last-child");
-    });
-
-    // Make the table responsive for all fields
-    const tableRows = clonedTable.querySelectorAll("tr");
-    tableRows.forEach((row) => {
-      const firstCell = row.querySelector("td:first-child");
-      if (firstCell) {
-        const columnHeading = tableHeadRows[0].querySelector(
-          "th:nth-child(" + (firstCell.cellIndex + 1) + ")"
-        ).innerText;
-        firstCell.setAttribute("data-th", columnHeading);
-      }
-    });
-
-    printWindow.document.write(clonedTable.outerHTML);
-    printWindow.document.write("</body></html>");
-    printWindow.document.close();
-    printWindow.print();
-    printWindow.onafterprint = () => {
-      printWindow.close();
-      toast.success("Saved the data");
-    };
-  };
-
-  const PropertyInfoHandler = (orderId) => {
-    const printWindow = window.open("", "_blank");
-    printWindow.document.write("<html><head><title></title></head><body>");
-
-    // Add the header section
-    printWindow.document.write(`
-      <div class="col-lg-12">
-        <div class="row">
-          <div class="col-lg-12 text-center" style="margin-left:250px; margin-top:50px" >
-            <a href="/" class="">
-              <img width="40" height="45" class="logo1 img-fluid" style="margin-top:-20px" src="/assets/images/Appraisal_Land_Logo.png" alt="header-logo2.png" />
-              <span style="color:#2e008b; font-weight:bold; font-size:18px; margin-top:20px">
-                Appraisal
-              </span>
-              <span style="color:#97d700; font-weight:bold; font-size:18px; margin-top:20px">
-                Land
-              </span>
-            </a>
-          </div>
-        </div>
-        <hr style="width:27%; margin-left:200px; color:#2e008b" />
-      </div>
-    `);
-
-    printWindow.document.write(
-      `<h3 style="margin-left:200px;">Property Details of Order No. ${orderId}</h3>`
-    );
-    printWindow.document.write(
-      '<button style="display:none;" onclick="window.print()">Print</button>'
-    );
-    // Clone the table-container and remove the action column
-    const tableContainer = document.getElementById("property-info-container");
-    const table = tableContainer.querySelector("table");
-    const clonedTable = table.cloneNode(true);
-    const rows = clonedTable.querySelectorAll("tr");
-    rows.forEach((row) => {
-      const lastCell = row.querySelector("td:last-child");
-    });
-
-    // Remove the action heading from the table
-    const tableHead = clonedTable.querySelector("thead");
-    const tableHeadRows = tableHead.querySelectorAll("tr");
-    tableHeadRows.forEach((row) => {
-      const lastCell = row.querySelector("th:last-child");
-    });
-
-    // Make the table responsive for all fields
-    const tableRows = clonedTable.querySelectorAll("tr");
-    tableRows.forEach((row) => {
-      const firstCell = row.querySelector("td:first-child");
-      if (firstCell) {
-        const columnHeading = tableHeadRows[0].querySelector(
-          "th:nth-child(" + (firstCell.cellIndex + 1) + ")"
-        ).innerText;
-        firstCell.setAttribute("data-th", columnHeading);
-      }
-    });
-
-    printWindow.document.write(clonedTable.outerHTML);
-    printWindow.document.write("</body></html>");
-    printWindow.document.close();
-    printWindow.print();
-    printWindow.onafterprint = () => {
-      printWindow.close();
-      toast.success("Saved the data");
-    };
-  };
 
   const [isUpdateBid, setIsUpdateBid] = useState(false);
   const [bidAmount, setbidAmount] = useState(0);
@@ -667,26 +525,32 @@ const Index = () => {
   };
 
   const [currentBid, setCurrentBid] = useState({});
-
-  const onWishlistHandler = (id) => {
-    const userData = JSON.parse(localStorage.getItem("user"));
+  const onWishlistHandler = (propertyId) => {
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
 
     const formData = {
       userId: userData.userId,
-      propertyId: id,
+      propertyId: propertyId,
       token: userData.token,
     };
-
+    debugger;
     const payload = encryptionData(formData);
     setIsLoading(true);
     toast.loading("Setting this property into your wishlist");
     axios
       .post("/api/addToWishlist", payload)
       .then((res) => {
-        toast.dismiss();
-        setIsLoading(false);
-        toast.success("Successfully added !!! ");
-        location.reload(true);
+        debugger;
+        const { success, data: wishlistData, message } = res.data;
+        if (success) {
+          toast.dismiss();
+          setIsLoading(false);
+          toast.success("Successfully added !!! ");
+          location.reload(true);
+        }
+        else {
+          toast.error(message);
+        }
       })
       .catch((err) => {
         toast.dismiss();
@@ -719,7 +583,7 @@ const Index = () => {
       setSearchResult(newProperties);
     } else {
       const newProperties = tempData.filter((item) => {
-        if (item.zipCode.toLowerCase() === searchInput.toLowerCase()) {
+        if (item.postalCode.toLowerCase() === searchInput.toLowerCase()) {
           return true;
         } else {
           return false;
@@ -971,7 +835,7 @@ const Index = () => {
                                         {" "}
                                         {broker.streetNumber}{" "}
                                         {broker.streetName} {broker.city}{" "}
-                                        {broker.province} {broker.zipCode}
+                                        {broker.province} {broker.postalCode}
                                       </td>
                                     </tr>
 
@@ -1114,16 +978,6 @@ const Index = () => {
                                 </table>
                               </div>
                               <div className="d-flex justify-content-center gap-2 mt-3">
-                                {/* <button
-                                  className="btn btn-color"
-                                  style={{ width: "100px" }}
-                                  onClick={() =>
-                                    PropertyInfoHandler(broker.orderId)
-                                  }
-                                  title="Download Pdf"
-                                >
-                                  <FaDownload />
-                                </button> */}
                                 <button
                                   className="btn btn-color"
                                   style={{ width: "100px" }}
@@ -1287,12 +1141,12 @@ const Index = () => {
                                         </span>
                                       </td>
                                       <td className="table-value">
-                                        {selectedBroker.streetNumber}{" "}
-                                        {selectedBroker.streetName}{" "}
-                                        {selectedBroker.apartmentNo}{" "}
-                                        {selectedBroker.city}{" "}
-                                        {selectedBroker.province}{" "}
-                                        {selectedBroker.postalCode}
+                                      {selectedBroker?.address?.streetNumber}{" "}
+                                        {selectedBroker?.address?.streetName}{" "}
+                                        {selectedBroker?.address?.apartmentNumber}{" "}
+                                        {selectedBroker?.address?.city}{" "}
+                                        {selectedBroker?.address?.province}{" "}
+                                        {selectedBroker?.address?.postalCode}
                                       </td>
                                     </tr>
                                   </tbody>
@@ -1527,27 +1381,6 @@ const Index = () => {
                       }}
                       isSearchable
                     />
-                    {/* <select
-                      required
-                      className="form-select"
-                      data-live-search="true"
-                      data-width="100%"
-                      onChange={(e) => setSelectedAppraiser(e.target.value)}
-                      style={{
-                        padding: "15px",
-                        backgroundColor: "#E8F0FE",
-                      }}
-                    >
-                      <option value="">Select</option>
-                      {assignAppraiser.map((item, index) => {
-                        <option value={-1}>....</option>;
-                        return item.item.isActive ? (
-                          <option key={item.item.id} value={item.item.id}>
-                            {item.item.firstName} {item.item.lastName}
-                          </option>
-                        ) : null;
-                      })}
-                    </select> */}
                     <div
                       className="mt-4 mb-3"
                       style={{ border: "2px solid #97d700" }}

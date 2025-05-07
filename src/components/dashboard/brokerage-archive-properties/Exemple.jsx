@@ -206,10 +206,6 @@ export default function Exemple({
 
   const router = useRouter();
 
-  const openStatusUpdateHandler = () => {
-    setIsStatusModal(true);
-  };
-
   const getOrderValue = (val) => {
     let title = "";
     AppraiserStatusOptions?.map((status) => {
@@ -247,22 +243,35 @@ export default function Exemple({
     toast.loading("Un-archiving the property!!...");
     // const encryptedBody = encryptionData(payload);
     axios
-      .get("/api/propertyArcheive", {
-        headers: {
-          Authorization: `Bearer ${data.token}`,
-          "Content-Type": "application/json",
-        },
-        params: {
-          orderId: id,
-          status: false,
-          userId: data.userId,
-        },
-      })
+      .post(
+        "/api/propertyArcheive",
+        {},
+        {
+          params: {
+            orderId: id,
+            status: false,
+            userId: data.userId,
+          },
+          headers: {
+            Authorization: `Bearer ${data.token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      )
       .then((res) => {
-        toast.dismiss();
+        const {
+          success: archeiveSuccess,
+          data: archeiveData,
+          message: archeiveMessage,
+        } = res.data;
+        if (archeiveSuccess) {
+          toast.dismiss();
+          toast.success("Successfully unarchived the property!");
+          location.reload();
+        } else {
+          toast.error(archeiveMessage ?? "Error during archive the property");
+        }
         setIsLoading(false);
-        toast.success("Successfully unarchived the property!");
-        location.reload();
         // setRefresh(true);
       })
       .catch((err) => {
@@ -270,19 +279,6 @@ export default function Exemple({
         setIsLoading(false);
         toast.error("Try again!");
       });
-  };
-
-  const openModal = (propertyId, value, toggle) => {
-    if (String(value) === String(1)) {
-      setIsHoldProperty(true);
-      setPropertyId(propertyId);
-      setPropValue(toggle);
-    } else {
-      setIsCancelProperty(true);
-      setPropertyId(propertyId);
-      setPropValue(toggle);
-    }
-    setModalOpen(true);
   };
 
   const formatDateTime = (dateString) => {
@@ -334,8 +330,8 @@ export default function Exemple({
 
   const openRemarkModal = (property) => {
     const isBidded = getBidOfProperty(property.orderId); // Get the isBidded data
-    const isCancel = property.isoncancel;
-    const isHold = property.isonhold;
+    const isCancel = property.isOnCancel;
+    const isHold = property.isOnHold;
     setRemark(
       isCancel || isHold ? "N.A." : isBidded.remark ? isBidded.remark : "N.A."
     );
@@ -358,7 +354,7 @@ export default function Exemple({
       if (
         bid.orderId === property.orderId &&
         bid.status === 1 &&
-        bid.orderstatus === 3
+        bid.orderStatus === 3
       ) {
         isCompleted = true;
       }
@@ -383,9 +379,8 @@ export default function Exemple({
         if (property.$id) {
           const isStatus = getPropertyStatusHandler(property);
           const isBidded = getBidOfProperty(property.orderId);
-          const isHold = property.isonhold;
-          const isCancel = property.isoncancel;
-          console.log("property", property);
+          const isHold = property.isOnHold;
+          const isCancel = property.isOnCancel;
           const isEditable = isStatus === 0 ? true : false;
           if (true) {
             const updatedRow = {
@@ -425,11 +420,11 @@ export default function Exemple({
                   <button className="btn btn-warning w-100">
                     {isHold ? "N.A." : "N.A."}
                   </button>
-                ) : isBidded.orderstatus !== 1 &&
-                  isBidded.orderstatus !== null &&
-                  isBidded.orderstatus !== undefined ? (
+                ) : isBidded.orderStatus !== 1 &&
+                  isBidded.orderStatus !== null &&
+                  isBidded.orderStatus !== undefined ? (
                   // <span className="btn bg-warning  w-100">
-                  //   {getOrderValue(isBidded.orderstatus)}
+                  //   {getOrderValue(isBidded.orderStatus)}
                   // </span>
                   <div className="hover-text">
                     <div
@@ -441,25 +436,25 @@ export default function Exemple({
                     >
                       <ul>
                         <li style={{ fontSize: "15px" }}>
-                          {getOrderValue(isBidded.orderstatus)}
+                          {getOrderValue(isBidded.orderStatus)}
                         </li>
                       </ul>
                     </div>
                     <button
-                      className={getStatusButtonClass(isBidded.orderstatus)}
+                      className={getStatusButtonClass(isBidded.orderStatus)}
                     >
                       Status
                       <span className="m-1">
-                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                        <i className="fa fa-info-circle" aria-hidden="true"></i>
                       </span>
                     </button>
                   </div>
                 ) : isBidded.$id &&
                   isBidded.status === 1 &&
-                  isBidded.orderstatus === 1 &&
-                  isBidded.orderstatus !== undefined ? (
+                  isBidded.orderStatus === 1 &&
+                  isBidded.orderStatus !== undefined ? (
                   // <span className="btn bg-warning  w-100">
-                  //   {getOrderValue(isBidded.orderstatus)} -{" "}
+                  //   {getOrderValue(isBidded.orderStatus)} -{" "}
                   //   {formatDate(isBidded.statusDate)}
                   // </span>
                   <div className="hover-text">
@@ -472,17 +467,17 @@ export default function Exemple({
                     >
                       <ul>
                         <li style={{ fontSize: "15px" }}>
-                          {getOrderValue(isBidded.orderstatus)} -{" "}
-                          {formatDateTime(isBidded.statusdate)}
+                          {getOrderValue(isBidded.orderStatus)} -{" "}
+                          {formatDateTime(isBidded.statusDate)}
                         </li>
                       </ul>
                     </div>
                     <button
-                      className={getStatusButtonClass(isBidded.orderstatus)}
+                      className={getStatusButtonClass(isBidded.orderStatus)}
                     >
                       Status
                       <span className="m-1">
-                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                        <i className="fa fa-info-circle" aria-hidden="true"></i>
                       </span>
                     </button>
                   </div>
@@ -491,7 +486,7 @@ export default function Exemple({
                     <span>N.A.</span>
                   </button>
                 ),
-              address: `${property.streetNumber}, ${property.streetName}, ${property.city}, ${property.province}, ${property.zipCode}`,
+              address: `${property.streetNumber}, ${property.streetName}, ${property.city}, ${property.province}, ${property.postalCode}`,
               remarkButton: (
                 <li
                   className="list-inline-item"
@@ -519,11 +514,6 @@ export default function Exemple({
                   </div>
                 </li>
               ),
-              // remark: isCancel
-              //   ? "N.A."
-              //   : isBidded.remark
-              //   ? isBidded.remark
-              //   : "N.A.",
               type_of_building: property.typeOfBuilding,
               amount: ` $ ${addCommasToNumber(property.estimatedValue)}`,
               purpose: property.purpose,
@@ -593,9 +583,16 @@ export default function Exemple({
         },
       })
       .then((res) => {
-        setDataFetched(true);
-        const temp = res.data.data.$values;
-        setProperties(temp);
+        const {
+          success: archiveSuccess,
+          data: archiveData,
+          message: archiveMessage,
+        } = res?.data;
+        if (archiveSuccess) {
+          setDataFetched(true);
+          const temp = archiveData.$values;
+          setProperties(temp);
+        }
       })
       .catch((err) => {
         setDataFetched(false);
@@ -612,20 +609,23 @@ export default function Exemple({
         },
       })
       .then((res) => {
-        console.log("res", res);
-        tempBids = res.data.data.$values;
-        setBids(tempBids);
+        const {
+          success: bidSuccess,
+          data: bidData,
+          message: bidMessage,
+        } = res?.data;
+        if (bidSuccess) {
+          tempBids = bidData?.$values;
+          setBids(tempBids);
+        }
       })
       .catch((err) => {
-        console.log(err);
         toast.error(err);
         setModalIsOpenError(true);
       });
     toast.dismiss();
     setRefresh(false);
   }, [refresh]);
-
-  console.log(updatedData);
 
   return (
     <>

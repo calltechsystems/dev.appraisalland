@@ -38,7 +38,6 @@ const ChangePassword = () => {
     const oldPassword = oldPasswordRef.current.value;
     const confirmPassword = confirmPasswordRef.current.value;
 
-    console.log(oldPassword, newPassword, confirmPassword);
     if (String(newPassword) !== String(confirmPassword)) {
       toast.error("Both the passwords should be same ");
     } else {
@@ -53,20 +52,37 @@ const ChangePassword = () => {
         const encryptedData = encryptionData(payload);
 
         toast.loading("Changing the password");
-        const response = await axios.post(
-          "/api/change-broker-password",
-          encryptedData
-        );
-        if (!response) {
-          toast.dismiss();
-          toast.error("Failed Try Again");
+        const res = await axios.post("/api/changePassword", encryptedData);
+        // ✅ Defensive check to avoid destructuring undefined
+        const response = res?.data;
+
+        if (response) {
+          const { success, message } = response;
+
+          if (success) {
+            toast.success(message || "Password changed successfully.");
+            localStorage.removeItem("user");
+            router.push("/login");
+          } else {
+            toast.dismiss();
+            toast.error(message || "Password change failed.");
+          }
         } else {
-          toast.dismiss();
-          localStorage.removeItem("user");
-          router.push("/login");
+          toast.error("Unexpected response format from server.");
+          console.warn("Full API response:", res.data);
         }
       } catch (err) {
-        toast.error(err.response.data.error);
+        toast.dismiss();
+        if (err.response?.status === 401) {
+          toast.error("Invalid old password. Please try again.");
+        } else {
+          toast.error(
+            err.response?.data?.error || "An unexpected error occurred."
+          );
+        }
+        setIsLoading(false);
+      } finally {
+        toast.dismiss();
       }
     }
   };
@@ -74,11 +90,11 @@ const ChangePassword = () => {
     <>
       <div className="row">
         {/* <h4 className="mb-3">Manage Password</h4> */}
-        <div class="accordion" id="accordionExample">
-          <div class="accordion-item">
-            <h2 class="accordion-header" id="headingThree">
+        <div className="accordion" id="accordionExample">
+          <div className="accordion-item">
+            <h2 className="accordion-header" id="headingThree">
               <button
-                class="accordion-button collapsed"
+                className="accordion-button collapsed"
                 type="button"
                 data-bs-toggle="collapse"
                 data-bs-target="#collapseThree"
@@ -90,11 +106,11 @@ const ChangePassword = () => {
             </h2>
             <div
               id="collapseThree"
-              class="accordion-collapse collapse show"
+              className="accordion-collapse collapse show"
               aria-labelledby="headingThree"
               data-bs-parent="#accordionExample"
             >
-              <div class="accordion-body">
+              <div className="accordion-body">
                 <div className="row">
                   <div className="col-lg-6 col-xl-3">
                     <div className="my_profile_setting_input form-group">
@@ -130,8 +146,6 @@ const ChangePassword = () => {
                     <div
                       className="input-group-text"
                       style={{ border: "", cursor: "pointer" }}
-                      // onMouseEnter={togglePasswordVisibility}
-                      // onMouseLeave={togglePasswordVisibility}
                       onClick={togglePasswordVisibility}
                     >
                       <FaEye />
@@ -175,8 +189,6 @@ const ChangePassword = () => {
                         border: "",
                         cursor: "pointer",
                       }}
-                      // onMouseEnter={togglePasswordVisibility}
-                      // onMouseLeave={togglePasswordVisibility}
                       onClick={togglePasswordVisibility_01}
                     >
                       <FaEye />
@@ -220,8 +232,6 @@ const ChangePassword = () => {
                         border: "",
                         cursor: "pointer",
                       }}
-                      // onMouseEnter={togglePasswordVisibility}
-                      // onMouseLeave={togglePasswordVisibility}
                       onClick={togglePasswordVisibility_02}
                     >
                       <FaEye />

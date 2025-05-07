@@ -106,18 +106,6 @@ const Index = () => {
     setModalIsOpenError(false);
   };
 
-  const closeBrokerModal = () => {
-    setOpenBrokerModal(false);
-  };
-
-  const closeQuoteModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const openQuoteModal = () => {
-    setIsModalOpen(false);
-    setIsQuoteModalOpen(true);
-  };
 
   const openModalBroker = (property) => {
     setBroker(property);
@@ -127,9 +115,6 @@ const Index = () => {
   const [lastActivityTimestamp, setLastActivityTimestamp] = useState(
     Date.now()
   );
-  console.log("property id", propertyId);
-
-  console.log(closeRegisterModal);
 
   useEffect(() => {
     const activityHandler = () => {
@@ -166,10 +151,6 @@ const Index = () => {
     return () => clearInterval(inactivityCheckInterval);
   }, [lastActivityTimestamp]);
 
-  const openModal = (property) => {
-    setProperty(property);
-    setIsModalOpen(true);
-  };
 
   const closeModal = () => {
     setModalOpen(false);
@@ -180,24 +161,35 @@ const Index = () => {
 
     toast.loading("Archiving this property.....");
     axios
-      .get("/api/propertyArcheive", {
-        headers: {
-          Authorization: `Bearer ${data.token}`,
-          "Content-Type": "application/json",
-        },
-        params: {
-          orderId: id,
-          status: true,
-          userId: data.userId,
-        },
-      })
+      .post(
+        "/api/propertyArcheive",
+        {},
+        {
+          params: {
+            orderId: id,
+            status: true,
+            userId: data.userId,
+          },
+          headers: {
+            Authorization: `Bearer ${data.token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      )
       .then((res) => {
         toast.dismiss();
-        toast.success("Successfully added to archived properties!!");
-        window.location.reload();
+        const { success, data, message } = res?.data;
+        if (success) {
+          toast.success("Successfully added to archived properties!!");
+          window.location.reload();
+        } else {
+          toast.error(message ?? "An error occurred while adding the record.");
+        }
       })
       .catch((err) => {
-        toast.error(err);
+        toast.error(
+          err?.response?.data?.message || err.message || "Something went wrong"
+        );
       });
     // closeModal();
   };
@@ -209,7 +201,6 @@ const Index = () => {
     setModalOpen(false);
 
     const data = JSON.parse(localStorage.getItem("user"));
-
     const payload = {
       token: data.token,
       orderId: propertyId,
@@ -218,15 +209,21 @@ const Index = () => {
     };
 
     const encryptedBody = encryptionData(payload);
-
     toast.loading("Turning the property status.......");
     axios
       .put("/api/setPropertyOnHold", encryptedBody)
       .then((res) => {
         toast.dismiss();
         setIsHoldProperty(false);
-        toast.success("Successfully Changed the Order Status !");
-        window.location.reload();
+        const { success, data, message } = res?.data;
+        if (success) {
+          toast.success("Successfully Changed the Order Status !");
+          window.location.reload();
+        } else {
+          toast.error(
+            message ?? "An error occurred while updating the record."
+          );
+        }
       })
       .catch((err) => {
         toast.error(err);
@@ -241,8 +238,6 @@ const Index = () => {
   const [broker, setBroker] = useState({});
 
   const openbrokerInfoModal = (info) => {
-    console.log("inide", info);
-
     setbrokerInfoModal(true);
     setBroker(info);
   };
@@ -261,15 +256,21 @@ const Index = () => {
     };
 
     const encryptedBody = encryptionData(payload);
-
     toast.loading("Turning the property status...");
     axios
       .put("/api/setPropertyOnHold", encryptedBody)
       .then((res) => {
         toast.dismiss();
-        toast.success("Successfully Changed the Order Status !");
-        setIsCancelProperty(false);
-        window.location.reload();
+        const { success, data, message } = res?.data;
+        if (success) {
+          toast.success("Successfully Changed the Order Status !");
+          setIsCancelProperty(false);
+          window.location.reload();
+        } else {
+          toast.error(
+            message ?? "An error occurred while updating the record."
+          );
+        }
       })
       .catch((err) => {
         toast.error(err);
@@ -285,66 +286,6 @@ const Index = () => {
     setModalOpen(false);
   };
 
-  const PropertyInfoHandler = (orderId) => {
-    const printWindow = window.open("", "_blank");
-    printWindow.document.write(
-      "<html><head><title>Property Information</title></head><body>"
-    );
-    printWindow.document.write(
-      ' <img width="60" height="45" class="logo1 img-fluid" style="" src="/assets/images/Appraisal_Land_Logo.png" alt="header-logo2.png"/> <span style="color: #2e008b font-weight: bold; font-size: 24px;">Appraisal</span><span style="color: #97d700; font-weight: bold; font-size: 24px;">Land</span>'
-    );
-    printWindow.document.write(
-      "<h3>" +
-        `Properties Information of Order ID ${orderId}` +
-        "</h3>" +
-        "<style>" +
-        "h3{text-align:center;}" +
-        "</style>"
-    );
-    // printWindow.document.write(
-    //   "<h1>" + `Property info of order ${orderId}` + "</h1>"
-    // );
-    printWindow.document.write(
-      '<button style="display:none;" onclick="window.print()">Print</button>'
-    );
-
-    // Clone the table-container and remove the action column
-    const tableContainer = document.getElementById("property-info-container");
-    const table = tableContainer.querySelector("table");
-    const clonedTable = table.cloneNode(true);
-    const rows = clonedTable.querySelectorAll("tr");
-    rows.forEach((row) => {
-      const lastCell = row.querySelector("td:last-child");
-    });
-
-    // Remove the action heading from the table
-    const tableHead = clonedTable.querySelector("thead");
-    const tableHeadRows = tableHead.querySelectorAll("tr");
-    tableHeadRows.forEach((row) => {
-      const lastCell = row.querySelector("th:last-child");
-    });
-
-    // Make the table responsive for all fields
-    const tableRows = clonedTable.querySelectorAll("tr");
-    tableRows.forEach((row) => {
-      const firstCell = row.querySelector("td:first-child");
-      if (firstCell) {
-        const columnHeading = tableHeadRows[0].querySelector(
-          "th:nth-child(" + (firstCell.cellIndex + 1) + ")"
-        ).innerText;
-        firstCell.setAttribute("data-th", columnHeading);
-      }
-    });
-
-    printWindow.document.write(clonedTable.outerHTML);
-    printWindow.document.write("</body></html>");
-    printWindow.document.close();
-    printWindow.print();
-    printWindow.onafterprint = () => {
-      printWindow.close();
-      toast.success("Saved the data");
-    };
-  };
 
   useEffect(() => {
     const filterProperties = (propertys, searchInput) => {
@@ -355,9 +296,6 @@ const Index = () => {
       const filteredProperties = propertys.filter((property) => {
         // Convert the search input to lowercase for a case-insensitive search
         const searchTerm = searchInput.toLowerCase();
-
-        console.log("property.orderId", property);
-
         if (String(property.orderId) === String(searchTerm)) {
           return true;
         }
@@ -365,7 +303,7 @@ const Index = () => {
         else
           return (
             String(property.orderId).toLowerCase().includes(searchTerm) ||
-            String(property.zipCode)?.toLowerCase().includes(searchTerm) ||
+            String(property.postalCode)?.toLowerCase().includes(searchTerm) ||
             String(property.area)?.toLowerCase().includes(searchTerm) ||
             String(property.city)?.toLowerCase().includes(searchTerm) ||
             String(property.province)?.toLowerCase().includes(searchTerm) ||
@@ -392,7 +330,6 @@ const Index = () => {
     const estimatedDiff =
       gettingDiff + getMonthsFDiff * 30 + gettingYearDiff * 365;
 
-    console.log("dayss", diff, newDateObj.getDate(), currentObj.getDate());
     return estimatedDiff <= diff;
   };
 
@@ -422,7 +359,6 @@ const Index = () => {
 
   useEffect(() => {
     const tmpData = filterData(properties);
-    console.log("filterQuery", filterQuery, tmpData, tmpData.length);
     setFilterProperty(tmpData);
   }, [filterQuery]);
 
@@ -441,7 +377,14 @@ const Index = () => {
         },
       })
       .then((res) => {
-        setRerender(true);
+        const { success, data, message } = res?.data;
+        if (success) {
+          setRerender(true);
+        } else {
+          toast.error(
+            message ?? "An error occurred while deleting the record."
+          );
+        }
       })
       .catch((err) => {
         toast.error(err);
@@ -461,9 +404,6 @@ const Index = () => {
     if (!data) {
       router.push("/login");
     }
-    // else if (!data?.brokerage_Details.firstName) {
-    //   router.push("/broker-profile");
-    // }
     if (!data) {
       router.push("/login");
     }
@@ -484,7 +424,7 @@ const Index = () => {
   const [disable, setDisable] = useState(false);
 
   const onWishlistHandler = (id) => {
-    const userData = JSON.parse(localStorage.getItem("user"));
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
 
     const formData = {
       userId: userData.userId,
@@ -499,8 +439,13 @@ const Index = () => {
       .post("/api/addToWishlist", payload)
       .then((res) => {
         toast.dismiss();
-        toast.success("Successfully added !!! ");
-        window.location.reload();
+        const { success, data, message } = res?.data;
+        if (success) {
+          toast.success("Successfully added !!! ");
+          window.location.reload();
+        } else {
+          toast.error(message ?? "An error occurred while adding the record.");
+        }
       })
       .catch((err) => {
         toast.dismiss();
@@ -537,59 +482,6 @@ const Index = () => {
           <div className="row">
             <div className="col-lg-12 maxw100flex-992">
               <div className="row">
-                {/* Start Dashboard Navigation */}
-                {/* <div className="col-lg-12">
-                  <div className="dashboard_navigationbar dn db-1024">
-                    <div className="dropdown">
-                      <button
-                        className="dropbtn"
-                        data-bs-toggle="offcanvas"
-                        data-bs-target="#DashboardOffcanvasMenu"
-                        aria-controls="DashboardOffcanvasMenu"
-                      >
-                        <i className="fa fa-bars pr10"></i> Dashboard Navigation
-                      </button>
-                    </div>
-                  </div>
-                </div> */}
-                {/* End Dashboard Navigation */}
-
-                {/* <div className="col-lg-4 col-xl-4 ">
-                  <div className="style2 mb30-991">
-                    <h3 className="breadcrumb_title">All brokers</h3>
-                  </div>
-                </div> */}
-                {/* End .col */}
-                {/*<div className="row">
-                 <div className="col-lg-12 mt20">
-                  <div className="mbp_pagination">
-                    <Pagination
-                      setStart={setStart}
-                      setEnd={setEnd}
-                      properties={properties}
-                    />
-                  </div>
-                </div> 
-            </div>*/}
-
-                <div className="col-lg-12 col-xl-12">
-                  {/*<div className="candidate_revew_select style2 mb30-991">
-                    <ul className="mb0">
-                      <li className="list-inline-item">
-                        <Filtering setFilterQuery={setFilterQuery} />
-                      </li>
-                      <li className="list-inline-item">
-                        <FilteringBy setFilterQuery={setSearchQuery} />
-                      </li>
-                      <li className="list-inline-item">
-                        <div className="candidate_revew_search_box course fn-520">
-                          <SearchBox setSearchInput={setSearchInput} />
-                        </div>
-                      </li>
-                    </ul>
-              </div>*/}
-                </div>
-                {/* End .col */}
 
                 <div className="col-lg-12">
                   <div className="">
@@ -758,7 +650,7 @@ const Index = () => {
                                           {currentProperty.streetName},{" "}
                                           {currentProperty.city},{" "}
                                           {currentProperty.province}{" "}
-                                          {currentProperty.zipCode}
+                                          {currentProperty.postalCode}
                                         </td>
                                       </tr>
 
@@ -910,18 +802,6 @@ const Index = () => {
                                   </table>
                                 </div>
                                 <div className="d-flex justify-content-center gap-2 mt-3">
-                                  {/* <button
-                                    className="btn btn-color"
-                                    style={{ width: "100px" }}
-                                    onClick={() =>
-                                      PropertyInfoHandler(
-                                        currentProperty.orderId
-                                      )
-                                    }
-                                    title="Download Pdf"
-                                  >
-                                    <FaDownload />
-                                  </button> */}
                                   <button
                                     className="btn btn-color"
                                     style={{ width: "100px" }}
@@ -1135,16 +1015,6 @@ const Index = () => {
                               </div>
                               <div className="row text-center mt-3">
                                 <div className="col-lg-12 d-flex justify-content-center gap-2">
-                                  {/* <button
-                                    className="btn btn-color"
-                                    style={{ width: "100px" }}
-                                    // onClick={() =>
-                                    //   brokerInfoHandler(broker.orderId)
-                                    // }
-                                    title="Download Pdf"
-                                  >
-                                    <FaDownload />
-                                  </button> */}
                                   <button
                                     className="btn btn-color "
                                     style={{ width: "100px" }}

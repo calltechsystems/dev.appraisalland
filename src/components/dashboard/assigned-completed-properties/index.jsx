@@ -14,7 +14,6 @@ import Loader from "./Loader";
 import { AppraiserStatusOptions } from "../create-listing/data";
 import Link from "next/link";
 import Image from "next/image";
-import { FaDownload } from "react-icons/fa";
 import Select from "react-select";
 
 const Index = () => {
@@ -25,10 +24,6 @@ const Index = () => {
   const [isStatusModal, setIsStatusModal] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const [allBrokers, setAllBrokers] = useState([]);
-  const [assignedAppraiser, setAssignedAppraiser] = useState([]);
-  const [toggleId, setToggleId] = useState(-1);
-  const [toggleWishlist, setToggleWishlist] = useState(0);
-  const [searchResult, setSearchResult] = useState([]);
   const [property, setProperty] = useState("");
   const [typeView, setTypeView] = useState(0);
   const [startLoading, setStartLoading] = useState(false);
@@ -84,8 +79,6 @@ const Index = () => {
   ];
 
   const [showConfirmation, setShowConfirmation] = useState(false);
-
-  console.log("AssignAppraisers", AssignAppraisers);
   const closeErrorModal = () => {
     setModalIsOpenError(false);
   };
@@ -97,12 +90,10 @@ const Index = () => {
     const data = JSON.parse(localStorage.getItem("user"));
     const payload = {
       token: data.token,
-      Quoteid: currentBid.bidId,
-      OrderStatus: Number(orderStatus),
+      quoteId: currentBid.bidId,
+      orderStatus: Number(orderStatus),
       remark: remark,
       statusDate: statusDate,
-      user_id: data.userId,
-      user_type: data.userType
     };
 
     const encryptedBody = encryptionData(payload);
@@ -111,8 +102,15 @@ const Index = () => {
       .put("/api/updateOrderStatus", encryptedBody)
       .then((res) => {
         toast.dismiss();
-        toast.success("Successfully updated!!");
-        location.reload(true);
+        const { success, data: orderData, message } = res?.data;
+        if (success) {
+          toast.success("Successfully updated!!");
+          location.reload(true);
+        } else {
+          toast.error(
+            message ?? "An error occurred while updating the record."
+          );
+        }
       })
       .catch((err) => {
         toast.dismiss();
@@ -161,9 +159,8 @@ const Index = () => {
       setOpenDate(false);
     }
     let selectedValue = 0;
-    AppraiserStatusOptions.map((prop, index) => {
+    AppraiserStatusOptions?.map((prop, index) => {
       if (String(prop.type) === String(value)) {
-        console.log("props", prop.type, value, prop.id);
         selectedValue = prop.id;
       }
     });
@@ -176,9 +173,6 @@ const Index = () => {
     setOpenAppraiser(true);
     setAppraiser(info);
   };
-
-  const [moreBrokerInfo, setMoreBrokerInfo] = useState({});
-  const [isBroker, setisBroker] = useState(false);
 
   function getMinDateTime() {
     const currentDate = new Date();
@@ -250,62 +244,6 @@ const Index = () => {
     setAssignPropertyId(val);
   };
 
-  const handleAssignPropertyToAppraiser = () => {
-    const userData = JSON.parse(localStorage.getItem("user"));
-
-    const propertyId = Number(assignPropertyId);
-    const appraiserId = Number(assignAppraiserId);
-    const companyId = Number(
-      userData.appraiserCompany_Datails?.appraiserCompanyId
-    );
-
-    const payload = {
-      propertyid: propertyId,
-      companyid: companyId,
-      appraiserid: appraiserId,
-    };
-
-    const encryptionPayload = encryptionData(payload);
-
-    toast.loading("Assigning the property");
-    axios
-      .post("/api/assignPropertyToAppraiser", encryptionPayload, {
-        headers: {
-          Authorization: `Bearer ${userData.token}`,
-          "Content-Type": "application/json",
-        },
-      })
-      .then((res) => {
-        toast.dismiss();
-        toast.success("Successfully assigned");
-      })
-      .catch((err) => {
-        toast.dismiss();
-        if (err.response) {
-          // Server responded with a status code outside the 2xx range
-          const status = err.response.status;
-          const errorMessage =
-            err.response.data?.message || "Something went wrong!";
-
-          if (status === 400) {
-            toast.error(`Error 400: ${errorMessage}`);
-          } else {
-            toast.error(`Error ${status}: ${errorMessage}`);
-          }
-        } else if (err.request) {
-          // Request was made but no response was received
-          toast.error(
-            "Error: No response from server. Please try again later."
-          );
-        } else {
-          // Something else caused the error
-          toast.error(`Error: ${err.message}`);
-        }
-      });
-  };
-
-  console.log(assignedAppraiser);
-  // console.log("data",data);
 
   const router = useRouter();
   const [lastActivityTimestamp, setLastActivityTimestamp] = useState(
@@ -384,7 +322,7 @@ const Index = () => {
         else
           return (
             String(property.orderId).toLowerCase().includes(searchTerm) ||
-            property.zipCode?.toLowerCase().includes(searchTerm) ||
+            property.postalCode?.toLowerCase().includes(searchTerm) ||
             property.area?.toLowerCase().includes(searchTerm) ||
             property.city?.toLowerCase().includes(searchTerm) ||
             property.province?.toLowerCase().includes(searchTerm) ||
@@ -399,8 +337,6 @@ const Index = () => {
     setSearchedProperties(filteredData);
   }, [searchInput]);
 
-  console.log("filterProperties", searchInput, filterProperty);
-
   const calculate = (searchDate, diff) => {
     const newDateObj = new Date(searchDate.addedDatetime);
     const currentObj = new Date();
@@ -412,7 +348,6 @@ const Index = () => {
     const estimatedDiff =
       gettingDiff + getMonthsFDiff * 30 + gettingYearDiff * 365;
 
-    console.log("dayss", diff, newDateObj.getDate(), currentObj.getDate());
     return estimatedDiff <= diff;
   };
 
@@ -460,7 +395,14 @@ const Index = () => {
         },
       })
       .then((res) => {
-        setRerender(true);
+        const { success, data: brokerData, message } = res?.data;
+        if (success) {
+          setRerender(true);
+        } else {
+          toast.error(
+            message ?? "An error occurred while deleting the record."
+          );
+        }
       })
       .catch((err) => {
         toast.error(err);
@@ -491,142 +433,6 @@ const Index = () => {
     fetchData();
   }, []);
 
-  const brokerInfoHandler = (orderId) => {
-    const printWindow = window.open("", "_blank");
-    printWindow.document.write("<html><head><title></title></head><body>");
-
-    // Add the header section
-    printWindow.document.write(`
-      <div class="col-lg-12">
-        <div class="row">
-          <div class="col-lg-12 text-center" style="margin-left:250px; margin-top:50px" >
-            <a href="/" class="">
-              <img width="40" height="45" class="logo1 img-fluid" style="margin-top:-20px" src="/assets/images/Appraisal_Land_Logo.png" alt="header-logo2.png" />
-              <span style="color:#2e008b; font-weight:bold; font-size:18px; margin-top:20px">
-                Appraisal
-              </span>
-              <span style="color:#97d700; font-weight:bold; font-size:18px; margin-top:20px">
-                Land
-              </span>
-            </a>
-          </div>
-        </div>
-        <hr style="width:27%; margin-left:200px; color:#2e008b" />
-      </div>
-    `);
-
-    printWindow.document.write(
-      `<h3 style="margin-left:200px;">Broker Details of Order No. ${orderId}</h3>`
-    );
-    printWindow.document.write(
-      '<button style="display:none;" onclick="window.print()">Print</button>'
-    );
-
-    // Clone the table-container and remove the action column
-    const tableContainer = document.getElementById("broker-info-container");
-    const table = tableContainer.querySelector("table");
-    const clonedTable = table.cloneNode(true);
-    const rows = clonedTable.querySelectorAll("tr");
-    rows.forEach((row) => {
-      const lastCell = row.querySelector("td:last-child");
-    });
-
-    // Remove the action heading from the table
-    const tableHead = clonedTable.querySelector("thead");
-    const tableHeadRows = tableHead.querySelectorAll("tr");
-    tableHeadRows.forEach((row) => {
-      const lastCell = row.querySelector("th:last-child");
-    });
-
-    // Make the table responsive for all fields
-    const tableRows = clonedTable.querySelectorAll("tr");
-    tableRows.forEach((row) => {
-      const firstCell = row.querySelector("td:first-child");
-      if (firstCell) {
-        const columnHeading = tableHeadRows[0].querySelector(
-          "th:nth-child(" + (firstCell.cellIndex + 1) + ")"
-        ).innerText;
-        firstCell.setAttribute("data-th", columnHeading);
-      }
-    });
-
-    printWindow.document.write(clonedTable.outerHTML);
-    printWindow.document.write("</body></html>");
-    printWindow.document.close();
-    printWindow.print();
-    printWindow.onafterprint = () => {
-      printWindow.close();
-      toast.success("Saved the data");
-    };
-  };
-
-  const PropertyInfoHandler = (orderId) => {
-    const printWindow = window.open("", "_blank");
-    printWindow.document.write("<html><head><title></title></head><body>");
-
-    // Add the header section
-    printWindow.document.write(`
-      <div class="col-lg-12">
-        <div class="row">
-          <div class="col-lg-12 text-center" style="margin-left:250px; margin-top:50px" >
-            <a href="/" class="">
-              <img width="40" height="45" class="logo1 img-fluid" style="margin-top:-20px" src="/assets/images/Appraisal_Land_Logo.png" alt="header-logo2.png" />
-              <span style="color:#2e008b; font-weight:bold; font-size:18px; margin-top:20px">
-                Appraisal
-              </span>
-              <span style="color:#97d700; font-weight:bold; font-size:18px; margin-top:20px">
-                Land
-              </span>
-            </a>
-          </div>
-        </div>
-        <hr style="width:27%; margin-left:200px; color:#2e008b" />
-      </div>
-    `);
-
-    printWindow.document.write(
-      `<h3 style="margin-left:200px;">Property Details of Order No. ${orderId}</h3>`
-    );
-    printWindow.document.write(
-      '<button style="display:none;" onclick="window.print()">Print</button>'
-    );
-    // Clone the table-container and remove the action column
-    const tableContainer = document.getElementById("property-info-container");
-    const table = tableContainer.querySelector("table");
-    const clonedTable = table.cloneNode(true);
-    const rows = clonedTable.querySelectorAll("tr");
-    rows.forEach((row) => {
-      const lastCell = row.querySelector("td:last-child");
-    });
-
-    // Remove the action heading from the table
-    const tableHead = clonedTable.querySelector("thead");
-    const tableHeadRows = tableHead.querySelectorAll("tr");
-    tableHeadRows.forEach((row) => {
-      const lastCell = row.querySelector("th:last-child");
-    });
-
-    // Make the table responsive for all fields
-    const tableRows = clonedTable.querySelectorAll("tr");
-    tableRows.forEach((row) => {
-      const firstCell = row.querySelector("td:first-child");
-      if (firstCell) {
-        const columnHeading = tableHeadRows[0].querySelector(
-          "th:nth-child(" + (firstCell.cellIndex + 1) + ")"
-        ).innerText;
-        firstCell.setAttribute("data-th", columnHeading);
-      }
-    });
-
-    printWindow.document.write(clonedTable.outerHTML);
-    printWindow.document.write("</body></html>");
-    printWindow.document.close();
-    printWindow.print();
-    printWindow.onafterprint = () => {
-      printWindow.close();
-      toast.success("Saved the data");
-    };
-  };
 
   const [isUpdateBid, setIsUpdateBid] = useState(false);
   const [bidAmount, setbidAmount] = useState(0);
@@ -694,9 +500,9 @@ const Index = () => {
       }
 
       const payload = {
-        companyid: data.appraiserCompany_Datails?.appraiserCompanyId,
-        propertyid: Number(assignPropertyId),
-        appraiserid:
+        companyId: data.appraiserCompanyDetail?.appraiserCompanyId,
+        propertyId: Number(assignPropertyId),
+        appraiserId:
           selectedAppraiser == "self"
             ? 0
             : Number(
@@ -708,9 +514,9 @@ const Index = () => {
       };
 
       if (
-        !payload.companyid ||
-        !payload.propertyid ||
-        (!payload.appraiserid && selectedAppraiser != "self")
+        !payload.companyId ||
+        !payload.propertyId ||
+        (!payload.appraiserId && selectedAppraiser != "self")
       ) {
         toast.error("Invalid Fields. Please check the inputs and try again.");
         return;
@@ -738,20 +544,6 @@ const Index = () => {
     } catch (err) {
       toast.dismiss();
 
-      // if (error.response) {
-      //   // Server responded with a status code outside the 2xx range
-      //   toast.error(
-      //     `Error ${error.response.status}: ${
-      //       error.response.data.message || "Failed to assign property."
-      //     }`
-      //   );
-      // } else if (error.request) {
-      //   // Request was made but no response received
-      //   toast.error("No response from the server. Please try again later.");
-      // } else {
-      //   // Something else caused the error
-      //   toast.error(`Error: ${error.message}`);
-      // }
       if (err.response) {
         // Extract status and server error message
         const { status, data } = err.response;
@@ -774,43 +566,9 @@ const Index = () => {
     }
   };
 
-  // const assignAppraiserUpdateHandler = () => {
-  //   if (!selectedAppraiser) {
-  //     toast.error("Please select Appropriate Appraiser Individual!");
-  //     return;
-  //   }
-  //   const data = JSON.parse(localStorage.getItem("user"));
-  //   const payload = {
-  //     companyid: data.appraiserCompany_Datails.appraiserCompanyId,
-  //     propertyid: Number(assignPropertyId),
-  //     appraiserid: Number(
-  //       selectedAppraiser === -1 ? AssignAppraisers[0].id : selectedAppraiser
-  //     ),
-  //   };
-
-  //   const encryptedData = encryptionData(payload);
-  //   toast.loading("Assigning the property!!....");
-  //   axios
-  //     .post("/api/assignPropertyToAppraiser", encryptedData, {
-  //       headers: {
-  //         Authorization: `Bearer ${data.token}`,
-  //       },
-  //     })
-  //     .then((res) => {
-  //       toast.dismiss();
-  //       toast.success("Successfully assigned the property!");
-  //       location.reload(true);
-  //     })
-  //     .catch((err) => {
-  //       toast.dismiss();
-  //       toast.error(err);
-  //     });
-  //   setAssignPropertyId(-1);
-  // };
 
   const onWishlistHandler = (id) => {
-    const userData = JSON.parse(localStorage.getItem("user"));
-
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
     const formData = {
       userId: userData.userId,
       propertyId: id,
@@ -818,14 +576,18 @@ const Index = () => {
     };
 
     const payload = encryptionData(formData);
-
     toast.loading("Setting this property into your wishlist");
     axios
       .post("/api/addToWishlist", payload)
       .then((res) => {
         toast.dismiss();
-        toast.success("Successfully added !!! ");
-        location.reload(true);
+        const { success, data: wishlistData, message } = res?.data;
+        if (success) {
+          toast.success("Successfully added !!! ");
+          location.reload(true);
+        } else {
+          toast.error(message ?? "An error occurred while adding the record.");
+        }
       })
       .catch((err) => {
         toast.dismiss();
@@ -859,22 +621,6 @@ const Index = () => {
           <div className="row">
             <div className="col-lg-12 maxw100flex-992">
               <div className="row">
-                {/* Start Dashboard Navigation */}
-                {/* <div className="col-lg-12">
-                  <div className="dashboard_navigationbar dn db-1024">
-                    <div className="dropdown">
-                      <button
-                        className="dropbtn"
-                        data-bs-toggle="offcanvas"
-                        data-bs-target="#DashboardOffcanvasMenu"
-                        aria-controls="DashboardOffcanvasMenu"
-                      >
-                        <i className="fa fa-bars pr10"></i> Dashboard Navigation
-                      </button>
-                    </div>
-                  </div>
-                </div> */}
-                {/* End Dashboard Navigation */}
 
                 <div className="col-lg-12 col-xl-12"></div>
                 {/* End .col */}
@@ -1078,7 +824,7 @@ const Index = () => {
                                         {" "}
                                         {broker.streetNumber}{" "}
                                         {broker.streetName} {broker.city}{" "}
-                                        {broker.province} {broker.zipCode}
+                                        {broker.province} {broker.postalCode}
                                       </td>
                                     </tr>
 
@@ -1221,16 +967,6 @@ const Index = () => {
                                 </table>
                               </div>
                               <div className="d-flex justify-content-center gap-2 mt-3">
-                                {/* <button
-                                  className="btn btn-color"
-                                  style={{ width: "100px" }}
-                                  onClick={() =>
-                                    PropertyInfoHandler(broker.orderId)
-                                  }
-                                  title="Download Pdf"
-                                >
-                                  <FaDownload />
-                                </button> */}
                                 <button
                                   className="btn btn-color"
                                   style={{ width: "100px" }}
@@ -1392,125 +1128,21 @@ const Index = () => {
                                         </span>
                                       </td>
                                       <td className="table-value">
-                                        {selectedBroker.streetNumber}{" "}
-                                        {selectedBroker.streetName}{" "}
-                                        {selectedBroker.apartmentNo}{" "}
-                                        {selectedBroker.city}{" "}
-                                        {selectedBroker.province}{" "}
-                                        {selectedBroker.postalCode}
+                                        {selectedBroker?.address?.streetNumber}{" "}
+                                        {selectedBroker?.address?.streetName}{" "}
+                                        {
+                                          selectedBroker?.address
+                                            ?.apartmentNumber
+                                        }{" "}
+                                        {selectedBroker?.address?.city}{" "}
+                                        {selectedBroker?.address?.province}{" "}
+                                        {selectedBroker?.address?.postalCode}
                                       </td>
                                     </tr>
-                                    {/* <tr>
-                                      <td
-                                        style={{
-                                          border: "1px solid grey",
-                                          color: "#2e008b",
-                                        }}
-                                      >
-                                        <span className="text-start">
-                                          Brokerage Name
-                                        </span>
-                                      </td>
-                                      <td
-                                        style={{
-                                          
-                                          width: "250px",
-                                          color: "black",
-                                          paddingLeft:"10px"
-                                        }}
-                                      >
-                                        {selectedBroker.brokerageName
-                                          ? selectedBroker.brokerageName
-                                          : "N.A."}
-                                      </td>
-                                    </tr> */}
-
-                                    {/* <tr>
-                                      <td
-                                        style={{
-                                          border: "1px solid grey",
-                                          color: "#2e008b",
-                                        }}
-                                      >
-                                        <span className="text-start">
-                                          Applicant Name
-                                        </span>
-                                      </td>
-                                      <td
-                                        style={{
-                                          
-                                          width: "250px",
-                                          color: "black",
-                                          paddingLeft:"10px"
-                                        }}
-                                      >
-                                        {selectedBroker.assistantFirstName
-                                          ? selectedBroker.assistantFirstName
-                                          : "N.A."}
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td
-                                        style={{
-                                          border: "1px solid grey",
-                                          color: "#2e008b",
-                                        }}
-                                      >
-                                        <span className="text-start">
-                                          Applicant Phone Number
-                                        </span>
-                                      </td>
-                                      <td
-                                        style={{
-                                          border: "1px solid #2e008b",
-                                          width: "250px",
-                                          color: "black",
-                                          paddingLeft:"10px"
-                                        }}
-                                      >
-                                        {selectedBroker.assistantPhoneNumber
-                                          ? selectedBroker.assistantPhoneNumber
-                                          : "N.A."}
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td
-                                        style={{
-                                          border: "1px solid grey",
-                                          color: "#2e008b",
-                                        }}
-                                      >
-                                        <span className="text-start">
-                                          Applicant Email Address
-                                        </span>
-                                      </td>
-                                      <td
-                                        style={{
-                                          border: "1px solid #2e008b",
-                                          width: "250px",
-                                          color: "black",
-                                          paddingLeft:"10px"
-                                        }}
-                                      >
-                                        {selectedBroker.assistantEmailAddress
-                                          ? selectedBroker.assistantEmailAddress
-                                          : "N.A."}
-                                      </td>
-                                    </tr> */}
                                   </tbody>
                                 </table>
                               </div>
                               <div className="d-flex justify-content-center gap-2 mt-3">
-                                {/* <button
-                                  className="btn btn-color"
-                                  style={{ width: "100px" }}
-                                  onClick={() =>
-                                    brokerInfoHandler(broker.orderId)
-                                  }
-                                  title="Download Pdf"
-                                >
-                                  <FaDownload />
-                                </button> */}
                                 <button
                                   className="btn btn-color"
                                   style={{ width: "100px" }}
@@ -1656,8 +1288,9 @@ const Index = () => {
                                       <td className="table-value">
                                         {appraiser.streetNumber}{" "}
                                         {appraiser.streetName},{" "}
-                                        {appraiser.apartmentNo} {appraiser.city}{" "}
-                                        {appraiser.state} {appraiser.postalCode}
+                                        {appraiser.apartmentNumber}{" "}
+                                        {appraiser.city} {appraiser.state}{" "}
+                                        {appraiser.postalCode}
                                       </td>
                                     </tr>
                                     <tr>
@@ -1704,16 +1337,6 @@ const Index = () => {
                               </div>
                               <div className="row text-center">
                                 <div className="col-lg-12 d-flex justify-content-center gap-2 mt-3">
-                                  {/* <button
-                                    className="btn btn-color"
-                                    style={{ width: "100px" }}
-                                    // onClick={() =>
-                                    //   brokerInfoHandler(broker.orderId)
-                                    // }
-                                    title="Download Pdf"
-                                  >
-                                    <FaDownload />
-                                  </button> */}
                                   <button
                                     className="btn btn-color text-center"
                                     style={{ width: "100px" }}
@@ -1727,10 +1350,6 @@ const Index = () => {
                           </div>
                         )}
                       </div>
-
-                      {/* End .table-responsive */}
-
-                      {/* End .mbp_pagination */}
                     </div>
                     {/* End .property_table */}
                   </div>

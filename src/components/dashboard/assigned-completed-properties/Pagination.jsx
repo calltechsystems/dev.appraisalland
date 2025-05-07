@@ -22,7 +22,6 @@ const Pagination = ({ setStart, setEnd, properties }) => {
     const indexOfFirstProperty = indexOfLastProperty - propertiesPerPage;
     setStart(indexOfFirstProperty);
     setEnd(indexOfLastProperty);
-    // console.log(indexOfLastProperty,indexOfFirstProperty);
     // const currentProperties = properties.slice(indexOfFirstProperty-1, indexOfLastProperty-1);
   };
 
@@ -30,7 +29,6 @@ const Pagination = ({ setStart, setEnd, properties }) => {
     setCurrentPage(pageNumber);
     updateDisplayedProperties(pageNumber);
   };
-  console.log("paginations",properties)
 
   return (
     <div>

@@ -5,11 +5,8 @@ import toast from "react-hot-toast";
 import { encryptionData } from "../../../utils/dataEncryption";
 import axios from "axios";
 import { useRouter } from "next/router";
-import { flip } from "@popperjs/core";
 import Link from "next/link";
 import Image from "next/image";
-
-import { CldUploadWidget } from "next-cloudinary";
 const Modal = ({
   modalOpen,
   setModalOpen,
@@ -36,33 +33,6 @@ const Modal = ({
 
   const [selectedImage, setSelectedImage] = useState({});
 
-  const handleUpload = (result) => {
-    // Handle the image upload result here
-    console.log("handleUpload called", result.info);
-    setSelectedImage({
-      url: result.info.secure_url,
-      name: result.info.original_filename + "." + result.info.format,
-    });
-    // if (result.info.secure_url) {
-    //   setSelectedImage(result.info.secure_url);
-    //   setProfilePhoto(result.info.secure_url);
-    //   // You can also save the URL to your state or do other operations here
-    // } else {
-    //   // Handle the case when the upload failed
-    //   console.error("Image upload failed");
-    // }
-  };
-
-  const onCancelHandler = () => {
-    setToggle(false);
-    setValue(0);
-    setDescription("");
-    closeModal();
-  };
-
-  const handleToggle = () => {
-    setToggle(true);
-  };
 
   const onCloseModalHandler = () => {
     setValue("");
@@ -101,12 +71,19 @@ const Modal = ({
         .post("/api/setBid", payload)
         .then((res) => {
           toast.dismiss();
-          toast.success(
-            alreadyBidded
-              ? "Successfully Updated a bid!"
-              : "Successfully set a bid"
-          );
-          location.reload(true);
+          const { success, data: bidData, message } = res?.data;
+          if (success) {
+            toast.success(
+              alreadyBidded
+                ? "Successfully Updated a bid!"
+                : "Successfully set a bid"
+            );
+            location.reload(true);
+          } else {
+            toast.error(
+              message ?? "An error occurred while updating the record."
+            );
+          }
         })
         .catch((err) => {
           toast.dismiss();
@@ -116,31 +93,6 @@ const Modal = ({
     }
   };
 
-  const formatLargeNumber = (number) => {
-    // Convert the number to a string
-    const numberString = number.toString();
-
-    // Determine the length of the integer part
-    const integerLength = Math.floor(Math.log10(Math.abs(number))) + 1;
-
-    // Choose the appropriate unit based on the length of the integer part
-    let unit = "";
-
-    if (integerLength >= 10) {
-      unit = "B"; // Billion
-    } else if (integerLength >= 7) {
-      unit = "M"; // Million
-    } else if (integerLength >= 4) {
-      unit = "K"; // Thousand
-    }
-
-    // Divide the number by the appropriate factor
-    const formattedNumber = (number / Math.pow(10, integerLength - 1)).toFixed(
-      2
-    );
-    console.log(formatLargeNumber + ".." + unit);
-    return `${formattedNumber}${unit}`;
-  };
 
   const openConfirmModal = () => {
     if (!value) {
@@ -193,9 +145,6 @@ const Modal = ({
                 </Link>
               </div>
             </div>
-            {/* <span className="close" onClick={onCloseModalHandler}>
-              &times;
-            </span> */}
             <div style={{ display: "flex", flexDirection: "column" }}>
               <h2 className="text-center">
                 {" "}
@@ -265,7 +214,7 @@ const Modal = ({
                                 ? "Appraisal Updated Quote "
                                 : "Appraisal Quote"
                             }`}{" "}
-                            <span class="req-btn">*</span> :
+                            <span className="req-btn">*</span> :
                           </label>
                         </div>
 
@@ -333,9 +282,6 @@ const Modal = ({
               className="col-lg-12 text-center"
               style={{ marginRight: "4%" }}
             >
-              {/* <button className="cancel-button" onClick={closeModal}>
-                  Cancel
-                </button> */}
               <button
                 disabled={disable}
                 className="btn btn-color w-25"

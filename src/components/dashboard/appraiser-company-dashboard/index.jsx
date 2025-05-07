@@ -140,7 +140,7 @@ const Index = () => {
     setUserData(data);
     if (!data) {
       router.push("/login");
-    } else if (!data?.appraiserCompany_Datails?.firstName) {
+    } else if (!data?.appraiserCompanyDetail?.firstName) {
       router.push("/appraiser-company-profile");
     }
     if (!data) {
@@ -176,22 +176,6 @@ const Index = () => {
           <div className="row">
             <div className="col-lg-12 maxw100flex-992">
               <div className="row mb-5">
-                {/* Start Dashboard Navigation */}
-                {/* <div className="col-lg-12">
-                  <div className="dashboard_navigationbar dn db-1024">
-                    <div className="dropdown">
-                      <button
-                        className="dropbtn"
-                        data-bs-toggle="offcanvas"
-                        data-bs-target="#DashboardOffcanvasMenu"
-                        aria-controls="DashboardOffcanvasMenu"
-                      >
-                        <i className="fa fa-bars pr10"></i> Dashboard Navigation
-                      </button>
-                    </div>
-                  </div>
-                </div> */}
-                {/* End Dashboard Navigation */}
 
                 <div
                   className="dashboard-header col-lg-12 mb-2 pb-2 pt-2"
@@ -232,30 +216,6 @@ const Index = () => {
                   subAppraiserDashboardCount={subAppraiserDashboardCount}
                 />
               </div>
-              {/* End .row Dashboard top statistics */}
-
-              {/* <div className="row">
-                <div className="col-xl-6">
-                  <div className="application_statics">
-                    <h4 className="mb-4">View Statistics</h4>
-                    {chartData.length > 0 ? (
-                      <StatisticsChart data={chartData} />
-                    ) : (
-                      <StatisticsChart data={chartData} />
-                    )}
-                  </div>
-                </div>
-                <div className="col-xl-6">
-                  <div className="application_statics">
-                    <h4 className="mb-4">View Statistics</h4>
-                    {chartData.length > 0 ? (
-                      <StatisticsPieChart data={chartData} />
-                    ) : (
-                      <StatisticsPieChart data={chartData} />
-                    )}
-                  </div>
-                </div>
-              </div> */}
 
               {modalIsOpenError && (
                 <div className="modal">

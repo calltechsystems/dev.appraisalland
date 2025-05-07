@@ -36,7 +36,6 @@ const Modal = ({
   const [disable, setDisable] = useState(false);
   const [selectedImage, setSelectedImage] = useState({});
 
-
   const onCloseModalHandler = () => {
     setValue("");
     setSelectedImage({});
@@ -78,13 +77,20 @@ const Modal = ({
         .post("/api/setBid", payload)
         .then((res) => {
           toast.dismiss();
-          toast.success(
-            alreadyBidded
-              ? "Successfully updated the quote!"
-              : "Successfully set the quote"
-          );
           setIsLoading(false);
-          location.reload(true);
+          const { success, data: quoteData, message } = res?.data;
+          if (success) {
+            toast.success(
+              alreadyBidded
+                ? "Successfully updated the quote!"
+                : "Successfully set the quote"
+            );
+            location.reload(true);
+          } else {
+            toast.error(
+              message ?? "An error occurred while updating the record."
+            );
+          }
         })
         .catch((err) => {
           toast.dismiss();
@@ -111,31 +117,6 @@ const Modal = ({
     return number.toString()?.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
 
-  const formatLargeNumber = (number) => {
-    // Convert the number to a string
-    const numberString = number.toString();
-
-    // Determine the length of the integer part
-    const integerLength = Math.floor(Math.log10(Math.abs(number))) + 1;
-
-    // Choose the appropriate unit based on the length of the integer part
-    let unit = "";
-
-    if (integerLength >= 10) {
-      unit = "B"; // Billion
-    } else if (integerLength >= 7) {
-      unit = "M"; // Million
-    } else if (integerLength >= 4) {
-      unit = "K"; // Thousand
-    }
-
-    // Divide the number by the appropriate factor
-    const formattedNumber = (number / Math.pow(10, integerLength - 1)).toFixed(
-      2
-    );
-    console.log(formatLargeNumber + ".." + unit);
-    return `${formattedNumber}${unit}`;
-  };
 
   const formatNumberWithCommas = (number) => {
     if (!number) return ""; // Handle empty input
@@ -207,9 +188,6 @@ const Modal = ({
                 </Link>
               </div>
             </div>
-            {/* <span className="close" onClick={onCloseModalHandler}>
-              &times;
-            </span> */}
             <div style={{ display: "flex", flexDirection: "column" }}>
               <h2 className="text-center">
                 {" "}
@@ -292,7 +270,7 @@ const Modal = ({
                                 ? "Appraisal Updated Quote "
                                 : "Appraisal Quote"
                             }`}{" "}
-                            <span class="req-btn">*</span> :
+                            <span className="req-btn">*</span> :
                           </label>
                         </div>
 

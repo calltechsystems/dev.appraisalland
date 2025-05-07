@@ -36,33 +36,6 @@ const Modal = ({
 
   const [selectedImage, setSelectedImage] = useState({});
 
-  const handleUpload = (result) => {
-    // Handle the image upload result here
-    console.log("handleUpload called", result.info);
-    setSelectedImage({
-      url: result.info.secure_url,
-      name: result.info.original_filename + "." + result.info.format,
-    });
-    // if (result.info.secure_url) {
-    //   setSelectedImage(result.info.secure_url);
-    //   setProfilePhoto(result.info.secure_url);
-    //   // You can also save the URL to your state or do other operations here
-    // } else {
-    //   // Handle the case when the upload failed
-    //   console.error("Image upload failed");
-    // }
-  };
-
-  const onCancelHandler = () => {
-    setToggle(false);
-    setValue(0);
-    setDescription("");
-    closeModal();
-  };
-
-  const handleToggle = () => {
-    setToggle(true);
-  };
 
   const onCloseModalHandler = () => {
     setValue("");
@@ -96,7 +69,6 @@ const Modal = ({
       };
 
       const payload = encryptionData(formData);
-
       toast.loading(
         alreadyBidded ? "Updating the quote..." : "Setting the quote..."
       );
@@ -104,12 +76,19 @@ const Modal = ({
         .post("/api/setBid", payload)
         .then((res) => {
           toast.dismiss();
-          toast.success(
-            alreadyBidded
-              ? "Successfully updated the quote!"
-              : "Successfully set the quote"
-          );
-          location.reload(true);
+          const { success, data: quoteData, message } = res?.data;
+          if (success) {
+            toast.success(
+              alreadyBidded
+                ? "Successfully updated the quote!"
+                : "Successfully set the quote"
+            );
+            location.reload(true);
+          } else {
+            toast.error(
+              message ?? "An error occurred while updating the record."
+            );
+          }
         })
         .catch((err) => {
           toast.dismiss();
@@ -132,31 +111,6 @@ const Modal = ({
     return number.toString()?.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
 
-  const formatLargeNumber = (number) => {
-    // Convert the number to a string
-    const numberString = number.toString();
-
-    // Determine the length of the integer part
-    const integerLength = Math.floor(Math.log10(Math.abs(number))) + 1;
-
-    // Choose the appropriate unit based on the length of the integer part
-    let unit = "";
-
-    if (integerLength >= 10) {
-      unit = "B"; // Billion
-    } else if (integerLength >= 7) {
-      unit = "M"; // Million
-    } else if (integerLength >= 4) {
-      unit = "K"; // Thousand
-    }
-
-    // Divide the number by the appropriate factor
-    const formattedNumber = (number / Math.pow(10, integerLength - 1)).toFixed(
-      2
-    );
-    console.log(formatLargeNumber + ".." + unit);
-    return `${formattedNumber}${unit}`;
-  };
 
   const formatNumberWithCommas = (number) => {
     if (!number) return ""; // Handle empty input
@@ -310,7 +264,7 @@ const Modal = ({
                                 ? "Appraisal Updated Quote "
                                 : "Appraisal Quote"
                             }`}{" "}
-                            <span class="req-btn">*</span> :
+                            <span className="req-btn">*</span> :
                           </label>
                         </div>
 

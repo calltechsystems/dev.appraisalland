@@ -153,9 +153,9 @@ const Index = () => {
         return (
           //implment search over this only
           String(property.orderId).toLowerCase().includes(searchTerm) ||
-            String(property.zipCode).toLowerCase().includes(searchTerm) ||
-            String(property.city).toLowerCase().includes(searchTerm) ||
-            String(property.province).toLowerCase().includes(searchTerm)
+          String(property.postalCode).toLowerCase().includes(searchTerm) ||
+          String(property.city).toLowerCase().includes(searchTerm) ||
+          String(property.province).toLowerCase().includes(searchTerm)
         );
       });
 
@@ -218,7 +218,14 @@ const Index = () => {
         },
       })
       .then((res) => {
-        setRerender(true);
+        const { success, data, message } = res?.data;
+        if (success) {
+          setRerender(true);
+        } else {
+          toast.error(
+            message ?? "An error occurred while deleting the record."
+          );
+        }
       })
       .catch((err) => {
         toast.error(err);
@@ -238,9 +245,6 @@ const Index = () => {
     if (!data) {
       router.push("/login");
     }
-    // else if (!data?.brokerage_Details.firstName) {
-    //   router.push("/appraiser-profile");
-    // }
     if (!data) {
       router.push("/login");
     }
@@ -259,7 +263,7 @@ const Index = () => {
   };
 
   const onWishlistHandler = (id) => {
-    const userData = JSON.parse(localStorage.getItem("user"));
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
 
     const formData = {
       userId: userData.userId,
@@ -274,8 +278,13 @@ const Index = () => {
       .post("/api/addToWishlist", payload)
       .then((res) => {
         toast.dismiss();
-        toast.success("Successfully added !!! ");
-        window.location.reload();
+        const { success, data, message } = res?.data;
+        if (success) {
+          toast.success("Successfully added !!! ");
+          window.location.reload();
+        } else {
+          toast.error(message ?? "An error occurred while adding the record.");
+        }
       })
       .catch((err) => {
         toast.dismiss();
@@ -284,7 +293,6 @@ const Index = () => {
   };
 
   useEffect(() => {
-    console.log(searchQuery);
     const tempData = properties;
     if (searchInput === "") {
       return;
@@ -308,7 +316,7 @@ const Index = () => {
       setSearchResult(newProperties);
     } else {
       const newProperties = tempData.filter((item) => {
-        if (item.zipCode.toLowerCase() === searchInput.toLowerCase()) {
+        if (item.postalCode.toLowerCase() === searchInput.toLowerCase()) {
           return true;
         } else {
           return false;
@@ -317,8 +325,6 @@ const Index = () => {
       setSearchResult(newProperties);
     }
   }, [searchInput]);
-
-  console.log(broker);
 
   return (
     <>
@@ -349,60 +355,12 @@ const Index = () => {
           <div className="row">
             <div className="col-lg-12 maxw100flex-992">
               <div className="row">
-                {/* Start Dashboard Navigation */}
-                {/* <div className="col-lg-12">
-                  <div className="dashboard_navigationbar dn db-1024">
-                    <div className="dropdown">
-                      <button
-                        className="dropbtn"
-                        data-bs-toggle="offcanvas"
-                        data-bs-target="#DashboardOffcanvasMenu"
-                        aria-controls="DashboardOffcanvasMenu"
-                      >
-                        <i className="fa fa-bars pr10"></i> Dashboard Navigation
-                      </button>
-                    </div>
-                  </div>
-                </div> */}
-                {/* End Dashboard Navigation */}
-
                 <div className="col-lg-4 col-xl-4 ">
                   <div className="style2 mb30-991">
                     <h3 className="breadcrumb_title">Archieve Properties</h3>
                     {/* <p>We are glad to see you again!</p>                                                             */}
                   </div>
                 </div>
-                {/* End .col */}
-
-                {/*<div className="row">
-                <div className="col-lg-12 mt20">
-                 <div className="mbp_pagination">
-                   <Pagination
-                     setStart={setStart}
-                     setEnd={setEnd}
-                     properties={properties}
-                   />
-                   </div>
-                      </div> 
-                    </div>*/}
-
-                {/*<div className="col-lg-12 col-xl-12">
-                  <div className="candidate_revew_select style2 mb30-991">
-                    <ul className="mb0">
-                      <li className="list-inline-item">
-                        <Filtering setFilterQuery={setFilterQuery} />
-                      </li>
-                      <li className="list-inline-item">
-                        <FilteringBy setFilterQuery={setSearchQuery} />
-                      </li>
-                      <li className="list-inline-item">
-                        <div className="candidate_revew_search_box course fn-520">
-                          <SearchBox setSearchInput={setSearchInput} />
-                        </div>
-                      </li>
-                    </ul>
-              </div>
-                </div>*/}
 
                 <div className="col-lg-12">
                   <div className="">
@@ -475,55 +433,6 @@ const Index = () => {
                             </div>
                           </div>
                         )}
-
-                        {/* {openBrokerModal && (
-                          <div className="modal">
-                            <div className="modal-content">
-                              <span>
-                                <h4 className="text-center">Broker Details</h4>
-                              </span>
-                              <hr />
-                              <div className=" col-lg-12">
-                                <div className="row">
-                                  <h5 className="col-lg-4 mt-1 text-end">
-                                    <span className="">Broker Name :</span>{" "}
-                                  </h5>
-                                  <span className="col-lg-3">
-                                    {broker.applicantFirstName}{" "}
-                                    {broker.applicantLastName}
-                                  </span>
-                                </div>
-                                <div className="row">
-                                  <h5 className="col-lg-4 mt-1">
-                                    <span className="">
-                                      Broker Phone Number :
-                                    </span>{" "}
-                                  </h5>
-                                  <span className="col-lg-3">
-                                    {broker.applicantPhoneNumber}
-                                  </span>
-                                </div>
-                                <div className="row">
-                                  <h5 className="col-lg-4 mt-1 text-end">
-                                    <span className="">Broker Email :</span>{" "}
-                                  </h5>
-                                  <span className="col-lg-3">
-                                    {broker.applicantEmailAddress}
-                                  </span>
-                                </div>
-                              </div>
-                              <hr />
-                              <div className="col-lg-12 text-center" style={{}}>
-                                <button
-                                  className="btn btn-color w-25 mt-2"
-                                  onClick={closeBrokerModal}
-                                >
-                                  Ok
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        )}*/}
                       </div>
                       <div>
                         {openBrokerModal && typeView === 1 && (
@@ -559,29 +468,9 @@ const Index = () => {
                                       {" "}
                                       {broker.streetNumber} {broker.streetName}{" "}
                                       {broker.city} {broker.province}{" "}
-                                      {broker.zipCode}
+                                      {broker.postalCode}
                                     </td>
                                   </tr>
-                                  {/* <tr>
-                                  <td
-                                    style={{
-                                      border: "1px solid grey",
-                                      color: "#2e008b",
-                                    }}
-                                  >
-                                    <span className="text-start">
-                                      Property Area
-                                    </span>
-                                  </td>
-                                  <td
-                                    style={{
-                                      border: "1px solid grey",
-                                      width: "250px",
-                                    }}
-                                  >
-                                    {currentProperty.area} sqft
-                                  </td>
-                                </tr> */}
                                   <tr>
                                     <td
                                       style={{
@@ -668,29 +557,6 @@ const Index = () => {
                                         : "NA"}
                                     </td>
                                   </tr>
-                                  {/* <tr>
-                                  <td
-                                    style={{
-                                      border: "1px solid grey",
-                                      color: "#2e008b",
-                                    }}
-                                  >
-                                    <span className="text-start">
-                                      Community
-                                    </span>
-                                  </td>
-                                  <td
-                                    style={{
-                                      border: "1px solid grey",
-                                      width: "250px",
-                                    }}
-                                  >
-                                    {" "}
-                                    {currentProperty.community
-                                      ? currentProperty.community
-                                      : "NA"}
-                                  </td>
-                                </tr> */}
                                   <tr>
                                     <td
                                       style={{
@@ -820,29 +686,6 @@ const Index = () => {
                                       {broker.applicantPhoneNumber}
                                     </td>
                                   </tr>
-                                  {/* <tr>
-                                  <td
-                                    style={{
-                                      border: "1px solid grey",
-                                      color: "#2e008b",
-                                    }}
-                                  >
-                                    <span className="text-start">
-                                      Address
-                                    </span>
-                                  </td>
-                                  <td
-                                    style={{
-                                      border: "1px solid grey",
-                                      width: "250px",
-                                    }}
-                                  >
-                                    {" "}
-                                    {currentProperty.applicantAddress
-                                      ? currentProperty.applicantAddress
-                                      : "NA"}
-                                  </td>
-                                </tr> */}
                                   <tr>
                                     <td
                                       style={{

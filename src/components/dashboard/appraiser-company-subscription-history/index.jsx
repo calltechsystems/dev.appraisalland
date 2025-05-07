@@ -74,7 +74,7 @@ const Index = () => {
     userData = JSON.parse(localStorage.getItem("user"));
     if (!userData) {
       router.push("/login");
-    } else if (!userData?.appraiserCompany_Datails?.firstName) {
+    } else if (!userData?.appraiserCompanyDetail?.firstName) {
       router.push("/appraiser-company-profile");
     }
 
@@ -91,16 +91,16 @@ const Index = () => {
       })
       .then((res) => {
         toast.dismiss();
-        setDataFetched(true);
-        setData(res.data.data.transactions.$values);
-        setRerender(false);
+        const { success, data: brokerData, message } = res?.data;
+        if (success) {
+          setDataFetched(true);
+          setData(brokerData?.transactions?.$values);
+          setRerender(false);
+        }
       })
       .catch((err) => {
         toast.dismiss();
         setDataFetched(false);
-        // toast.error(err?.response?.data?.error);
-        // setErrorMessage(err.response);
-        // setModalIsOpenError(true);
       });
   }, []);
 
@@ -159,13 +159,6 @@ const Index = () => {
                     {/* <p>You can see your transactions history here!</p> */}
                   </div>
                 </div>
-                {/* End .col */}
-                {/* <div className="col-md-4 col-lg-4 col-xl-3">
-                  <ul className="sasw_list mb0">
-                    <li className="search_area"><SearchBox /></li>
-                  </ul>
-                </div> */}
-                {/* End .col */}
               </div>
               {/* End .row */}
 

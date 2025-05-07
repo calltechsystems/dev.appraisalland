@@ -1,7 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
-import SVGArrowDown from "./icons/SVGArrowDown";
-import SVGArrowUp from "./icons/SVGArrowUp";
 import SVGChevronLeft from "./icons/SVGChevronLeft";
 import SVGChevronRight from "./icons/SVGChevronRight";
 import { FaDownload, FaRedo } from "react-icons/fa";
@@ -9,7 +7,6 @@ import * as XLSX from "xlsx";
 import { useReactToPrint } from "react-to-print";
 import toast from "react-hot-toast";
 import SearchBox from "./SearchBox";
-import FilteringBy from "./FilteringBy";
 import Filtering from "./Filtering";
 import Image from "next/image";
 import LoadingSpinner from "../../common/LoadingSpinner";
@@ -22,8 +19,6 @@ function SmartTable(props) {
   const [tableWidth, setTableWidth] = useState(1000);
   const [data, setData] = useState(props.data);
 
-  const componentRef = useRef();
-
   const [search, setSearch] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(props.rowsPerPage ?? 10);
   const [rowsPerPageOptions] = useState(
@@ -31,17 +26,6 @@ function SmartTable(props) {
   );
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(props.total ?? 0);
-  const [changes, setChanges] = useState(false);
-
-  const generatePDF = () => {
-    window.print();
-    toast.success("Data added");
-  };
-
-  const refreshHandler = () => {
-    const refresh = !props.refresh;
-    props.setRefresh(refresh);
-  };
 
   const fetchData = useCallback(
     async (queryString) => {
@@ -67,22 +51,6 @@ function SmartTable(props) {
     [props.url]
   );
 
-  function extractTextFromReactElement(element) {
-    if (typeof element === "string") {
-      return element; // If it's a string, return it directly
-    } else if (Array.isArray(element)) {
-      // If it's an array of elements, recursively call this function for each element
-      return element
-        .map((child) => extractTextFromReactElement(child))
-        .join("");
-    } else if (typeof element === "object" && element !== null) {
-      // If it's an object (React element), recursively call this function on its children
-      return extractTextFromReactElement(element.props.children);
-    } else {
-      return ""; // Return an empty string if the element is not recognized
-    }
-  }
-
   const handlePrint = async () => {
     const staticHeaders = [
       ["order_id", "Order Id"],
@@ -104,7 +72,7 @@ function SmartTable(props) {
     const allData = props.properties;
 
     getTheDownloadView(
-      "brokerage_Details",
+      "brokerageDetail",
       allData,
       "Mortgage Brokers  Properties",
       staticHeaders
@@ -136,11 +104,9 @@ function SmartTable(props) {
     tableWidthFunc,
     fetchData,
   ]);
-  console.log(props.data);
 
   const buildQueryString = (search, page, rowsPerPage) => {
     const queries = [];
-
     if (page) queries.push((page = `${page}`));
     if (rowsPerPage) queries.push(`limit=${rowsPerPage}`);
     if (search) queries.push(`search=${search.toLowerCase()}`);
@@ -148,16 +114,6 @@ function SmartTable(props) {
     const queryString = queries.join("&");
 
     return queryString ? `?${queryString}` : "";
-  };
-
-  const debounce = (func, timeout = 300) => {
-    let timer;
-    return (...args) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        func.apply(this, args);
-      }, timeout);
-    };
   };
 
   const [showNoData, setShowNoData] = useState(false);
@@ -172,23 +128,6 @@ function SmartTable(props) {
     }
   }, [props.dataFetched, props.properties]);
 
-  const handleSearch = debounce((event) => {
-    const { value } = event.target;
-    setSearch(value);
-    if (props.url) {
-      fetchData(buildQueryString(value, page, rowsPerPage));
-    } else {
-      let bool = false;
-      let tempData = props.data.filter((row) => {
-        bool = false;
-        Object.keys(row).forEach((key) => {
-          if (row[key].toLowerCase().includes(value.toLowerCase())) bool = true;
-        });
-        return bool;
-      });
-      setData(tempData);
-    }
-  }, props.searchDebounceTime ?? 800);
 
   const extractTextContent = (cellValue) => {
     if (typeof cellValue === "number") {
@@ -494,7 +433,7 @@ function SmartTable(props) {
 }
 
 SmartTable.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.Object),
+  data: PropTypes.arrayOf(PropTypes.object),
   rowsPerPage: PropTypes.number,
   rowsPerPageOptions: PropTypes.arrayOf(PropTypes.number),
   total: PropTypes.number,

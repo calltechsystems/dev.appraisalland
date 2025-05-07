@@ -1,5 +1,3 @@
-// Modal.js (a React component)
-
 import React, { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { encryptionData } from "../../../utils/dataEncryption";
@@ -23,16 +21,6 @@ const Modal = ({
 
   const [toggle, setToggle] = useState(false);
 
-  const onCancelHandler = () => {
-    setToggle(false);
-    setValue(0);
-    setDescription("");
-    closeModal();
-  };
-
-  const handleToggle = () => {
-    setToggle(true);
-  };
 
   const onCloseModalHandler = () => {
     setValue("");
@@ -64,8 +52,15 @@ const Modal = ({
         .post("/api/setBid", payload)
         .then((res) => {
           toast.dismiss();
-          toast.success("Successfully set the bid ");
-          window.location.reload();
+          const { success, data, message } = res?.data;
+          if (success) {
+            toast.success("Successfully set the bid ");
+            window.location.reload();
+          } else {
+            toast.error(
+              message ?? "An error occurred while updating the record."
+            );
+          }
         })
         .catch((err) => {
           toast.dismiss();
@@ -106,7 +101,9 @@ const Modal = ({
                 </span>
               </h2>
             </div>
-            <div><hr /></div>
+            <div>
+              <hr />
+            </div>
             <div>
               {!toggle ? (
                 <div className="row">
@@ -121,7 +118,7 @@ const Modal = ({
                               fontWeight: "lighter",
                             }}
                           >
-                            Appraisal Quote <span class="req-btn">*</span> :
+                            Appraisal Quote <span className="req-btn">*</span> :
                           </label>
                         </div>
                         <div className="col-lg-7">

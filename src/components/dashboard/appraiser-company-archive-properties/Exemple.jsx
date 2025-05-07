@@ -182,8 +182,8 @@ export default function Exemple({
   const getOrderValue = (val) => {
     let title = "";
     AppraiserStatusOptions.map((status) => {
-      if (String(status.id) === String(val)) {
-        title = status.type;
+      if (String(status?.id) === String(val)) {
+        title = status?.type;
       }
     });
     return title;
@@ -198,9 +198,8 @@ export default function Exemple({
 
   const foundArchiveHandler = (propertyId) => {
     let isArchive = false;
-    allArchive.map((prop, index) => {
-      console.log("ischeck", propertyId, prop.property);
-      if (String(prop.property.propertyId) === String(propertyId)) {
+    allArchive?.map((prop, index) => {
+      if (String(prop?.property?.propertyId) === String(propertyId)) {
         isArchive = true;
       }
     });
@@ -223,12 +222,12 @@ export default function Exemple({
 
   const getFinalBid = (tempBids) => {
     let finalBid = {};
-    tempBids.map((bid, index) => {
+    tempBids?.map((bid, index) => {
       if (!finalBid) {
         finalBid = bid;
       } else {
-        if (bid.status === 1) {
-          if (finalBid.status === 1) {
+        if (bid?.status === 1) {
+          if (finalBid?.status === 1) {
             const customBid = calculateDate(finalBid, bid);
             finalBid = customBid;
           } else {
@@ -251,8 +250,8 @@ export default function Exemple({
     let tempBids = [];
     bids.filter((bid) => {
       if (
-        bid.orderId === property.orderId &&
-        bid.appraiserUserId === data.userId
+        bid?.orderId === property?.orderId &&
+        bid?.appraiserUserId === data?.userId
       ) {
         tempBids.push(bid);
         bidValue = bid;
@@ -262,12 +261,6 @@ export default function Exemple({
     });
     const customBid = getFinalBid(tempBids);
     return customBid;
-  };
-  const router = useRouter();
-
-  const openStatusUpdateHandler = (bidId) => {
-    setCurrentBid(bidId);
-    setIsStatusModal(true);
   };
 
   const openArchiveModal = (property) => {
@@ -293,78 +286,18 @@ export default function Exemple({
   const alreadyAccepted = (property) => {
     const data = JSON.parse(localStorage.getItem("user"));
     let isAccepted = {};
-    bids.filter((bid) => {
+    bids?.filter((bid) => {
       if (
-        String(bid.orderId) === String(property.orderId) &&
-        String(bid.appraiserUserId) !== String(data.userId)
+        String(bid?.orderId) === String(property?.orderId) &&
+        String(bid?.appraiserUserId) !== String(data?.userId)
       ) {
-        if (bid.status === 1) {
+        if (bid?.status === 1) {
           isAccepted = bid;
         }
       }
     });
-    return isAccepted.bidId ? true : false;
+    return isAccepted?.bidId ? true : false;
   };
-
-  const removeWishlistHandler = (id) => {
-    const userData = JSON.parse(localStorage.getItem("user"));
-
-    const formData = {
-      userId: userData.userId,
-      propertyId: id,
-      token: userData.token,
-    };
-
-    const payload = encryptionData(formData);
-    toast.loading("removing this property into your wishlist");
-    axios
-      .delete("/api/removeWishlistProperty", {
-        headers: {
-          Authorization: `Bearer ${userData.token}`,
-        },
-        params: {
-          userId: id,
-        },
-      })
-      .then((res) => {
-        toast.dismiss();
-        toast.success("Successfully removed !!! ");
-        location.reload(true);
-      })
-      .catch((err) => {
-        toast.dismiss();
-        toast.error(err?.response?.data?.error);
-      });
-  };
-
-  const formatLargeNumber = (number) => {
-    // Convert the number to a string
-    const numberString = number.toString();
-
-    // Determine the length of the integer part
-    const integerLength = Math.floor(Math.log10(Math.abs(number))) + 1;
-
-    // Choose the appropriate unit based on the length of the integer part
-    let unit = "";
-
-    if (integerLength >= 10) {
-      unit = "B"; // Billion
-    } else if (integerLength >= 7) {
-      unit = "M"; // Million
-    } else if (integerLength >= 4) {
-      unit = "K"; // Thousand
-    }
-
-    // Divide the number by the appropriate factor
-    const formattedNumber = (number / Math.pow(10, integerLength - 1)).toFixed(
-      2
-    );
-
-    return `${formattedNumber}${unit}`;
-  };
-
-  const onDeletePropertyHandler = () => {};
-
   const formatDateTime = (dateString) => {
     const options = {
       year: "numeric",
@@ -397,21 +330,15 @@ export default function Exemple({
 
   const checkWishlistedHandler = (data) => {
     let temp = {};
-    // console.log(wishlist, data);
-    wishlist.map((prop, index) => {
+    wishlist?.map((prop, index) => {
       if (
-        String(prop.propertyId) === String(data.propertyId) &&
-        String(prop.userId) === String(userData.userId)
+        String(prop?.propertyId) === String(data?.propertyId) &&
+        String(prop?.userId) === String(userData?.userId)
       ) {
         temp = prop;
       }
     });
     return temp ? temp : {};
-  };
-
-  const checkCanBidAgainHandler = (data) => {
-    let temp = true;
-    return temp;
   };
 
   const sortObjectsByOrderIdDescending = (data) => {
@@ -425,7 +352,7 @@ export default function Exemple({
 
   useEffect(() => {
     const getData = () => {
-      allArchive.map((prop, index) => {
+      allArchive?.map((prop, index) => {
         const property = prop.property;
         const isWishlist = checkWishlistedHandler(property);
         const isBidded = filterBidsWithin24Hours(property);
@@ -433,18 +360,18 @@ export default function Exemple({
         const anotherBid = alreadyAccepted(property);
         const isArchive = foundArchiveHandler(property.propertyId);
 
-        const isWait = property.isonhold || property.isoncancel;
+        const isWait = property?.isOnHold || property?.isOnCancel;
         const updatedRow = {
-          order_id: property.orderId,
-          address: `${property.city}-${property.province},${property.zipCode}`,
-          estimated_value: property.estimatedValue
-            ? `$ ${addCommasToNumber(property.estimatedValue)}`
+          order_id: property?.orderId,
+          address: `${property?.city}-${property?.province},${property?.postalCode}`,
+          estimated_value: property?.estimatedValue
+            ? `$ ${addCommasToNumber(property?.estimatedValue)}`
             : "$ 0",
-          purpose: property.purpose ? property.purpose : "N.A.",
+          purpose: property?.purpose ? property?.purpose : "N.A.",
           appraisal_status:
-            isBidded.status === 1 && isBidded.orderstatus === 1 ? (
+            isBidded?.status === 1 && isBidded?.orderStatus === 1 ? (
               // <span className="btn btn-warning  w-100">
-              //   {getOrderValue(isBidded.orderstatus)} -
+              //   {getOrderValue(isBidded.orderStatus)} -
               //   {formatDate(isBidded.statusDate)}
               // </span>
               <div className="hover-text">
@@ -457,21 +384,21 @@ export default function Exemple({
                 >
                   <ul>
                     <li style={{ fontSize: "15px" }}>
-                      {getOrderValue(isBidded.orderstatus)} -{" "}
-                      {formatDateTime(isBidded.statusdate)}
+                      {getOrderValue(isBidded?.orderStatus)} -{" "}
+                      {formatDateTime(isBidded?.statusDate)}
                     </li>
                   </ul>
                 </div>
-                <button className={getStatusButtonClass(isBidded.orderstatus)}>
+                <button className={getStatusButtonClass(isBidded?.orderStatus)}>
                   Status
                   <span className="m-1">
-                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                    <i className="fa fa-info-circle" aria-hidden="true"></i>
                   </span>
                 </button>
               </div>
-            ) : isBidded.status === 1 && isBidded.orderstatus !== null ? (
+            ) : isBidded?.status === 1 && isBidded?.orderStatus !== null ? (
               // <span className="btn btn-warning  w-100">
-              //   {getOrderValue(isBidded.orderstatus)}
+              //   {getOrderValue(isBidded.orderStatus)}
               // </span>
               <div className="hover-text">
                 <div
@@ -483,14 +410,14 @@ export default function Exemple({
                 >
                   <ul>
                     <li style={{ fontSize: "15px" }}>
-                      {getOrderValue(isBidded.orderstatus)}
+                      {getOrderValue(isBidded?.orderStatus)}
                     </li>
                   </ul>
                 </div>
-                <button className={getStatusButtonClass(isBidded.orderstatus)}>
+                <button className={getStatusButtonClass(isBidded?.orderStatus)}>
                   Status
                   <span className="m-1">
-                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                    <i className="fa fa-info-circle" aria-hidden="true"></i>
                   </span>
                 </button>
               </div>
@@ -527,24 +454,24 @@ export default function Exemple({
           status:
             anotherBid === true && isBidded.status !== 2 ? (
               <span className="btn btn-danger  w-100">Declined</span>
-            ) : isBidded?.bidId && isBidded.status === 2 ? (
+            ) : isBidded?.bidId && isBidded?.status === 2 ? (
               <span className="btn btn-danger  w-100">Declined</span>
             ) : isWait ? (
               <span className="btn btn-danger  w-100">
-                {property.isoncancel
+                {property?.isOnCancel
                   ? "Cancelled"
-                  : property.isonhold
+                  : property?.isOnHold
                   ? "On Hold"
                   : ""}
               </span>
-            ) : isBidded.bidId ? (
-              isBidded.orderstatus === 3 ? (
+            ) : isBidded?.bidId ? (
+              isBidded?.orderStatus === 3 ? (
                 <span className="btn btn-completed w-100">Completed</span>
-              ) : isBidded.status === 0 ? (
+              ) : isBidded?.status === 0 ? (
                 <span className="btn bg-info text-light  w-100">
                   Quote Provided
                 </span>
-              ) : isBidded.status === 1 ? (
+              ) : isBidded?.status === 1 ? (
                 <span className="btn btn-success  w-100">Accepted</span>
               ) : (
                 ""
@@ -570,8 +497,8 @@ export default function Exemple({
                     Broker
                   </button>
                 </a>
-              ) : isBidded.status === 2 ||
-                (anotherBid === true && isBidded.status !== 2) ? (
+              ) : isBidded?.status === 2 ||
+                (anotherBid === true && isBidded?.status !== 2) ? (
                 <h6 style={{ color: "red" }}> Declined</h6>
               ) : (
                 <p className="text-secondary">On quote approval</p>
@@ -580,7 +507,7 @@ export default function Exemple({
           ),
           property: (
             <div>
-              {isBidded.status === 1 ? (
+              {isBidded?.status === 1 ? (
                 <a href="#">
                   <button
                     className="list-inline-item"
@@ -596,29 +523,31 @@ export default function Exemple({
                     Property
                   </button>
                 </a>
-              ) : isBidded.status === 2 ||
-                (anotherBid === true && isBidded.status !== 2) ? (
+              ) : isBidded?.status === 2 ||
+                (anotherBid === true && isBidded?.status !== 2) ? (
                 <h6 style={{ color: "red" }}> Declined</h6>
               ) : (
                 <p className="text-secondary">On quote approval</p>
               )}
             </div>
           ),
-          type_of_appraisal: property.typeOfAppraisal
-            ? property.typeOfAppraisal
+          type_of_appraisal: property?.typeOfAppraisal
+            ? property?.typeOfAppraisal
             : "N.A.",
           type_of_building:
-            property.typeOfBuilding > 0 ? "Apartment" : property.typeOfBuilding,
-          quote_required_by: formatDate(property.quoteRequiredDate),
-          date: formatDateTime(property.addedDatetime),
-          bidAmount: property.bidLowerRange,
-          lender_information: property.lenderInformation
-            ? property.lenderInformation
+            property?.typeOfBuilding > 0
+              ? "Apartment"
+              : property?.typeOfBuilding,
+          quote_required_by: formatDate(property?.quoteRequiredDate),
+          date: formatDateTime(property?.addedDatetime),
+          bidAmount: property?.bidLowerRange,
+          lender_information: property?.lenderInformation
+            ? property?.lenderInformation
             : "N.A.",
           urgency:
-            property.urgency === 0
+            property?.urgency === 0
               ? "Rush"
-              : property.urgency === 1
+              : property?.urgency === 1
               ? "Regular"
               : "N.A.",
 
@@ -627,8 +556,8 @@ export default function Exemple({
               className="print-hidden-column"
               style={{ display: "flex", justifyContent: "center" }}
             >
-              {isBidded.$id &&
-                (isBidded.status === 2 || isBidded.status === 1) &&
+              {isBidded?.$id &&
+                (isBidded?.status === 2 || isBidded?.status === 1) &&
                 !anotherBid?.bidId && (
                   <li
                     className="list-inline-item"
@@ -691,150 +620,137 @@ export default function Exemple({
     setWishlist([]);
     setFilterQuery("All");
     setSearchInput("");
+
     const data = JSON.parse(localStorage.getItem("user"));
+    if (!data?.token || !data?.userId) {
+      console.warn("Missing user data");
+      return;
+    }
 
-    const payload = {
-      token: userData.token,
+    const headers = {
+      Authorization: `Bearer ${data?.token}`,
+      "Content-Type": "application/json",
     };
-    let tempProperties = [],
-      tempWishlist = [];
-    axios
-      .get("/api/getAllListedProperties", {
-        headers: {
-          Authorization: `Bearer ${data?.token}`,
-          "Content-Type": "application/json",
-        },
-        params: {
-          userId: data?.userId,
-        },
-      })
-      .then((res) => {
-        setDataFetched(true);
-        const temp = res.data.data.properties.$values;
 
-        tempProperties = temp.filter((prop, index) => {
-          if (String(prop.userId) === String(data.userId)) {
-            return true;
-          } else {
-            return false;
-          }
+    const userId = String(data?.userId);
+    const userEmail = data?.userEmail;
+
+    const fetchListedProperties = async () => {
+      try {
+        const res = await axios.get("/api/getAllListedProperties", {
+          headers,
+          params: { userId },
         });
 
-        axios
-          .get("/api/getAllBids", {
-            headers: {
-              Authorization: `Bearer ${data.token}`,
-            },
+        const allProperties = res?.data?.data?.properties?.$values || [];
+        const userProperties = allProperties.filter(
+          (prop) => String(prop?.userId) === userId
+        );
 
-            params: {
-              email: data.userEmail,
-            },
-          })
-          .then((res) => {
-            tempBids = res.data.data.$values;
-            const updatedBids = tempBids.filter((prop, index) => {
-              if (String(prop.appraiserUserId) === String(data.userId)) {
-                return true;
-              } else {
-                return false;
-              }
-            });
+        setProperties(userProperties);
+        return userProperties;
+      } catch (err) {
+        handleError("Listed Properties", err);
+        return [];
+      }
+    };
 
-            setBids(tempBids);
-            axios
-              .get("/api/appraiserWishlistedProperties", {
-                headers: {
-                  Authorization: `Bearer ${data?.token}`,
-                  "Content-Type": "application/json",
-                },
-              })
-              .then((res) => {
-                const tempData = res.data.data.$values;
+    const fetchBids = async () => {
+      try {
+        const res = await axios.get("/api/getAllBids", {
+          headers,
+          params: { email: userEmail },
+        });
 
-                // setAllWishlistedProperties(res.data.data.$values);
-                const responseData = tempData.filter((prop, index) => {
-                  if (String(prop.userId) === String(data.userId)) {
-                    return true;
-                  } else {
-                    return false;
-                  }
-                });
-                const tempId = responseData;
-                setWishlist(responseData);
-                setProperties(tempProperties);
-              })
-              .catch((err) => {
-                toast.error(err?.response);
-                setErrorMessage(err?.response);
-                setModalIsOpenError(true);
-              });
-          })
-          .catch((err) => {
-            setErrorMessage(err?.response?.data?.error);
-            setModalIsOpenError(true);
-          });
-      })
-      .catch((err) => {
-        setDataFetched(false);
-        setErrorMessage(err?.response?.data?.error);
-        setModalIsOpenError(true);
-      });
+        const allBids = res?.data?.data?.$values || [];
+        const userBids = allBids.filter(
+          (bid) => String(bid?.appraiserUserId) === userId
+        );
 
-    let tempBids = [];
+        setBids(userBids);
+        return userBids;
+      } catch (err) {
+        handleError("Bids", err);
+        return [];
+      }
+    };
 
-    axios
-      .get("/api/getAllBrokers", {
-        headers: {
-          Authorization: `Bearer ${data.token}`,
-        },
-      })
-      .then((res) => {
-        let allbroker = res.data.data.$values;
-        axios
-          .get("/api/getAllBrokerageCompany", {
-            headers: {
-              Authorization: `Bearer ${data.token}`,
-            },
-          })
-          .then((res) => {
-            const allbrokerage = res.data.data.result.$values;
-            let updated = allbroker;
-            allbrokerage.map((user, index) => {
-              updated.push(user);
-            });
+    const fetchWishlisted = async () => {
+      try {
+        const res = await axios.get("/api/appraiserWishlistedProperties", {
+          headers,
+        });
 
-            setAllBrokers(updated);
-          })
-          .catch((err) => {
-            setErrorMessage(err?.response?.data?.error);
-            setModalIsOpenError(true);
-          });
-      })
-      .catch((err) => {
-        setErrorMessage(err?.response?.data?.error);
-        setModalIsOpenError(true);
-      });
+        const allWishlist = res?.data?.data?.$values || [];
+        const userWishlist = allWishlist.filter(
+          (item) => String(item?.userId) === userId
+        );
 
-    axios
-      .get("/api/getArchiveAppraiserProperty", {
-        headers: {
-          Authorization: `Bearer ${data.token}`,
-        },
-        params: {
-          userId: data.userId,
-        },
-      })
-      .then((res) => {
-        setAllArchive(res.data.data.$values);
-      })
-      .catch((err) => {
-        setErrorMessage(err?.response?.data?.error);
-        setModalIsOpenError(true);
-      });
+        setWishlist(userWishlist);
+        return userWishlist;
+      } catch (err) {
+        handleError("Wishlisted Properties", err);
+        return [];
+      }
+    };
 
-    console.log("end", bids, properties, wishlist);
-    setRefresh(false);
+    const fetchBrokers = async () => {
+      try {
+        const brokerRes = await axios.get("/api/getAllBrokers", { headers });
+        const brokerageRes = await axios.get("/api/getAllBrokerageCompany", {
+          headers,
+        });
+
+        const brokers = brokerRes?.data?.data?.$values || [];
+        const brokerages = brokerageRes?.data?.data?.result.$values || [];
+
+        const combined = [...brokers, ...brokerages];
+        setAllBrokers(combined);
+      } catch (err) {
+        handleError("Brokers / Brokerages", err);
+      }
+    };
+
+    const fetchArchived = async () => {
+      try {
+        const res = await axios.get("/api/getArchiveAppraiserProperty", {
+          headers,
+          params: { userId },
+        });
+
+        const archived = res?.data?.data?.$values || [];
+        setAllArchive(archived);
+      } catch (err) {
+        handleError("Archived Properties", err);
+      }
+    };
+
+    const handleError = (label, err) => {
+      const message =
+        err?.response?.data?.error ||
+        err?.message ||
+        `Failed to fetch ${label}`;
+      console.error(`${label} Error:`, message);
+      setErrorMessage(message);
+      setModalIsOpenError(true);
+    };
+
+    const fetchAllData = async () => {
+      setDataFetched(false);
+      await Promise.all([
+        fetchListedProperties(),
+        fetchBids(),
+        fetchWishlisted(),
+        fetchBrokers(),
+        fetchArchived(),
+      ]);
+      setDataFetched(true);
+      setRefresh(false);
+    };
+
+    fetchAllData();
   }, [refresh]);
+
   return (
     <>
       {refresh ? (

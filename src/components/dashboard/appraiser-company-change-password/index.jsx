@@ -7,7 +7,8 @@ import { useRouter } from "next/router";
 import CommonLoader from "../../common/CommonLoader/page";
 
 const Index = () => {
-  // const userData = JSON.parse(localStorage.getItem("user"));
+  // const userData = JSON.parse(localStorage.getItem("user") || "{}");
+
   const [userData, setUserData] = useState({});
   const data = JSON.parse(localStorage.getItem("user"));
   const router = useRouter();

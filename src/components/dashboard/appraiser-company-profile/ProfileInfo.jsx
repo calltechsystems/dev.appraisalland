@@ -29,9 +29,9 @@ const ProfileInfo = ({
 
   useEffect(() => {
     let updatedList = { ...uploadingFiles };
-    if (userData?.appraiserCompany_Datails?.profileImage) {
+    if (userData?.appraiserCompanyDetail?.profileImage) {
       const name =
-        userData?.appraiserCompany_Datails?.profileImage
+        userData?.appraiserCompanyDetail?.profileImage
           .split("/")
           .pop()
           .split("?")[0] || "";
@@ -40,8 +40,8 @@ const ProfileInfo = ({
         previewUrl:
           name == ""
             ? "/assets/images/home/placeholder_01.jpg"
-            : userData?.appraiserCompany_Datails?.profileImage,
-        uploadedUrl: userData?.appraiserCompany_Datails?.profileImage || "",
+            : userData?.appraiserCompanyDetail?.profileImage,
+        uploadedUrl: userData?.appraiserCompanyDetail?.profileImage || "",
         fieldType: "profileImage",
       };
 
@@ -50,8 +50,8 @@ const ProfileInfo = ({
         ["profileImage"]: updatedDoc,
       };
     }
-    if (userData?.appraiserCompany_Datails?.lenderListUrl) {
-      const name = userData?.appraiserCompany_Datails?.lenderListUrl
+    if (userData?.appraiserCompanyDetail?.lenderListUrl) {
+      const name = userData?.appraiserCompanyDetail?.lenderListUrl
         .split("/")
         .pop()
         .split("?")[0];
@@ -61,8 +61,8 @@ const ProfileInfo = ({
           ? "/assets/Attachments/zipIcon.png"
           : name.includes("pdf")
           ? "/assets/Attachments/pdfIcon.png"
-          : userData?.appraiserCompany_Datails?.lenderListUrl,
-        uploadedUrl: userData?.appraiserCompany_Datails?.lenderListUrl,
+          : userData?.appraiserCompanyDetail?.lenderListUrl,
+        uploadedUrl: userData?.appraiserCompanyDetail?.lenderListUrl,
         fieldType: "LenderList",
       };
       updatedList = {
@@ -75,17 +75,17 @@ const ProfileInfo = ({
 
   const [selectedImage2, setSelectedImage2] = useState({
     name:
-      userData?.appraiserCompany_Datails?.lenderListUrl !== null
+      userData?.appraiserCompanyDetail?.lenderListUrl !== null
         ? "uploaded_lenderlist"
         : "",
     url:
-      userData?.appraiserCompany_Datails?.lenderListUrl !== null
-        ? userData?.appraiserCompany_Datails?.lenderListUrl
+      userData?.appraiserCompanyDetail?.lenderListUrl !== null
+        ? userData?.appraiserCompanyDetail?.lenderListUrl
         : "",
   });
 
   const [SelectedImage, setSelectedImage] = useState(
-    userData?.appraiserCompany_Datails?.profileImage ||
+    userData?.appraiserCompanyDetail?.profileImage ||
       "/assets/images/home/placeholder_01.jpg"
   );
 
@@ -94,7 +94,7 @@ const ProfileInfo = ({
   const [edit, setEdit] = useState(true);
 
   const [firstNameRef, setFirstNameRef] = useState(
-    userData?.appraiserCompany_Datails?.firstName || ""
+    userData?.appraiserCompanyDetail?.firstName || ""
   );
 
   const [emailNotification, setEmailNotification] = useState(
@@ -108,68 +108,68 @@ const ProfileInfo = ({
   const [SMSAlert, setSMSAlert] = useState(false);
 
   const [licenseNumber, setLicenseNumber] = useState(
-    userData?.appraiserCompany_Datails?.licenseNumber || ""
+    userData?.appraiserCompanyDetail?.licenseNumber || ""
   );
 
   const [emailId, setEmailId] = useState(
-    userData?.appraiserCompany_Datails?.emailId || ""
+    userData?.appraiserCompanyDetail?.emailId || ""
   );
 
   const [cellNumber, setCellNumber] = useState(
-    userData?.appraiserCompany_Datails?.cellNumber || ""
+    userData?.appraiserCompanyDetail?.cellNumber || ""
   );
 
   const [lastNameRef, setLastNameRef] = useState(
-    userData?.appraiserCompany_Datails?.lastName || ""
+    userData?.appraiserCompanyDetail?.lastName || ""
   );
   const [companyNameRef, setCompanyNameRef] = useState(
-    userData?.appraiserCompany_Datails?.appraiserCompanyName || ""
+    userData?.appraiserCompanyDetail?.appraiserCompanyName || ""
   );
 
-  const [addressLineRef, setAddressLineRef] = useState(
-    userData?.appraiserCompany_Datails?.addressLineOne || ""
+  const [addressLineOneRef, setAddressLineOneRef] = useState(
+    userData?.appraiserCompanyDetail?.address?.addressLineOne || ""
   );
   const [addressLineTwoRef, setAddressLineTwoRef] = useState(
-    userData?.appraiserCompany_Datails?.addressLineTwo || ""
+    userData?.appraiserCompanyDetail?.address?.addressLineTwo || ""
   );
 
   const [cityRef, setCityRef] = useState(
-    userData?.appraiserCompany_Datails?.city || ""
+    userData?.appraiserCompanyDetail?.address?.city || ""
   );
   const [stateRef, setStateRef] = useState(
-    userData?.appraiserCompany_Datails?.state || ""
+    userData?.appraiserCompanyDetail?.address?.state || ""
   );
-  const [zipcodeRef, setZipcodeRef] = useState(
-    userData?.appraiserCompany_Datails?.postalCode || ""
+  const [postalCodeRef, setPostalCodeRef] = useState(
+    userData?.appraiserCompanyDetail?.address?.postalCode || ""
   );
   const [phoneNumberRef, setPhoneNumberRef] = useState(
-    userData?.appraiserCompany_Datails?.phoneNumber || ""
+    userData?.appraiserCompanyDetail?.phoneNumber || ""
   );
 
   const [officeContactFirstName, setOfficeContactFirstName] = useState(
-    userData.appraiserCompany_Datails?.officeContactFirstName || ""
+    userData.appraiserCompanyDetail?.officeContactFirstName || ""
   );
 
   const [officeContactLastName, setOfficeContactLastName] = useState(
-    userData?.appraiserCompany_Datails?.officeContactLastName || ""
+    userData?.appraiserCompanyDetail?.officeContactLastName || ""
   );
 
   const [officeContactEmail, setOfficeContactEmail] = useState(
-    userData?.appraiserCompany_Datails?.officeContactEmail || ""
+    userData?.appraiserCompanyDetail?.officeContactEmail || ""
   );
 
   const [officeContactPhone, setOfficeContactPhone] = useState(
-    userData?.appraiserCompany_Datails?.officeContactPhone || ""
+    userData?.appraiserCompanyDetail?.officeContactPhone || ""
   );
 
   const [streetName, setStreetName] = useState(
-    userData?.appraiserCompany_Datails?.streetName || ""
+    userData?.appraiserCompanyDetail?.address?.streetName || ""
   );
   const [streetNumber, setStreetNumber] = useState(
-    userData.appraiserCompany_Datails?.streetNumber || ""
+    userData.appraiserCompanyDetail?.address?.streetNumber || ""
   );
   const [apartmentNumber, setApartmentNumber] = useState(
-    userData?.appraiserCompany_Datails?.apartmentNumber || ""
+    userData?.appraiserCompanyDetail?.address?.apartmentNumber || ""
   );
   const [disable, setdisable] = useState(false);
   useEffect(() => {
@@ -196,7 +196,7 @@ const ProfileInfo = ({
   const [streetNumberError, setStreetNumberError] = useState(false);
   const [streetNameError, setStreetNameError] = useState(false);
   const [cityError, setCityError] = useState(false);
-  const [zipCodeError, setZipCodeError] = useState(false);
+  const [postalCodeError, setPostalCodeError] = useState(false);
   const [officeContactFirstNameError, setOfficeContactFirstNameError] =
     useState(false);
   const [officeContactLastNameError, setOfficeContactLastNameError] =
@@ -220,7 +220,7 @@ const ProfileInfo = ({
   const [streetNumberValid, setStreetNumberValid] = useState(false);
   const [streetNameValid, setStreetNameValid] = useState(false);
   const [cityValid, setCityValid] = useState(false);
-  const [zipCodeValid, setZipCodeValid] = useState(false);
+  const [postalCodeValid, setPostalCodeValid] = useState(false);
   const [dropdownValid, setDropdownValid] = useState(false);
   const [officeContactFirstNameValid, setOfficeContactFirstNameValid] =
     useState(false);
@@ -257,7 +257,12 @@ const ProfileInfo = ({
     }
   };
 
-  const handleInputChangeCompanyName = (value, setValue, setValid, setError) => {
+  const handleInputChangeCompanyName = (
+    value,
+    setValue,
+    setValid,
+    setError
+  ) => {
     if (value.length <= 100) {
       setValue(value);
 
@@ -380,7 +385,7 @@ const ProfileInfo = ({
         setIsSubmitInProgress(false);
         setTimesTrigerredSubmission(0);
         setIsLoading(false);
-        toast.dismiss()
+        toast.dismiss();
         toast.error("Got error while saving, trying again.", err);
         console.error({ profileError: err });
       } else {
@@ -401,39 +406,39 @@ const ProfileInfo = ({
     const firstName =
       firstNameRef !== ""
         ? firstNameRef
-        : userData.appraiserCompany_Datails.firstName;
+        : userData.appraiserCompanyDetail.firstName;
     const lastName =
       lastNameRef !== ""
         ? lastNameRef
-        : userData.appraiserCompany_Datails.lastName;
+        : userData.appraiserCompanyDetail.lastName;
     const city =
-      cityRef !== "" ? cityRef : userData.appraiserCompany_Datails.city;
+      cityRef !== "" ? cityRef : userData.appraiserCompanyDetail.address?.city;
     const state = stateRef;
-    const zipCode =
-      zipcodeRef !== ""
-        ? zipcodeRef
-        : userData.appraiserCompany_Datails.zipCode;
+    const postalCode =
+      postalCodeRef !== ""
+        ? postalCodeRef
+        : userData.appraiserCompanyDetail.address?.postalCode;
     const phoneNumber =
       phoneNumberRef !== ""
         ? phoneNumberRef
-        : userData.appraiserCompany_Datails.phoneNumber;
+        : userData.appraiserCompanyDetail.phoneNumber;
     // const cellNumber =
-    //   cellNumber!== "" ? cellNumber : userData.appraiserCompany_Datails.cellNumber;
-    const adressLine2 = addressLineTwoRef;
+    //   cellNumber!== "" ? cellNumber : userData.appraiserCompanyDetail.cellNumber;
+    const addressLineTwo = addressLineTwoRef;
     const companyName =
       companyNameRef !== ""
         ? companyNameRef
-        : userData.appraiserCompany_Datails.companyName;
+        : userData.appraiserCompanyDetail.companyName;
     // const licenseNumber =
     //   licenseNumberRef !== ""
     //     ? licenseNumberRef
-    //     : userData.appraiserCompany_Datails.licenseNumber;
+    //     : userData.appraiserCompanyDetail.licenseNumber;
     const emailIdRef =
-      emailId !== "" ? emailId : userData.appraiserCompany_Datails.emailId;
+      emailId !== "" ? emailId : userData.appraiserCompanyDetail.emailId;
     const streetNameRef =
       streetName !== ""
         ? streetName
-        : userData.appraiserCompany_Datails.streetName;
+        : userData.appraiserCompanyDetail.address?.streetName;
 
     const payload = {
       id: userData.userId,
@@ -442,7 +447,7 @@ const ProfileInfo = ({
       lastName: lastNameRef,
       appraiserCompanyName: companyNameRef,
       licenseNumber: licenseNumber,
-      addressLineOne: addressLineRef,
+      addressLineOne: addressLineOneRef,
       addressLineTwo: addressLineTwoRef,
       officeContactFirstName: officeContactFirstName,
       officeContactLastName: officeContactLastName,
@@ -450,7 +455,7 @@ const ProfileInfo = ({
       city: cityRef,
       state: stateRef,
       lenderListUrl: updatedList["LenderList"]?.uploadedUrl,
-      postalCode: zipcodeRef,
+      postalCode: postalCodeRef,
       phoneNumber: phoneNumberRef,
       officeContactPhone: officeContactPhone,
       cellNumber: cellNumber,
@@ -534,19 +539,6 @@ const ProfileInfo = ({
       });
       return false;
     }
-    // else if (
-    //   companyName.trim().length < 1 ||
-    //   companyName.trim().length > 30
-    // ) {
-    //   setCompanyNameError(true);
-    //   toast.error("Please enter a valid appraiser company name");
-    //   resetTriggeredValues()
-    //   window.scrollTo({
-    //     top: 0,
-    //     behavior: "smooth",
-    //   });
-    //   return false;
-    // }
     else if (cellNumberRegex.test(phoneNumber) === false || !phoneNumber) {
       setPhoneNumberError(true);
       toast.error("Please enter a valid phone number");
@@ -597,8 +589,8 @@ const ProfileInfo = ({
         behavior: "smooth",
       });
       return false;
-    } else if (alphanumericWithSpacesRegex.test(zipCode) === false) {
-      setZipCodeError(true);
+    } else if (alphanumericWithSpacesRegex.test(postalCode) === false) {
+      setPostalCodeError(true);
       toast.error("Please enter a valid postal code");
       resetTriggeredValues();
       window.scrollTo({
@@ -646,9 +638,9 @@ const ProfileInfo = ({
         !phoneNumberRef ||
         !licenseNumber ||
         !stateRef ||
-        !zipcodeRef ||
+        !postalCodeRef ||
         !selectedImage2.url ||
-        !addressLineRef ||
+        !addressLineOne ||
         !emailId ||
         !cityRef) &&
       !userData
@@ -670,59 +662,42 @@ const ProfileInfo = ({
         axios
           .put("/api/updateAppraiserCompanyProfile", payload)
           .then((res) => {
-            toast.success("Successfully Updated !");
-            console.log("user is", res.data.userData);
-            let data = userData;
-            data.smsNotification = res.data.userData.isSms;
-            data.emailNotification = res.data.userData.isEmail;
-            data.appraiserCompany_Datails = res.data.userData.appraiserCompany;
-            localStorage.removeItem("user");
-            localStorage.setItem("user", JSON.stringify(data));
-            setShowCard(true);
-            router.push("/appraiser-company-dashboard");
-            setIsSubmitInProgress(false);
+            const { success, data: profileData, message } = res.data;
+            if (success) {
+              toast.success("Successfully Updated !");
+              let data = userData;
+              data.smsNotification = profileData?.isSms;
+              data.emailNotification = profileData?.isEmail;
+              data.appraiserCompanyDetail = profileData?.appraiserCompany;
+              localStorage.removeItem("user");
+              localStorage.setItem("user", JSON.stringify(data));
+              setShowCard(true);
+              router.push("/appraiser-company-dashboard");
+              setIsSubmitInProgress(false);
+            } else {
+              toast.error(
+                message || "Got error while saving the profile data to db "
+              );
+            }
           })
           .catch((err) => {
             if (TimesTrigerredSubmission < 2) {
               setTimesTrigerredSubmission(TimesTrigerredSubmission + 1);
             } else {
-              toast.error(err.message || 'Got error while saving the profile data to db ');
+              toast.error(
+                err.message || "Got error while saving the profile data to db "
+              );
               setIsSubmitInProgress(false);
               setTimesTrigerredSubmission(0);
               setIsLoading(false);
-              toast.dismiss()
+              toast.dismiss();
             }
           })
           .finally(() => {});
         toast.dismiss();
       }
     }
-    // Validate fields individually
-
-    const isFirstNameValid = validateField(firstNameRef, setFirstNameError);
-    // const isCompanyeNameValid = validateField(
-    //   companyNameRef,
-    //   setCompanyNameError
-    // );
-    const isLastNameValid = validateField(lastNameRef, setLastNameError);
-    // const isPhoneNumberValid = validateFieldNumber(
-    //   phoneNumberRef,
-    //   setPhoneNumberError
-    // );
-    const isEmailValid = validateEmailField(emailId, setEmailError);
-    const isMortgageLicenceValid = validateField(
-      licenseNumber,
-      setLicenceError
-    );
-
-    const isStreetNumberValid = validateFieldStreetNumber(
-      streetNumber,
-      setStreetNumberError
-    );
-    const isStreetNameValid = validateField(streetName, setStreetNameError);
-    const isCityValid = validateField(cityRef, setCityError);
-    const isZipCodeValid = validateField(zipcodeRef, setZipCodeError);
-  };
+      };
 
   const validateField = (value, setError, inputRef) => {
     if (value.trim().length < 1 || value.trim().length > 30) {
@@ -922,7 +897,8 @@ const ProfileInfo = ({
                           htmlFor=""
                           style={{ paddingTop: "10px" }}
                         >
-                          Appraiser Company Name <span class="req-btn">*</span>
+                          Appraiser Company Name{" "}
+                          <span className="req-btn">*</span>
                         </label>
                       </div>
                       <div className="col-lg-7">
@@ -966,7 +942,7 @@ const ProfileInfo = ({
                           style={{ paddingTop: "10px" }}
                         >
                           Primary Contact First Name{" "}
-                          <span class="req-btn">*</span>
+                          <span className="req-btn">*</span>
                         </label>
                       </div>
                       <div className="col-lg-7">
@@ -1012,7 +988,7 @@ const ProfileInfo = ({
                           style={{ paddingTop: "10px" }}
                         >
                           Primary Contact Last Name{" "}
-                          <span class="req-btn">*</span>
+                          <span className="req-btn">*</span>
                         </label>
                       </div>
                       <div className="col-lg-7">
@@ -1057,7 +1033,8 @@ const ProfileInfo = ({
                           htmlFor=""
                           style={{ paddingTop: "10px" }}
                         >
-                          Phone Number(Primary) <span class="req-btn">*</span>
+                          Phone Number(Primary){" "}
+                          <span className="req-btn">*</span>
                         </label>
                         <div className="hover-text-01">
                           <div
@@ -1077,7 +1054,10 @@ const ProfileInfo = ({
                                 </li> */}
                             </ul>
                           </div>
-                          <i class="fa fa-info-circle" aria-hidden="true"></i>
+                          <i
+                            className="fa fa-info-circle"
+                            aria-hidden="true"
+                          ></i>
                         </div>
                       </div>
                       <div className="col-lg-7">
@@ -1214,7 +1194,7 @@ const ProfileInfo = ({
                           htmlFor=""
                           style={{ paddingTop: "10px" }}
                         >
-                          Email Address <span class="req-btn">*</span>
+                          Email Address <span className="req-btn">*</span>
                         </label>
                       </div>
                       <div className="col-lg-7">
@@ -1260,7 +1240,7 @@ const ProfileInfo = ({
                           htmlFor=""
                           style={{ paddingTop: "10px" }}
                         >
-                          Licence No <span class="req-btn">*</span>
+                          Licence No <span className="req-btn">*</span>
                         </label>
                       </div>
                       <div className="col-lg-7">
@@ -1337,16 +1317,6 @@ const ProfileInfo = ({
                     <div className="col-lg-6">
                       {uploadingFiles["LenderList"]?.file ? (
                         <div key={1} className="position-relative">
-                          {/* <img
-                            src={uploadingFiles["LenderList"]?.previewUrl}
-                            alt="preview"
-                            className="img-thumbnail"
-                            style={{
-                              width: "120px",
-                              height: "120px",
-                              objectFit: "cover",
-                            }}
-                          /> */}
 
                           {uploadingFiles["LenderList"] && (
                             <button
@@ -1372,26 +1342,6 @@ const ProfileInfo = ({
                       ) : (
                         ""
                       )}
-                      {/* <Link
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href={
-                          selectedImage2.url !== null ||
-                          selectedImage2.url !== "undefined"
-                            ? selectedImage2.url
-                            : ""
-                        }
-                        onClick={(event) =>
-                          handleDownloadClick(
-                            event,
-                            selectedImage2.url,
-                            `${firstNameRef}_lenderlist.pdf`
-                          )
-                        }
-                        style={{ cursor: "pointer" }}
-                      >
-                        {selectedImage2.name}
-                      </Link> */}
                     </div>{" "}
                   </div>
 
@@ -1433,13 +1383,12 @@ const ProfileInfo = ({
                                   Alerts will be sent to the registered email
                                   address.
                                 </li>
-                                {/* <li>
-                                  Regular Request : Timeline for the appraisal
-                                  report is 3 – 4 days.
-                                </li> */}
                               </ul>
                             </div>
-                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                            <i
+                              className="fa fa-info-circle"
+                              aria-hidden="true"
+                            ></i>
                           </div>
                         </div>
                       </div>
@@ -1478,13 +1427,12 @@ const ProfileInfo = ({
                                   Alerts will be sent to the registered phone
                                   number.
                                 </li>
-                                {/* <li>
-                                  Regular Request : Timeline for the appraisal
-                                  report is 3 – 4 days.
-                                </li> */}
                               </ul>
                             </div>
-                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                            <i
+                              className="fa fa-info-circle"
+                              aria-hidden="true"
+                            ></i>
                           </div>
                         </div>
                       </div>
@@ -1501,7 +1449,7 @@ const ProfileInfo = ({
                           htmlFor=""
                           style={{ paddingTop: "10px" }}
                         >
-                          Street Number <span class="req-btn">*</span>
+                          Street Number <span className="req-btn">*</span>
                         </label>
                       </div>
                       <div className="col-lg-7">
@@ -1545,7 +1493,7 @@ const ProfileInfo = ({
                           htmlFor=""
                           style={{ paddingTop: "10px" }}
                         >
-                          Street Name <span class="req-btn">*</span>
+                          Street Name <span className="req-btn">*</span>
                         </label>
                       </div>
                       <div className="col-lg-7">
@@ -1617,7 +1565,7 @@ const ProfileInfo = ({
                           htmlFor=""
                           style={{ paddingTop: "10px" }}
                         >
-                          City <span class="req-btn">*</span>
+                          City <span className="req-btn">*</span>
                         </label>
                       </div>
                       <div className="col-lg-7">
@@ -1661,7 +1609,7 @@ const ProfileInfo = ({
                           htmlFor=""
                           style={{ paddingTop: "10px" }}
                         >
-                          Province <span class="req-btn">*</span>
+                          Province <span className="req-btn">*</span>
                         </label>
                       </div>
                       <div className="col-lg-7">
@@ -1693,7 +1641,10 @@ const ProfileInfo = ({
                         >
                           {province.map((item, index) => {
                             return (
-                              <option key={item.id} value={item.value}>
+                              <option
+                                key={`${item.id}-${index}`}
+                                value={item.value}
+                              >
                                 {item.type}
                               </option>
                             );
@@ -1715,7 +1666,7 @@ const ProfileInfo = ({
                           htmlFor=""
                           style={{ paddingTop: "10px" }}
                         >
-                          Postal Code <span class="req-btn">*</span>
+                          Postal Code <span className="req-btn">*</span>
                         </label>
                       </div>
                       <div className="col-lg-7">
@@ -1726,26 +1677,26 @@ const ProfileInfo = ({
                           id="formGroupExampleInput3"
                           style={{
                             backgroundColor: "#E8F0FE",
-                            borderColor: zipCodeError
+                            borderColor: postalCodeError
                               ? "red"
-                              : zipCodeValid
+                              : postalCodeValid
                               ? ""
                               : "",
                           }}
-                          // onChange={(e) => handleZipCodeChange(e.target.value)}
+                          // onChange={(e) => handlePostalCodeChange(e.target.value)}
                           onChange={(e) =>
                             handleInputChangeName(
                               e.target.value,
-                              setZipcodeRef,
-                              setZipCodeValid,
-                              setZipCodeError
+                              setPostalCodeRef,
+                              setPostalCodeValid,
+                              setPostalCodeError
                             )
                           }
-                          value={zipcodeRef}
+                          value={postalCodeRef}
                           disabled={!edit}
                           maxLength={10}
                         />
-                        {zipCodeError && (
+                        {postalCodeError && (
                           <small className="text-danger">
                             Enter valid postal code.
                           </small>
@@ -1939,30 +1890,6 @@ const ProfileInfo = ({
                             Enter valid phone number.
                           </small>
                         )}
-                        {/* <input
-                          type="text"
-                          className="form-control"
-                          id="formGroupExampleInput3"
-                          style={{
-                            backgroundColor: "#E8F0FE",
-                            borderColor: officeContactPhoneError
-                              ? "red"
-                              : officeContactPhoneValid
-                              ? ""
-                              : "",
-                          }}
-                          required
-                          value={officeContactPhone}
-                          onChange={(e) =>
-                            handleInputChange(
-                              e.target.value,
-                              setOfficeContactPhone,
-                              setOfficeContactPhoneValid,
-                              setOfficeContactPhoneError
-                            )
-                          }
-                          disabled={!edit}
-                        /> */}
                       </div>
                     </div>
                   </div>
@@ -1983,7 +1910,7 @@ const ProfileInfo = ({
                             className="btn btn2 btn-dark"
                             onClick={initiateTheSubmit}
                           >
-                            {userData?.appraiserCompany_Datails
+                            {userData?.appraiserCompanyDetail
                               ? "Update Profile"
                               : "Create Profile"}
                           </button>

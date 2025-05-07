@@ -56,7 +56,8 @@ const Form = ({ user }) => {
           const { success, data, message } = res.data;
           if (success) {
             toast.success(message);
-            handleResponseData(data, router);
+            const redirectionUrl = handleResponseData(data);
+            router.push(redirectionUrl);
           } else {
             toast.error(message);
           }

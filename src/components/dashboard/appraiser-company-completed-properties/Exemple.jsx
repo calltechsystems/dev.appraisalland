@@ -8,7 +8,6 @@ import { useRouter } from "next/router";
 import Loader from "./Loader";
 import { FaArchive, FaEye } from "react-icons/fa";
 import { AppraiserStatusOptions } from "../create-listing/data";
-// import "./SmartTable.css";
 import Image from "next/image";
 
 const headCells = [
@@ -187,7 +186,7 @@ export default function Exemple({
 
   const foundArchiveHandler = (propertyId) => {
     let isArchive = false;
-    allArchive.map((prop, index) => {
+    allArchive?.map((prop, index) => {
       if (prop.propertyId === propertyId) {
         isArchive = true;
       }
@@ -235,7 +234,6 @@ export default function Exemple({
   const filterBidsWithin24Hours = (property) => {
     const data = JSON.parse(localStorage.getItem("user"));
     let tempBid = 0;
-    let bidValue = {};
     let tempBids = [];
     bids.filter((bid) => {
       if (
@@ -252,12 +250,6 @@ export default function Exemple({
     return customBid;
   };
 
-  const router = useRouter();
-
-  const openStatusUpdateHandler = (bid) => {
-    setCurrentBid(bid);
-    setIsStatusModal(true);
-  };
 
   function addCommasToNumber(number) {
     if (Number(number) <= 100 || number === undefined) return number;
@@ -265,7 +257,7 @@ export default function Exemple({
   }
 
   const removeWishlistHandler = (id) => {
-    const userData = JSON.parse(localStorage.getItem("user"));
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
 
     const formData = {
       userId: userData.userId,
@@ -286,41 +278,21 @@ export default function Exemple({
       })
       .then((res) => {
         toast.dismiss();
-        toast.success("Successfully removed !!! ");
-        location.reload(true);
+        const { success, data: wishlistData, message } = res?.data;
+        if (success) {
+          toast.success("Successfully removed !!! ");
+          location.reload(true);
+        } else {
+          toast.error(
+            message ?? "An error occurred while deleting the record."
+          );
+        }
       })
       .catch((err) => {
         toast.dismiss();
         toast.error(err?.response?.data?.error);
       });
   };
-  const formatLargeNumber = (number) => {
-    // Convert the number to a string
-    const numberString = number.toString();
-
-    // Determine the length of the integer part
-    const integerLength = Math.floor(Math.log10(Math.abs(number))) + 1;
-
-    // Choose the appropriate unit based on the length of the integer part
-    let unit = "";
-
-    if (integerLength >= 10) {
-      unit = "B"; // Billion
-    } else if (integerLength >= 7) {
-      unit = "M"; // Million
-    } else if (integerLength >= 4) {
-      unit = "K"; // Thousand
-    }
-
-    // Divide the number by the appropriate factor
-    const formattedNumber = (number / Math.pow(10, integerLength - 1)).toFixed(
-      2
-    );
-
-    return `${formattedNumber}${unit}`;
-  };
-
-  const onDeletePropertyHandler = () => {};
 
   const formatDateTime = (dateString) => {
     const options = {
@@ -361,8 +333,7 @@ export default function Exemple({
 
   const checkWishlistedHandler = (data) => {
     let temp = {};
-    // console.log(wishlist, data);
-    wishlist.map((prop, index) => {
+    wishlist?.map((prop, index) => {
       if (
         String(prop.propertyId) === String(data.propertyId) &&
         String(prop.userId) === String(userData.userId)
@@ -371,11 +342,6 @@ export default function Exemple({
       }
     });
     return temp ? temp : {};
-  };
-
-  const checkCanBidAgainHandler = (data) => {
-    let temp = true;
-    return temp;
   };
 
   const sortObjectsByOrderIdDescending = (data) => {
@@ -395,25 +361,18 @@ export default function Exemple({
         const isBidded = filterBidsWithin24Hours(property);
         const isArchive = foundArchiveHandler(property.propertyId);
 
-        if (!isArchive && isBidded.status === 1 && isBidded.orderstatus === 3) {
-          if (isBidded.status === 1) {
-            console.log(getOrderValue(isBidded.orderstatus));
-          }
+        if (!isArchive && isBidded.status === 1 && isBidded.orderStatus === 3) {
           tempProp.push(property);
-          const isWait = property.isonhold || property.isoncancel;
+          const isWait = property.isOnHold || property.isOnCancel;
           const updatedRow = {
             order_id: property.orderId,
-            address: `${property.city}-${property.province},${property.zipCode}`,
+            address: `${property.city}-${property.province},${property.postalCode}`,
             estimated_value: property.estimatedValue
               ? `$ ${addCommasToNumber(property.estimatedValue)}`
               : "$ 0",
             purpose: property.purpose ? property.purpose : "N.A.",
             appraisal_status:
-              isBidded.status === 1 && isBidded.orderstatus === 1 ? (
-                // <span className="btn btn-warning  w-100">
-                //   {getOrderValue(isBidded.orderstatus)} -
-                //   {formatDate(isBidded.statusDate)}
-                // </span>
+              isBidded.status === 1 && isBidded.orderStatus === 1 ? (
                 <div className="hover-text">
                   <div
                     className="tooltip-text"
@@ -424,24 +383,21 @@ export default function Exemple({
                   >
                     <ul>
                       <li style={{ fontSize: "15px" }}>
-                        {getOrderValue(isBidded.orderstatus)} -{" "}
-                        {formatDateTime(isBidded.statusdate)}
+                        {getOrderValue(isBidded.orderStatus)} -{" "}
+                        {formatDateTime(isBidded.statusDate)}
                       </li>
                     </ul>
                   </div>
                   <button
-                    className={getStatusButtonClass(isBidded.orderstatus)}
+                    className={getStatusButtonClass(isBidded.orderStatus)}
                   >
                     Status
                     <span className="m-1">
-                      <i class="fa fa-info-circle" aria-hidden="true"></i>
+                      <i className="fa fa-info-circle" aria-hidden="true"></i>
                     </span>
                   </button>
                 </div>
-              ) : isBidded.status === 1 && isBidded.orderstatus !== null ? (
-                // <span className="btn btn-warning  w-100">
-                //   {getOrderValue(isBidded.orderstatus)}
-                // </span>
+              ) : isBidded.status === 1 && isBidded.orderStatus !== null ? (
                 <div className="hover-text">
                   <div
                     className="tooltip-text"
@@ -452,16 +408,16 @@ export default function Exemple({
                   >
                     <ul>
                       <li style={{ fontSize: "15px" }}>
-                        {getOrderValue(isBidded.orderstatus)}
+                        {getOrderValue(isBidded.orderStatus)}
                       </li>
                     </ul>
                   </div>
                   <button
-                    className={getStatusButtonClass(isBidded.orderstatus)}
+                    className={getStatusButtonClass(isBidded.orderStatus)}
                   >
                     Status
                     <span className="m-1">
-                      <i class="fa fa-info-circle" aria-hidden="true"></i>
+                      <i className="fa fa-info-circle" aria-hidden="true"></i>
                     </span>
                   </button>
                 </div>
@@ -491,7 +447,6 @@ export default function Exemple({
                     <Link href="#">
                       <span className="text-light">
                         {" "}
-                        {/* <FaSms/> */}
                         View
                       </span>
                     </Link>
@@ -504,14 +459,14 @@ export default function Exemple({
                 <span className="btn btn-danger  w-100">Declined</span>
               ) : isWait ? (
                 <span className="btn btn-danger  w-100">
-                  {property.isoncancel
+                  {property.isOnCancel
                     ? "Cancelled"
-                    : property.isonhold
+                    : property.isOnHold
                     ? "On Hold"
                     : ""}
                 </span>
               ) : isBidded.bidId ? (
-                isBidded.orderstatus === 3 ? (
+                isBidded.orderStatus === 3 ? (
                   <span className="btn btn-completed w-100">Completed</span>
                 ) : isBidded.status === 0 ? (
                   <span className="btn bg-info text-light  w-100">
@@ -627,7 +582,7 @@ export default function Exemple({
                   <ul>
                     <p className="btn btn-danger  w-100">
                       {`No further actions can be taken on this property since it is ${
-                        property.isoncancel ? "Cancelled" : "On Hold"
+                        property.isOnCancel ? "Cancelled" : "On Hold"
                       } .`}
                     </p>
                     <li
@@ -653,7 +608,7 @@ export default function Exemple({
                       </div>
                     </li>
                   </ul>
-                ) : isBidded.orderstatus === 3 ? (
+                ) : isBidded.orderStatus === 3 ? (
                   <li
                     className="list-inline-item"
                     data-toggle="tooltip"
@@ -754,7 +709,7 @@ export default function Exemple({
                     </li>
                   </ul>
                 ) : (
-                  isBidded.orderstatus === 3 && (
+                  isBidded.orderStatus === 3 && (
                     <li
                       className="list-inline-item"
                       data-toggle="tooltip"
@@ -798,17 +753,17 @@ export default function Exemple({
     setFilterQuery("All");
     setProperties([]);
     setBids([]);
-    console.log("inside");
 
     const data = JSON.parse(localStorage.getItem("user"));
 
     const payload = {
       token: userData.token,
     };
-    let tempProperties = [],
-      tempWishlist = [];
-    axios
-      .get("/api/getAllListedProperties", {
+
+    // Start all requests concurrently using Promise.all
+    Promise.all([
+      // Fetch listed properties
+      axios.get("/api/getAllListedProperties", {
         headers: {
           Authorization: `Bearer ${data?.token}`,
           "Content-Type": "application/json",
@@ -816,123 +771,100 @@ export default function Exemple({
         params: {
           userId: data?.userId,
         },
-      })
-      .then((res) => {
-        setDataFetched(true);
-        const temp = res.data.data.properties.$values;
+      }),
 
-        setProperties(temp);
-      })
-      .catch((err) => {
-        setErrorMessage(err?.response?.data?.error);
-        setModalIsOpenError(true);
-      });
-    axios
-      .get("/api/appraiserWishlistedProperties", {
+      // Fetch wishlisted properties
+      axios.get("/api/appraiserWishlistedProperties", {
         headers: {
           Authorization: `Bearer ${data?.token}`,
           "Content-Type": "application/json",
         },
-      })
-      .then((res) => {
-        const tempData = res.data.data.$values;
+      }),
 
-        // setAllWishlistedProperties(res.data.data.$values);
-        const responseData = tempData.filter((prop, index) => {
-          if (String(prop.userId) === String(data.userId)) {
-            return true;
-          } else {
-            return false;
-          }
-        });
-        const tempId = responseData;
-
-        setWishlist(responseData);
-      })
-      .catch((err) => {
-        toast.error(err?.response);
-        setErrorMessage(err?.response);
-        setModalIsOpenError(true);
-      });
-    let tempBids = [];
-    axios
-      .get("/api/getAllBids", {
+      // Fetch bids
+      axios.get("/api/getAllBids", {
         headers: {
-          Authorization: `Bearer ${data.token}`,
+          Authorization: `Bearer ${data?.token}`,
         },
-      })
-      .then((res) => {
-        console.log(res);
-        tempBids = res.data.data.$values;
-        const updatedBids = tempBids.filter((prop, index) => {
-          if (String(prop.appraiserUserId) === String(data.userId)) {
-            return true;
-          } else {
-            return false;
-          }
-        });
-        setBids(updatedBids);
-      })
-      .catch((err) => {
-        setErrorMessage(err?.response?.data?.error);
-        setModalIsOpenError(true);
-      });
+      }),
 
-    axios
-      .get("/api/getAllBrokers", {
+      // Fetch brokers
+      axios.get("/api/getAllBrokers", {
         headers: {
-          Authorization: `Bearer ${data.token}`,
+          Authorization: `Bearer ${data?.token}`,
         },
-      })
-      .then((res) => {
-        let allbroker = res.data.data.$values;
-        axios
-          .get("/api/getAllBrokerageCompany", {
-            headers: {
-              Authorization: `Bearer ${data.token}`,
-            },
-          })
-          .then((res) => {
-            const allbrokerage = res.data.data.result.$values;
-            let updated = allbroker;
-            allbrokerage.map((user, index) => {
-              updated.push(user);
-            });
+      }),
 
-            setAllBrokers(updated);
-          })
-          .catch((err) => {
-            setErrorMessage(err?.response?.data?.error);
-            setModalIsOpenError(true);
-          });
-      })
-      .catch((err) => {
-        setDataFetched(false);
-        setErrorMessage(err?.response?.data?.error);
-        setModalIsOpenError(true);
-      });
-
-    axios
-      .get("/api/getArchiveAppraiserProperty", {
+      // Fetch brokerage companies
+      axios.get("/api/getAllBrokerageCompany", {
         headers: {
-          Authorization: `Bearer ${data.token}`,
+          Authorization: `Bearer ${data?.token}`,
+        },
+      }),
+
+      // Fetch archived properties
+      axios.get("/api/getArchiveAppraiserProperty", {
+        headers: {
+          Authorization: `Bearer ${data?.token}`,
         },
         params: {
-          userId: data.userId,
+          userId: data?.userId,
         },
-      })
-      .then((res) => {
-        setAllArchive(res.data.data.$values);
+      }),
+    ])
+      .then((responses) => {
+        const [
+          listedPropertiesRes,
+          wishlistedPropertiesRes,
+          bidsRes,
+          brokersRes,
+          brokerageCompaniesRes,
+          archivedPropertiesRes,
+        ] = responses;
+
+        // Process listed properties
+        const listedProperties =
+          listedPropertiesRes?.data?.data?.properties?.$values || [];
+        setProperties(listedProperties);
+
+        // Process wishlisted properties
+        const wishlistedProperties =
+          wishlistedPropertiesRes?.data?.data?.$values || [];
+        const filteredWishlistedProperties = wishlistedProperties.filter(
+          (prop) => String(prop.userId) === String(data?.userId)
+        );
+        setWishlist(filteredWishlistedProperties);
+
+        // Process bids
+        const bids = bidsRes?.data?.data?.$values || [];
+        const filteredBids = bids.filter(
+          (bid) => String(bid.appraiserUserId) === String(data?.userId)
+        );
+        setBids(filteredBids);
+
+        // Process brokers and brokerage companies
+        const brokers = brokersRes?.data?.data?.$values || [];
+        const brokerageCompanies =
+          brokerageCompaniesRes?.data?.data?.$values || [];
+        const allBrokers = [...brokers, ...brokerageCompanies];
+        setAllBrokers(allBrokers);
+
+        // Process archived properties
+        const archivedProperties =
+          archivedPropertiesRes?.data?.data?.$values || [];
+        setAllArchive(archivedProperties);
+
+        // Mark data as fetched
+        setDataFetched(true);
       })
       .catch((err) => {
-        setErrorMessage(err?.response?.data?.error);
+        setErrorMessage(err?.response?.data?.error || "An error occurred");
         setModalIsOpenError(true);
+        setDataFetched(false);
       });
 
-    console.log("end", bids, properties, wishlist);
     setRefresh(false);
   }, [refresh]);
-  // console.log(sortObjectsByOrderIdDescending(updatedData));
   return (
     <>
       {refresh ? (

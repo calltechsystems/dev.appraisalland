@@ -1,11 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
-
-import Link from "next/link";
 import axios from "axios";
-import toast from "react-hot-toast";
 import Exemple from "./Exemple";
-import { useDispatch, useSelector } from "react-redux";
 const TableData = ({
   userData,
   setCurrentBiddedView,
@@ -52,22 +48,6 @@ const TableData = ({
 
   const [data, setData] = useState([]);
 
-  const {
-    keyword,
-    location,
-    status,
-    propertyType,
-    price,
-    bathrooms,
-    bedrooms,
-    garages,
-    yearBuilt,
-    area,
-    amenities,
-  } = useSelector((state) => state.properties);
-  const { statusType, featured, isGridOrList } = useSelector(
-    (state) => state.filter
-  );
 
   useEffect(() => {
     setData(properties);

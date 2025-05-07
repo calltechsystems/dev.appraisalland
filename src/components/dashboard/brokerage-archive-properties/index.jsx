@@ -93,7 +93,6 @@ const Index = () => {
   }, [lastActivityTimestamp]);
 
   const openModal = (property) => {
-    console.log("inside");
     setProperty(property);
     setIsModalOpen(true);
   };
@@ -156,8 +155,6 @@ const Index = () => {
       const filteredProperties = propertys.filter((property) => {
         // Convert the search input to lowercase for a case-insensitive search
         const searchTerm = searchInput.toLowerCase();
-
-        console.log("propertyy", property);
         if (String(property.orderId) === String(searchTerm)) {
           return true;
         }
@@ -167,15 +164,15 @@ const Index = () => {
             String(property.property?.orderId)
               .toLowerCase()
               .includes(searchTerm) ||
-              String(property.property?.zipCode)?.toLowerCase().includes(searchTerm) ||
-              String(property.property?.area)?.toLowerCase().includes(searchTerm) ||
-              String(property.property?.city)?.toLowerCase().includes(searchTerm) ||
-              String(property.property?.province)?.toLowerCase().includes(searchTerm) ||
-              String(property.property?.streetName)?.toLowerCase().includes(searchTerm) ||
-              String(property.property?.streetNumber)
+            property.property?.postalCode?.toLowerCase().includes(searchTerm) ||
+            property.property?.area?.toLowerCase().includes(searchTerm) ||
+            property.property?.city?.toLowerCase().includes(searchTerm) ||
+            property.property?.province?.toLowerCase().includes(searchTerm) ||
+            property.property?.streetName?.toLowerCase().includes(searchTerm) ||
+            property.property?.streetNumber
               ?.toLowerCase()
               .includes(searchTerm) ||
-              String(property.property?.typeOfBuilding)
+            property.property?.typeOfBuilding
               ?.toLowerCase()
               .includes(searchTerm)
           );
@@ -198,7 +195,6 @@ const Index = () => {
     const estimatedDiff =
       gettingDiff + getMonthsFDiff * 30 + gettingYearDiff * 365;
 
-    console.log("dayss", diff, newDateObj.getDate(), currentObj.getDate());
     return estimatedDiff <= diff;
   };
 
@@ -228,7 +224,6 @@ const Index = () => {
 
   useEffect(() => {
     const tmpData = filterData(properties);
-    console.log("filterQuery", filterQuery, tmpData, tmpData.length);
     setFilterProperty(tmpData);
   }, [filterQuery]);
   const [propValue, setPropValue] = useState({});
@@ -254,8 +249,15 @@ const Index = () => {
       .then((res) => {
         toast.dismiss();
         setIsHoldProperty(false);
-        toast.success("Successfully Changed the Order Status !");
-        window.location.reload();
+        const { success, data, message } = res?.data;
+        if (success) {
+          toast.success("Successfully Changed the Order Status !");
+          window.location.reload();
+        } else {
+          toast.error(
+            message ?? "An error occurred while updating the record."
+          );
+        }
       })
       .catch((err) => {
         toast.error(err);
@@ -271,7 +273,6 @@ const Index = () => {
     setModalOpen(false);
 
     const data = JSON.parse(localStorage.getItem("user"));
-
     const payload = {
       token: data.token,
       orderId: propertyId,
@@ -280,15 +281,21 @@ const Index = () => {
     };
 
     const encryptedBody = encryptionData(payload);
-
     toast.loading("Turning the property status...");
     axios
       .put("/api/setPropertyOnHold", encryptedBody)
       .then((res) => {
         toast.dismiss();
-        toast.success("Successfully Changed the Order Status !");
-        setIsCancelProperty(false);
-        window.location.reload();
+        const { success, data, message } = res?.data;
+        if (success) {
+          toast.success("Successfully Changed the Order Status !");
+          setIsCancelProperty(false);
+          window.location.reload();
+        } else {
+          toast.error(
+            message ?? "An error occurred while updating the record."
+          );
+        }
       })
       .catch((err) => {
         toast.error(err);
@@ -298,29 +305,6 @@ const Index = () => {
     setPropertyId(-1);
   };
 
-  const handleDelete = () => {
-    const data = JSON.parse(localStorage.getItem("user"));
-
-    toast.loading("deleting this property");
-    axios
-      .delete("/api/deleteBrokerPropertyById", {
-        headers: {
-          Authorization: `Bearer ${data.token}`,
-          "Content-Type": "application/json",
-        },
-        params: {
-          propertyId: property.propertyId,
-        },
-      })
-      .then((res) => {
-        setRerender(true);
-      })
-      .catch((err) => {
-        toast.error(err);
-      });
-    toast.dismiss();
-    closeModal();
-  };
 
   return (
     <>
@@ -368,36 +352,7 @@ const Index = () => {
                     </div>
                   </div>
                 </div>
-                {/* End Dashboard Navigation */}
 
-                {/*<div className="col-lg-4 col-xl-4">
-                  <div className="style2 mb30-991">
-                    <h3 className="breadcrumb_title">Archive Properties</h3>
-                    <p>We are glad to see you again!</p>                                                             
-                  </div>
-              </div>*/}
-
-                {/* End .col */}
-
-                <div className="col-lg-12 col-xl-12">
-                  {/*<div className="candidate_revew_select style2 mb30-991">
-                    <ul className="mb0">
-                      <li className="list-inline-item">
-                        <Filtering setFilterQuery={setFilterQuery} />
-                      </li>
-                      <li className="list-inline-item">
-                        <FilteringBy setFilterQuery={setFilterQuery} />
-                      </li>
-                      <li className="list-inline-item">
-                        <div className="candidate_revew_search_box course fn-520">
-                          <SearchBox setSearchInput={setSearchInput} />
-                        </div>
-                      </li>
-                      
-                    </ul>
-              </div>*/}
-                </div>
-                {/* End .col */}
 
                 <div className="col-lg-12">
                   <div className="">
@@ -513,7 +468,7 @@ const Index = () => {
                                         {currentProperty.streetName},{" "}
                                         {currentProperty.city},{" "}
                                         {currentProperty.province}{" "}
-                                        {currentProperty.zipCode}
+                                        {currentProperty.postalCode}
                                       </td>
                                     </tr>
 
@@ -663,16 +618,6 @@ const Index = () => {
                                 </table>
                               </div>
                               <div className="d-flex justify-content-center gap-2 mt-3">
-                                {/* <button
-                                  className="btn btn-color"
-                                  style={{ width: "100px" }}
-                                  onClick={() =>
-                                    PropertyInfoHandler(currentProperty.orderId)
-                                  }
-                                  title="Download Pdf"
-                                >
-                                  <FaDownload />
-                                </button> */}
                                 <button
                                   className="btn btn-color"
                                   style={{ width: "100px" }}
@@ -842,18 +787,6 @@ const Index = () => {
               {/* End .col */}
             </div>
           </div>
-          {/* End .row */}
-          {/*<div className="row">
-                 <div className="col-lg-12 mt20">
-                  <div className="mbp_pagination">
-                    <Pagination
-                      setStart={setStart}
-                      setEnd={setEnd}
-                      properties={properties}
-                    />
-                  </div>
-                </div> 
-            </div>*/}
 
           <div className="row mt50">
             <div className="col-lg-12">

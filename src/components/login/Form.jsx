@@ -8,6 +8,7 @@ import Captcha from "../common/Captcha";
 import { encryptionData } from "../../utils/dataEncryption";
 import { useRouter } from "next/router";
 import toast from "react-hot-toast";
+import { handleResponseData } from "./function";
 
 const Form = ({ setModalIsOpenError, setErrorMessage, setLoading }) => {
   const [showhide, setShowhide] = useState("");
@@ -117,13 +118,13 @@ const Form = ({ setModalIsOpenError, setErrorMessage, setLoading }) => {
           const { success, data, message } = res.data;
           if (success) {
             toast.success(message);
-            handleResponseData(data, router);
+            const redirectionUrl = handleResponseData(data);
+            router.push(redirectionUrl);
           } else {
             toast.error(message);
           }
         })
         .catch((err) => {
-          console.log({err})
           const status = err.response.request.status;
           if (String(status) === String(403)) {
             toast.dismiss();

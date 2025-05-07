@@ -256,38 +256,25 @@ export default function Exemple({
     return customBid;
   };
 
-  const getPropertyInfo = (orderId) => {
-    let currentProperty = {};
-    allProperties.map((prop, index) => {
-      if (String(prop.$id) === String(orderId)) {
-        currentProperty = prop;
-      }
-    });
-    return currentProperty;
-  };
-
   const getAppraiser = (id) => {
     let selectedAppraiser = {};
-    allAssignAppraiser.map((appraiser, index) => {
-      //console.log(appraiser, id);
-      if (String(appraiser.id) === String(id)) {
+    allAssignAppraiser?.map((appraiser, index) => {
+      if (String(appraiser?.id) === String(id)) {
         selectedAppraiser = appraiser;
       }
     });
 
-    //console.log(selectedAppraiser);
     openAppraiserInfoModal(selectedAppraiser);
   };
   const getAppraiserName = (id) => {
     let selectedAppraiser = {};
-    allAssignAppraiser.map((appraiser, index) => {
-      //console.log(appraiser, id);
-      if (String(appraiser.id) === String(id)) {
+    allAssignAppraiser?.map((appraiser, index) => {
+      if (String(appraiser?.id) === String(id)) {
         selectedAppraiser = appraiser;
       }
     });
 
-    return `${selectedAppraiser.firstName} ${selectedAppraiser.lastName}`;
+    return `${selectedAppraiser?.firstName} ${selectedAppraiser?.lastName}`;
   };
 
   function addCommasToNumber(number) {
@@ -307,53 +294,12 @@ export default function Exemple({
     return title;
   };
 
-  const checkIsOfSameCompany = (id) => {
-    const data = JSON.parse(localStorage.getItem("user"));
-    if (data.appraiserCompany_Datails?.appraiserCompanyId === id) {
-      return true;
-    } else {
-      return false;
-    }
-  };
 
   const openStatusUpdateHandler = (bidId, property) => {
     setCurrentBid(bidId);
     setSelectedPropertyNew(property);
     setIsStatusModal(true);
   };
-
-  const removeWishlistHandler = (id) => {
-    const userData = JSON.parse(localStorage.getItem("user"));
-
-    const formData = {
-      userId: userData.userId,
-      propertyId: id,
-      token: userData.token,
-    };
-
-    const payload = encryptionData(formData);
-    toast.loading("removing this property into your wishlist");
-    axios
-      .delete("/api/removeWishlistProperty", {
-        headers: {
-          Authorization: `Bearer ${userData.token}`,
-        },
-        params: {
-          userId: id,
-        },
-      })
-      .then((res) => {
-        toast.dismiss();
-        toast.success("Successfully removed !!! ");
-        location.reload(true);
-      })
-      .catch((err) => {
-        toast.dismiss();
-        toast.error(err?.response?.data?.error);
-      });
-  };
-
-  const onDeletePropertyHandler = () => {};
 
   const formatDateTime = (dateString) => {
     const options = {
@@ -399,8 +345,7 @@ export default function Exemple({
 
   const checkWishlistedHandler = (data) => {
     let temp = {};
-    // //console.log(wishlist, data);
-    wishlist.map((prop, index) => {
+    wishlist?.map((prop, index) => {
       if (
         String(prop?.propertyId) === String(data?.propertyId) &&
         String(prop?.userId) === String(userData.userId)
@@ -413,12 +358,12 @@ export default function Exemple({
 
   const openAssignModalHandler = (property) => {
     let requiredAppraiser = {};
-    allAssignAppraiser.map((appraiser, index) => {
-      if (String(appraiser.id) === String(property.appraiserid)) {
+    allAssignAppraiser?.map((appraiser, index) => {
+      if (String(appraiser?.id) === String(property?.appraiserId)) {
         requiredAppraiser = appraiser;
       }
     });
-    setAssignPropertyId(property.propertyId);
+    setAssignPropertyId(property?.propertyId);
     setAssignedAppraiserInfo(requiredAppraiser);
     setSelectedPropertyNew(property);
     setAssignModal(true);
@@ -427,8 +372,8 @@ export default function Exemple({
   const checkIsAlreadyExisting = (specificAppraiser, allSelectedAppraisers) => {
     let isPresent = false;
 
-    allSelectedAppraisers.map((app, index) => {
-      if (String(app.id) === String(specificAppraiser.id)) {
+    allSelectedAppraisers?.map((app, index) => {
+      if (String(app?.id) === String(specificAppraiser?.id)) {
         isPresent = true;
       }
     });
@@ -438,9 +383,9 @@ export default function Exemple({
 
   useEffect(() => {
     let requiredAssign = [];
-    allAssignAppraiser.map((appraiser, index) => {
+    allAssignAppraiser?.map((appraiser, index) => {
       const isPresent = checkIsAlreadyExisting(appraiser, requiredAssign);
-      if (appraiser.isActive == true && !isPresent) {
+      if (appraiser?.isActive == true && !isPresent) {
         requiredAssign.push(appraiser);
       }
     });
@@ -451,56 +396,26 @@ export default function Exemple({
     return data.sort((a, b) => b.order_id - a.order_id);
   };
 
-  const [isBroker, setIsBroker] = useState(-1);
-
-  const formatLargeNumber = (number) => {
-    // Convert the number to a string
-    const numberString = number.toString();
-
-    // Determine the length of the integer part
-    const integerLength = Math.floor(Math.log10(Math.abs(number))) + 1;
-
-    // Choose the appropriate unit based on the length of the integer part
-    let unit = "";
-
-    if (integerLength >= 10) {
-      unit = "B"; // Billion
-    } else if (integerLength >= 7) {
-      unit = "M"; // Million
-    } else if (integerLength >= 4) {
-      unit = "K"; // Thousand
-    }
-
-    // Divide the number by the appropriate factor
-    const formattedNumber = (number / Math.pow(10, integerLength - 1)).toFixed(
-      2
-    );
-
-    return `${formattedNumber}${unit}`;
-  };
-
-  console.log("assignProperties", allProperties, properties);
 
   useEffect(() => {
     let tempGeneratedProp = [];
     const getData = () => {
       let tempData = [];
-      properties.map((property, index) => {
+      properties?.map((property, index) => {
         // const currentProperty = propertyDetail?.propertyDetails;
-        // const property = getPropertyInfo(propertyDetail?.propertyid);
+        // const property = getPropertyInfo(propertyDetail?.propertyId);
         const isWishlist = checkWishlistedHandler(property);
         const isBidded = filterBidsWithin24Hours(property);
         tempGeneratedProp.push(property);
-        console.log("isBidded", property.orderId, isBidded, property);
-        const isWait = property?.isonhold || property?.isoncancel;
+        const isWait = property?.isOnHold || property?.isOnCancel;
 
         // Skip Completed Orders
-        if (isBidded.orderstatus !== 3) return;
+        if (isBidded.orderStatus !== 3) return;
 
         const updatedRow = {
           order_id: property?.orderId,
           address: property?.city
-            ? `${property?.city}-${property?.province},${property?.zipCode}`
+            ? `${property?.city}-${property?.province},${property?.postalCode}`
             : "-",
           estimated_value: property?.estimatedValue
             ? `$ ${addCommasToNumber(property?.estimatedValue)}`
@@ -538,29 +453,29 @@ export default function Exemple({
           appraiser_assign_completed_date:
             isBidded.$id &&
             isBidded?.status === 1 &&
-            isBidded?.orderstatus === 3 &&
-            isBidded.orderstatus !== null
+            isBidded?.orderStatus === 3 &&
+            isBidded?.orderStatus !== null
               ? formatDateTime(isBidded?.requestTime)
               : "",
           status:
-            isBidded?.bidId && isBidded.status === 2 ? (
+            isBidded?.bidId && isBidded?.status === 2 ? (
               <span className="btn btn-danger  w-100">Declined</span>
             ) : isWait ? (
               <span className="btn btn-danger  w-100">
-                {property.isoncancel
+                {property?.isOnCancel
                   ? "Cancelled"
-                  : property.isonhold
+                  : property?.isOnHold
                   ? "On Hold"
                   : ""}
               </span>
             ) : isBidded.bidId ? (
-              isBidded.orderstatus === 3 ? (
+              isBidded.orderStatus === 3 ? (
                 <span className="btn btn-completed w-100">Completed</span>
-              ) : isBidded.status === 0 ? (
+              ) : isBidded?.status === 0 ? (
                 <span className="btn bg-info text-light  w-100">
                   Quote Provided
                 </span>
-              ) : isBidded.status === 1 ? (
+              ) : isBidded?.status === 1 ? (
                 <span className="btn btn-success  w-100">Accepted</span>
               ) : (
                 ""
@@ -569,11 +484,7 @@ export default function Exemple({
               <span className="btn btn-warning  w-100">New</span>
             ),
           appraisal_status:
-            isBidded.status === 1 && isBidded.orderstatus === 1 ? (
-              // <span className="btn btn-warning  w-100">
-              //   {getOrderValue(isBidded.orderstatus)} -
-              //   {formatDate(isBidded.statusDate)}
-              // </span>
+            isBidded.status === 1 && isBidded.orderStatus === 1 ? (
               <div className="hover-text">
                 <div
                   className="tooltip-text"
@@ -584,22 +495,19 @@ export default function Exemple({
                 >
                   <ul>
                     <li style={{ fontSize: "15px" }}>
-                      {getOrderValue(isBidded.orderstatus)} -{" "}
-                      {formatDateTime(isBidded.statusdate)}
+                      {getOrderValue(isBidded.orderStatus)} -{" "}
+                      {formatDateTime(isBidded.statusDate)}
                     </li>
                   </ul>
                 </div>
-                <button className={getStatusButtonClass(isBidded.orderstatus)}>
+                <button className={getStatusButtonClass(isBidded.orderStatus)}>
                   Status
                   <span className="m-1">
-                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                    <i className="fa fa-info-circle" aria-hidden="true"></i>
                   </span>
                 </button>
               </div>
-            ) : isBidded.status === 1 && isBidded.orderstatus !== null ? (
-              // <span className="btn btn-warning  w-100">
-              //   {getOrderValue(isBidded.orderstatus)}
-              // </span>
+            ) : isBidded.status === 1 && isBidded.orderStatus !== null ? (
               <div className="hover-text">
                 <div
                   className="tooltip-text"
@@ -610,14 +518,14 @@ export default function Exemple({
                 >
                   <ul>
                     <li style={{ fontSize: "15px" }}>
-                      {getOrderValue(isBidded.orderstatus)}
+                      {getOrderValue(isBidded.orderStatus)}
                     </li>
                   </ul>
                 </div>
-                <button className={getStatusButtonClass(isBidded.orderstatus)}>
+                <button className={getStatusButtonClass(isBidded.orderStatus)}>
                   Status
                   <span className="m-1">
-                    <i class="fa fa-info-circle" aria-hidden="true"></i>
+                    <i className="fa fa-info-circle" aria-hidden="true"></i>
                   </span>
                 </button>
               </div>
@@ -662,9 +570,9 @@ export default function Exemple({
                   // fontWeight: "bold",
                   backgroundColor: "transparent",
                 }}
-                onClick={() => getAppraiser(property?.appraiserid)}
+                onClick={() => getAppraiser(property?.appraiserId)}
               >
-                {getAppraiserName(property?.appraiserid)}
+                {getAppraiserName(property?.appraiserId)}
               </button>
             </a>
           ),
@@ -728,16 +636,11 @@ export default function Exemple({
                 </>
               ) : isWait ? (
                 <ul>
-                  {/* <p className="btn btn-danger  w-100">
-                    {`No further actions can be taken on this property since it is ${
-                      property.isoncancel ? "Cancelled" : "On Hold"
-                    } .`}
-                  </p> */}
                   <p>{`No further actions available because property is ${
-                    property.isoncancel ? "Cancelled" : "On Hold"
+                    property.isOnCancel ? "Cancelled" : "On Hold"
                   }.`}</p>
                 </ul>
-              ) : isBidded.$id && isBidded.orderstatus === 3 ? (
+              ) : isBidded.$id && isBidded.orderStatus === 3 ? (
                 <li
                   className="list-inline-item"
                   data-toggle="tooltip"
@@ -759,7 +662,7 @@ export default function Exemple({
                 <>
                   <p className="btn btn-danger  w-100">
                     {`No further actions can be taken on this property since it is ${
-                      property.isoncancel ? "Cancelled" : "On Hold"
+                      property.isOnCancel ? "Cancelled" : "On Hold"
                     } .`}
                   </p>
                 </>
@@ -808,7 +711,7 @@ export default function Exemple({
                   </li>
                   {isBidded.$id &&
                     isBidded.status === 1 &&
-                    isBidded.orderstatus !== 3 && (
+                    isBidded.orderStatus !== 3 && (
                       <button
                         href="#"
                         title="Update Status"
@@ -836,7 +739,6 @@ export default function Exemple({
 
     getData();
   }, [properties, wishlist, bids, allListedAssignAppraiser]);
-  console.log("updatedDATA", updatedData);
 
   useEffect(() => {
     setUpdatedCode(true);
@@ -847,195 +749,161 @@ export default function Exemple({
     setStartLoading(true);
   };
   useEffect(() => {
-    setProperties([]);
-    setBids([]);
-    setFilterQuery("All");
-    setSearchInput("");
-    const data = JSON.parse(localStorage.getItem("user"));
+    const fetchData = async () => {
+      setProperties([]);
+      setBids([]);
+      setWishlist([]);
+      setFilterQuery("All");
+      setSearchInput("");
 
-    const payload = {
-      token: userData.token,
-    };
-    axios
-      .get("/api/getAllListedProperties", {
-        headers: {
-          Authorization: `Bearer ${data?.token}`,
-          "Content-Type": "application/json",
-        },
-        params: {
-          userId: data?.userId,
-        },
-      })
-      .then((res) => {
-        setDataFetched(true);
-        const propertyInfo = res.data.data.properties.$values;
+      const data = JSON.parse(localStorage.getItem("user"));
 
-        axios
-          .get("/api/getAllAssignProperties", {
+      try {
+        // Check if 'data' is valid before continuing
+        if (
+          !data ||
+          !data.token ||
+          !data.userId ||
+          !data.appraiserCompanyDetail?.appraiserCompanyId
+        ) {
+          throw new Error("User data is missing or incomplete.");
+        }
+
+        // Fetch all properties and assigned properties concurrently
+        const [propertyRes, assignPropertiesRes] = await Promise.all([
+          axios.get("/api/getAllListedProperties", {
             headers: {
-              Authorization: `Bearer ${data?.token}`,
+              Authorization: `Bearer ${data.token}`,
+              "Content-Type": "application/json",
+            },
+            params: { userId: data.userId },
+          }),
+          axios.get("/api/getAllAssignProperties", {
+            headers: {
+              Authorization: `Bearer ${data.token}`,
+              "Content-Type": "application/json",
+            },
+            params: { userId: data.appraiserCompanyDetail?.appraiserCompanyId },
+          }),
+        ]);
+
+        const propertyInfo = propertyRes.data?.data?.properties?.$values || [];
+        const assignedProps =
+          assignPropertiesRes.data?.data?.$values?.map((prop) => {
+            return (
+              propertyInfo.find(
+                (assProp) =>
+                  String(prop.propertyId) === String(assProp.propertyId)
+              ) || {}
+            );
+          }) || [];
+
+        // Fetch bids concurrently
+        const bidsRes = await axios.get("/api/getAllBids", {
+          headers: { Authorization: `Bearer ${data.token}` },
+        });
+        const updatedBids =
+          bidsRes.data?.data?.$values?.filter(
+            (bid) => String(bid.appraiserUserId) === String(data.userId)
+          ) || [];
+
+        // Fetch wishlisted properties
+        const wishlistRes = await axios.get(
+          "/api/appraiserWishlistedProperties",
+          {
+            headers: {
+              Authorization: `Bearer ${data.token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const wishlistedProps =
+          wishlistRes.data?.data?.$values?.filter(
+            (prop) => String(prop.userId) === String(data.userId)
+          ) || [];
+
+        // Set the state with all data
+        setBids(updatedBids);
+        setProperties(assignedProps);
+        setWishlist(wishlistedProps);
+        setDataFetched(true);
+      } catch (err) {
+        setDataFetched(false);
+        setErrorMessage(
+          err?.response?.data?.error || "An unexpected error occurred."
+        );
+        setModalIsOpenError(true);
+      }
+
+      // Fetch all brokers and brokerage companies concurrently
+      try {
+        const [brokerRes, brokerageRes] = await Promise.all([
+          axios.get("/api/getAllBrokers", {
+            headers: { Authorization: `Bearer ${data.token}` },
+          }),
+          axios.get("/api/getAllBrokerageCompany", {
+            headers: { Authorization: `Bearer ${data.token}` },
+          }),
+        ]);
+
+        const allBrokers = [
+          ...(brokerRes.data?.data?.$values || []),
+          ...(brokerageRes.data?.data?.$values || []),
+        ];
+        setAllBrokers(allBrokers);
+      } catch (err) {
+        setErrorMessage(
+          err?.response?.data?.error || "An unexpected error occurred."
+        );
+        setModalIsOpenError(true);
+      }
+
+      // Fetch appraisers by company ID
+      try {
+        const appraiserRes = await axios.get(
+          "/api/getAllAppraiserByCompanyId",
+          {
+            headers: {
+              Authorization: `Bearer ${data.token}`,
               "Content-Type": "application/json",
             },
             params: {
-              userId: data.appraiserCompany_Datails?.appraiserCompanyId,
+              companyId: data?.appraiserCompanyDetail?.appraiserCompanyId || "",
             },
-          })
-          .then((res) => {
-            let tempProperties = res.data.data.$values;
-            const temp = res.data.data.$values;
-
-            let assignedProps = [];
-            temp.map((prop, index) => {
-              propertyInfo.map((assProp, idx) => {
-                if (String(prop.propertyid) === String(assProp.propertyId)) {
-                  const newRow = {
-                    ...assProp,
-                    appraiserid: prop.appraiserid,
-                    createdDateTime: prop.createdDateTime,
-                  };
-                  assignedProps.push(newRow);
-                }
-              });
-            });
-
-            let tempBids = [];
-            axios
-              .get("/api/getAllBids", {
-                headers: {
-                  Authorization: `Bearer ${data.token}`,
-                },
-              })
-              .then((res) => {
-                tempBids = res.data.data.$values;
-
-                const updatedBids = tempBids.filter((prop, index) => {
-                  if (String(prop.appraiserUserId) === String(data.userId)) {
-                    return true;
-                  } else {
-                    return false;
-                  }
-                });
-                setBids(updatedBids);
-                setProperties(assignedProps);
-
-                axios
-                  .get("/api/appraiserWishlistedProperties", {
-                    headers: {
-                      Authorization: `Bearer ${data?.token}`,
-                      "Content-Type": "application/json",
-                    },
-                  })
-                  .then((res) => {
-                    const tempData = res.data.data.$values;
-
-                    const responseData = tempData.filter((prop, index) => {
-                      if (String(prop.userId) === String(data.userId)) {
-                        return true;
-                      } else {
-                        return false;
-                      }
-                    });
-                    const tempId = responseData;
-                    setWishlist(responseData);
-                  })
-                  .catch((err) => {
-                    toast.error(err?.response);
-                    setErrorMessage(err?.response);
-                    setModalIsOpenError(true);
-                  });
-              })
-              .catch((err) => {
-                setErrorMessage(err?.response?.data?.error);
-                setModalIsOpenError(true);
-              });
-          })
-          .catch((err) => {
-            setErrorMessage(err?.response?.data?.error);
-            setModalIsOpenError(true);
-          });
-      })
-      .catch((err) => {
-        setDataFetched(false);
-        setErrorMessage(err?.response?.data?.error);
+          }
+        );
+        const appraiserData = appraiserRes.data?.data?.$values || [];
+        const appraiserList =
+          appraiserData?.map((appraiser) => appraiser?.item) || [];
+        setAllAssignAppraiser(appraiserList);
+      } catch (err) {
+        setErrorMessage(
+          err?.response?.data?.error || "An unexpected error occurred."
+        );
         setModalIsOpenError(true);
-      });
+      }
 
-    axios
-      .get("/api/getAllAssignProperties", {
-        headers: {
-          Authorization: `Bearer ${data.token}`,
-        },
-        params: {
-          userId: data.appraiserCompany_Datails?.appraiserCompanyId,
-        },
-      })
-      .then((res) => {
-        let tempProperties = res.data.data.$values;
-        const temp = res.data.data.$values;
-
-        setallListedAssignAppraiser(tempProperties);
-      })
-      .catch((err) => {});
-
-    axios
-      .get("/api/getAllBrokers", {
-        headers: {
-          Authorization: `Bearer ${data.token}`,
-        },
-      })
-      .then((res) => {
-        let allbroker = res.data.data.$values;
-        axios
-          .get("/api/getAllBrokerageCompany", {
-            headers: {
-              Authorization: `Bearer ${data.token}`,
-            },
-          })
-          .then((res) => {
-            const allbrokerage = res.data.data.result.$values;
-            let updated = allbroker;
-            allbrokerage.map((user, index) => {
-              updated.push(user);
-            });
-
-            setAllBrokers(updated);
-          })
-          .catch((err) => {
-            setErrorMessage(err?.response?.data?.error);
-            setModalIsOpenError(true);
-          });
-      })
-      .catch((err) => {
-        setErrorMessage(err?.response?.data?.error);
+      // Fetch all assigned properties again if needed
+      try {
+        const assignedPropsRes = await axios.get(
+          "/api/getAllAssignProperties",
+          {
+            headers: { Authorization: `Bearer ${data.token}` },
+            params: { userId: data.appraiserCompanyDetail?.appraiserCompanyId },
+          }
+        );
+        setallListedAssignAppraiser(assignedPropsRes.data?.data?.$values || []);
+      } catch (err) {
+        setErrorMessage(
+          err?.response?.data?.error || "An unexpected error occurred."
+        );
         setModalIsOpenError(true);
-      });
+      }
 
-    axios
-      .get("/api/getAllAppraiserByCompanyId", {
-        headers: {
-          Authorization: `Bearer ${data?.token}`,
-          "Content-Type": "application/json",
-        },
-        params: {
-          // Ensure the parameter key is correct for your API
-          userId: data?.appraiserCompany_Datails?.appraiserCompanyId || "",
-        },
-      })
-      .then((res) => {
-        // Provide a fallback for the expected response structure
-        const allData = res.data?.data?.$values || [];
-        const onlyAppraiserData = allData.map((appraiser) => appraiser.item);
-        setAllAssignAppraiser(onlyAppraiserData);
-      })
-      .catch((err) => {
-        // Use a default error message if the error object doesn't contain one
-        const errorMsg =
-          err?.response?.data?.error || "An unexpected error occurred.";
-        setErrorMessage(errorMsg);
-        setModalIsOpenError(true);
-      });
+      setRefresh(false);
+    };
 
-    setRefresh(false);
+    fetchData();
   }, [refresh]);
   return (
     <>

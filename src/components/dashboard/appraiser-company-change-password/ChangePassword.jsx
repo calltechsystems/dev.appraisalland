@@ -58,22 +58,38 @@ const ChangePassword = () => {
       const encryptedData = encryptionData(payload);
       toast.loading("Changing the password");
 
-      const response = await axios.post(
-        "/api/change-broker-password",
-        encryptedData
-      );
-      if (!response) {
-        toast.dismiss();
-        toast.error("Failed. Please try again.");
+      const res = await axios.post("/api/changePassword", encryptedData);
+
+      // ✅ Defensive check to avoid destructuring undefined
+      const response = res?.data;
+
+      if (response) {
+        const { success, message } = response;
+
+        if (success) {
+          toast.success(message || "Password changed successfully.");
+          localStorage.removeItem("user");
+          router.push("/login");
+        } else {
+          toast.dismiss();
+          toast.error(message || "Password change failed.");
+        }
       } else {
-        toast.dismiss();
-        toast.success("Password updated successfully.");
-        localStorage.removeItem("user");
-        router.push("/login");
+        toast.error("Unexpected response format from server.");
+        console.warn("Full API response:", res.data);
       }
     } catch (err) {
       toast.dismiss();
-      toast.error(err.response?.data?.error || "An unexpected error occurred.");
+      if (err.response?.status === 401) {
+        toast.error("Invalid old password. Please try again.");
+      } else {
+        toast.error(
+          err.response?.data?.error || "An unexpected error occurred."
+        );
+      }
+      setIsLoading(false);
+    } finally {
+      toast.dismiss();
     }
   };
 

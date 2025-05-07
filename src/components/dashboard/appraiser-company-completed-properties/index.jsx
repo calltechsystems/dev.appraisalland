@@ -135,12 +135,10 @@ const Index = () => {
       const data = JSON.parse(localStorage.getItem("user"));
       const payload = {
         token: data.token,
-        Quoteid: currentBid.bidId,
-        OrderStatus: Number(orderStatus),
+        quoteId: currentBid.bidId,
+        orderStatus: Number(orderStatus),
         remark: remark,
         statusDate: statusDate,
-        user_id: data.userId,
-        user_type: data.userType
       };
 
       const encryptedBody = encryptionData(payload);
@@ -149,8 +147,15 @@ const Index = () => {
         .put("/api/updateOrderStatus", encryptedBody)
         .then((res) => {
           toast.dismiss();
-          toast.success("Successfully updated!!");
-          location.reload(true);
+          const { success, data: orderData, message } = res?.data;
+          if (success) {
+            toast.success("Successfully updated!!");
+            location.reload(true);
+          } else {
+            toast.error(
+              message ?? "An error occurred while updating the record."
+            );
+          }
         })
         .catch((err) => {
           toast.dismiss();
@@ -192,9 +197,8 @@ const Index = () => {
       setOpenDate(true);
     }
     let selectedValue = 0;
-    AppraiserStatusOptions.map((prop, index) => {
+    AppraiserStatusOptions?.map((prop, index) => {
       if (String(prop.type) === String(value)) {
-        console.log(prop.type, value, prop.id);
         selectedValue = prop.id;
       }
     });
@@ -289,9 +293,9 @@ const Index = () => {
           return (
             //implment search over this only
             String(property.orderId).toLowerCase().includes(searchTerm) ||
-          String(property.zipCode).toLowerCase().includes(searchTerm) ||
-          String(property.city).toLowerCase().includes(searchTerm) ||
-          String(property.province).toLowerCase().includes(searchTerm)
+            String(property.postalCode).toLowerCase().includes(searchTerm) ||
+            String(property.city).toLowerCase().includes(searchTerm) ||
+            String(property.province).toLowerCase().includes(searchTerm)
           );
       });
 
@@ -311,7 +315,6 @@ const Index = () => {
     const estimatedDiff =
       gettingDiff + getMonthsFDiff * 30 + gettingYearDiff * 365;
 
-    console.log("dayss", diff, newDateObj.getDate(), currentObj.getDate());
     return estimatedDiff <= diff;
   };
 
@@ -341,7 +344,6 @@ const Index = () => {
 
   useEffect(() => {
     const tmpData = filterData(properties);
-    console.log("filterQuery", filterQuery, tmpData, tmpData.length);
     setFilterProperty(tmpData);
   }, [filterQuery]);
 
@@ -350,7 +352,7 @@ const Index = () => {
 
     const payload = {
       orderId: propertyId,
-      userid: data.userId,
+      userId: data.userId,
       status: true,
       token: data.token,
     };
@@ -368,8 +370,15 @@ const Index = () => {
       })
       .then((res) => {
         toast.dismiss();
-        toast.success("Archived property!");
-        location.reload(true);
+        const { success, data: archiveData, message } = res?.data;
+        if (success) {
+          toast.success("Archived property!");
+          location.reload(true);
+        } else {
+          toast.error(
+            message ?? "An error occurred while archiving the record."
+          );
+        }
       })
       .catch((err) => {
         toast.dismiss();
@@ -377,29 +386,6 @@ const Index = () => {
       });
   };
 
-  const handleDelete = () => {
-    const data = JSON.parse(localStorage.getItem("user"));
-
-    toast.loading("deleting this property");
-    axios
-      .delete("/api/deleteBrokerPropertyById", {
-        headers: {
-          Authorization: `Bearer ${data.token}`,
-          "Content-Type": "application/json",
-        },
-        params: {
-          propertyId: property.propertyId,
-        },
-      })
-      .then((res) => {
-        setRerender(true);
-      })
-      .catch((err) => {
-        toast.error(err);
-      });
-    toast.dismiss();
-    closeModal();
-  };
 
   useEffect(() => {
     setIsLoading(false);
@@ -411,7 +397,7 @@ const Index = () => {
     const data = JSON.parse(localStorage.getItem("user"));
     if (!data) {
       router.push("/login");
-    } else if (!data?.appraiserCompany_Datails?.firstName) {
+    } else if (!data?.appraiserCompanyDetail?.firstName) {
       router.push("/appraiser-company-profile");
     }
     if (!data) {
@@ -425,148 +411,11 @@ const Index = () => {
     fetchData();
   }, []);
 
-  const brokerInfoHandler = (orderId) => {
-    const printWindow = window.open("", "_blank");
-    printWindow.document.write("<html><head><title></title></head><body>");
-
-    // Add the header section
-    printWindow.document.write(`
-      <div class="col-lg-12">
-        <div class="row">
-          <div class="col-lg-12 text-center" style="margin-left:250px; margin-top:50px" >
-            <a href="/" class="">
-              <img width="40" height="45" class="logo1 img-fluid" style="margin-top:-20px" src="/assets/images/Appraisal_Land_Logo.png" alt="header-logo2.png" />
-              <span style="color:#2e008b; font-weight:bold; font-size:18px; margin-top:20px">
-                Appraisal
-              </span>
-              <span style="color:#97d700; font-weight:bold; font-size:18px; margin-top:20px">
-                Land
-              </span>
-            </a>
-          </div>
-        </div>
-        <hr style="width:27%; margin-left:200px; color:#2e008b" />
-      </div>
-    `);
-
-    printWindow.document.write(
-      `<h3 style="margin-left:200px;">Broker Details of Order No. ${orderId}</h3>`
-    );
-    printWindow.document.write(
-      '<button style="display:none;" onclick="window.print()">Print</button>'
-    );
-
-    // Clone the table-container and remove the action column
-    const tableContainer = document.getElementById("broker-info-container");
-    const table = tableContainer.querySelector("table");
-    const clonedTable = table.cloneNode(true);
-    const rows = clonedTable.querySelectorAll("tr");
-    rows.forEach((row) => {
-      const lastCell = row.querySelector("td:last-child");
-    });
-
-    // Remove the action heading from the table
-    const tableHead = clonedTable.querySelector("thead");
-    const tableHeadRows = tableHead.querySelectorAll("tr");
-    tableHeadRows.forEach((row) => {
-      const lastCell = row.querySelector("th:last-child");
-    });
-
-    // Make the table responsive for all fields
-    const tableRows = clonedTable.querySelectorAll("tr");
-    tableRows.forEach((row) => {
-      const firstCell = row.querySelector("td:first-child");
-      if (firstCell) {
-        const columnHeading = tableHeadRows[0].querySelector(
-          "th:nth-child(" + (firstCell.cellIndex + 1) + ")"
-        ).innerText;
-        firstCell.setAttribute("data-th", columnHeading);
-      }
-    });
-
-    printWindow.document.write(clonedTable.outerHTML);
-    printWindow.document.write("</body></html>");
-    printWindow.document.close();
-    printWindow.print();
-    printWindow.onafterprint = () => {
-      printWindow.close();
-      toast.success("Saved the data");
-    };
-  };
-
-  const PropertyInfoHandler = (orderId) => {
-    const printWindow = window.open("", "_blank");
-    printWindow.document.write("<html><head><title></title></head><body>");
-
-    // Add the header section
-    printWindow.document.write(`
-      <div class="col-lg-12">
-        <div class="row">
-          <div class="col-lg-12 text-center" style="margin-left:250px; margin-top:50px" >
-            <a href="/" class="">
-              <img width="40" height="45" class="logo1 img-fluid" style="margin-top:-20px" src="/assets/images/Appraisal_Land_Logo.png" alt="header-logo2.png" />
-              <span style="color:#2e008b; font-weight:bold; font-size:18px; margin-top:20px">
-                Appraisal
-              </span>
-              <span style="color:#97d700; font-weight:bold; font-size:18px; margin-top:20px">
-                Land
-              </span>
-            </a>
-          </div>
-        </div>
-        <hr style="width:27%; margin-left:200px; color:#2e008b" />
-      </div>
-    `);
-
-    printWindow.document.write(
-      `<h3 style="margin-left:200px;">Property Details of Order No. ${orderId}</h3>`
-    );
-    printWindow.document.write(
-      '<button style="display:none;" onclick="window.print()">Print</button>'
-    );
-    // Clone the table-container and remove the action column
-    const tableContainer = document.getElementById("property-info-container");
-    const table = tableContainer.querySelector("table");
-    const clonedTable = table.cloneNode(true);
-    const rows = clonedTable.querySelectorAll("tr");
-    rows.forEach((row) => {
-      const lastCell = row.querySelector("td:last-child");
-    });
-
-    // Remove the action heading from the table
-    const tableHead = clonedTable.querySelector("thead");
-    const tableHeadRows = tableHead.querySelectorAll("tr");
-    tableHeadRows.forEach((row) => {
-      const lastCell = row.querySelector("th:last-child");
-    });
-
-    // Make the table responsive for all fields
-    const tableRows = clonedTable.querySelectorAll("tr");
-    tableRows.forEach((row) => {
-      const firstCell = row.querySelector("td:first-child");
-      if (firstCell) {
-        const columnHeading = tableHeadRows[0].querySelector(
-          "th:nth-child(" + (firstCell.cellIndex + 1) + ")"
-        ).innerText;
-        firstCell.setAttribute("data-th", columnHeading);
-      }
-    });
-
-    printWindow.document.write(clonedTable.outerHTML);
-    printWindow.document.write("</body></html>");
-    printWindow.document.close();
-    printWindow.print();
-    printWindow.onafterprint = () => {
-      printWindow.close();
-      toast.success("Saved the data");
-    };
-  };
 
   const [isUpdateBid, setIsUpdateBid] = useState(false);
   const [bidAmount, setbidAmount] = useState(0);
 
   const participateHandler = (val, id, isUpdate, value) => {
-    console.log(val, id, isUpdate, value);
     if (isUpdate) {
       setLowRangeBid(val);
       setIsUpdateBid(isUpdate);
@@ -583,7 +432,7 @@ const Index = () => {
   const [currentBid, setCurrentBid] = useState({});
 
   const onWishlistHandler = (id) => {
-    const userData = JSON.parse(localStorage.getItem("user"));
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
 
     const formData = {
       userId: userData.userId,
@@ -598,8 +447,15 @@ const Index = () => {
       .post("/api/addToWishlist", payload)
       .then((res) => {
         toast.dismiss();
-        toast.success("Successfully added !!! ");
-        location.reload(true);
+        const { success, data: wishlistData, message } = res?.data;
+        if (success) {
+          toast.success("Successfully added !!! ");
+          location.reload(true);
+        } else {
+          toast.error(
+            message ?? "An error occurred while updating the record."
+          );
+        }
       })
       .catch((err) => {
         toast.dismiss();
@@ -608,7 +464,6 @@ const Index = () => {
   };
 
   useEffect(() => {
-    console.log(searchQuery);
     const tempData = properties;
     if (searchInput === "") {
       return;
@@ -632,7 +487,7 @@ const Index = () => {
       setSearchResult(newProperties);
     } else {
       const newProperties = tempData.filter((item) => {
-        if (item.zipCode.toLowerCase() === searchInput.toLowerCase()) {
+        if (item.postalCode.toLowerCase() === searchInput.toLowerCase()) {
           return true;
         } else {
           return false;
@@ -671,61 +526,6 @@ const Index = () => {
           <div className="row">
             <div className="col-lg-12 maxw100flex-992">
               <div className="row">
-                {/* Start Dashboard Navigation */}
-                {/* <div className="col-lg-12">
-                  <div className="dashboard_navigationbar dn db-1024">
-                    <div className="dropdown">
-                      <button
-                        className="dropbtn"
-                        data-bs-toggle="offcanvas"
-                        data-bs-target="#DashboardOffcanvasMenu"
-                        aria-controls="DashboardOffcanvasMenu"
-                      >
-                        <i className="fa fa-bars pr10"></i> Dashboard Navigation
-                      </button>
-                    </div>
-                  </div>
-                </div> */}
-                {/* End Dashboard Navigation */}
-
-                {/* <div className="col-lg-12 col-xl-12 text-center mt-1">
-                  <div className="style2 mb30-991">
-                    <h3 className="breadcrumb_title">Completed Property</h3>
-                  </div>
-                </div> */}
-                {/* End .col */}
-
-                {/*<div className="row">
-                <div className="col-lg-12 mt20">
-                 <div className="mbp_pagination">
-                   <Pagination
-                     setStart={setStart}
-                     setEnd={setEnd}
-                     properties={properties}
-                   />
-                 </div>
-               </div> 
-              </div>*/}
-
-                <div className="col-lg-12 col-xl-12">
-                  {/* <div className="candidate_revew_select style2 mb30-991">
-                    <ul className="mb0">
-                      <li className="list-inline-item">
-                        <Filtering setFilterQuery={setFilterQuery} />
-                      </li>
-                      <li className="list-inline-item">
-                        <FilteringBy setFilterQuery={setSearchQuery} />
-                      </li>
-                      <li className="list-inline-item">
-                        <div className="candidate_revew_search_box course fn-520">
-                          <SearchBox setSearchInput={setSearchInput} />
-                        </div>
-                      </li>
-                    
-                    </ul>
-                  </div> */}
-                </div>
-                {/* End .col */}
 
                 <div className="col-lg-12">
                   <div className="">
@@ -1003,7 +803,7 @@ const Index = () => {
                                         {" "}
                                         {broker.streetNumber}{" "}
                                         {broker.streetName} {broker.city}{" "}
-                                        {broker.province} {broker.zipCode}
+                                        {broker.province} {broker.postalCode}
                                       </td>
                                     </tr>
 
@@ -1146,16 +946,6 @@ const Index = () => {
                                 </table>
                               </div>
                               <div className="d-flex justify-content-center gap-2 mt-3">
-                                {/* <button
-                                  className="btn btn-color"
-                                  style={{ width: "100px" }}
-                                  onClick={() =>
-                                    PropertyInfoHandler(broker.orderId)
-                                  }
-                                  title="Download Pdf"
-                                >
-                                  <FaDownload />
-                                </button> */}
                                 <button
                                   className="btn btn-color"
                                   style={{ width: "100px" }}
@@ -1317,125 +1107,21 @@ const Index = () => {
                                         </span>
                                       </td>
                                       <td className="table-value">
-                                        {selectedBroker.streetNumber}{" "}
-                                        {selectedBroker.streetName}{" "}
-                                        {selectedBroker.apartmentNo}{" "}
-                                        {selectedBroker.city}{" "}
-                                        {selectedBroker.province}{" "}
-                                        {selectedBroker.postalCode}
+                                        {selectedBroker?.address?.streetNumber}{" "}
+                                        {selectedBroker?.address?.streetName}{" "}
+                                        {
+                                          selectedBroker?.address
+                                            ?.apartmentNumber
+                                        }{" "}
+                                        {selectedBroker?.address?.city}{" "}
+                                        {selectedBroker?.address?.province}{" "}
+                                        {selectedBroker?.address?.postalCode}
                                       </td>
                                     </tr>
-                                    {/* <tr>
-                                      <td
-                                        style={{
-                                          border: "1px solid grey",
-                                          color: "#2e008b",
-                                        }}
-                                      >
-                                        <span className="text-start">
-                                          Brokerage Name
-                                        </span>
-                                      </td>
-                                      <td
-                                        style={{
-                                          
-                                          width: "250px",
-                                          color: "black",
-                                          paddingLeft:"10px"
-                                        }}
-                                      >
-                                        {selectedBroker.brokerageName
-                                          ? selectedBroker.brokerageName
-                                          : "N.A."}
-                                      </td>
-                                    </tr> */}
-
-                                    {/* <tr>
-                                      <td
-                                        style={{
-                                          border: "1px solid grey",
-                                          color: "#2e008b",
-                                        }}
-                                      >
-                                        <span className="text-start">
-                                          Applicant Name
-                                        </span>
-                                      </td>
-                                      <td
-                                        style={{
-                                          
-                                          width: "250px",
-                                          color: "black",
-                                          paddingLeft:"10px"
-                                        }}
-                                      >
-                                        {selectedBroker.assistantFirstName
-                                          ? selectedBroker.assistantFirstName
-                                          : "N.A."}
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td
-                                        style={{
-                                          border: "1px solid grey",
-                                          color: "#2e008b",
-                                        }}
-                                      >
-                                        <span className="text-start">
-                                          Applicant Phone Number
-                                        </span>
-                                      </td>
-                                      <td
-                                        style={{
-                                          border: "1px solid #2e008b",
-                                          width: "250px",
-                                          color: "black",
-                                          paddingLeft:"10px"
-                                        }}
-                                      >
-                                        {selectedBroker.assistantPhoneNumber
-                                          ? selectedBroker.assistantPhoneNumber
-                                          : "N.A."}
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td
-                                        style={{
-                                          border: "1px solid grey",
-                                          color: "#2e008b",
-                                        }}
-                                      >
-                                        <span className="text-start">
-                                          Applicant Email Address
-                                        </span>
-                                      </td>
-                                      <td
-                                        style={{
-                                          border: "1px solid #2e008b",
-                                          width: "250px",
-                                          color: "black",
-                                          paddingLeft:"10px"
-                                        }}
-                                      >
-                                        {selectedBroker.assistantEmailAddress
-                                          ? selectedBroker.assistantEmailAddress
-                                          : "N.A."}
-                                      </td>
-                                    </tr> */}
                                   </tbody>
                                 </table>
                               </div>
                               <div className="d-flex justify-content-center gap-2 mt-3">
-                                {/* <button
-                                  className="btn btn-color"
-                                  style={{ width: "100px" }}
-                                  onClick={() =>
-                                    brokerInfoHandler(broker.orderId)
-                                  }
-                                  title="Download Pdf"
-                                >
-                                  <FaDownload />
-                                </button> */}
                                 <button
                                   className="btn btn-color"
                                   style={{ width: "100px" }}
