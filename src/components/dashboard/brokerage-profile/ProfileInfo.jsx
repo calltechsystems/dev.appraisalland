@@ -22,7 +22,7 @@ const ProfileInfo = ({
   const router = useRouter();
 
   const [SelectedImage, setSelectedImage] = useState(
-    userData?.brokerage_Details?.profileImage ||
+    userData?.brokerageDetail?.profileImage ||
       "/assets/images/home/placeholder_01.jpg"
   );
 
@@ -36,100 +36,99 @@ const ProfileInfo = ({
 
   const hiddenStyle = { backgroundColor: "#E8F0FE", display: "none" };
   const viewStyle = { backgroundColor: "#E8F0FE", display: "block" };
-  const [edit, setEdit] = useState(!userData.brokerage_Details?.firstName);
+  const [edit, setEdit] = useState(!userData.brokerageDetail?.firstName);
   const [SMSAlert, setSMSAlert] = useState(false);
-
   const [firstNameRef, setFirstNameRef] = useState(
-    userData?.brokerage_Details?.firstName || ""
+    userData?.brokerageDetail?.firstName || ""
   );
   const [middleNameRef, setMiddleNameRef] = useState(
-    userData?.brokerage_Details?.middleName || ""
+    userData?.brokerageDetail?.middleName || ""
   );
   const [lastNameRef, setLastNameRef] = useState(
-    userData?.brokerage_Details?.lastName || ""
+    userData?.brokerageDetail?.lastName || ""
   );
   const [brokerageNameRef, setBrokerageNameRef] = useState(
-    userData?.brokerage_Details?.brokerageName || ""
+    userData?.brokerageDetail?.brokerageName || ""
   );
   const [cellNumberRef, setCellNumberRef] = useState(
-    userData?.brokerage_Details?.cellnumber || ""
+    userData?.brokerageDetail?.cellnumber || ""
   );
 
   const [mortageBrokrageLicNoRef, setMortageBrokerageLicNoRef] = useState(
-    userData?.brokerage_Details?.mortageBrokerageLicNo || ""
+    userData?.brokerageDetail?.mortageBrokerageLicNo || ""
   );
   const [mortageBrokerLicNoRef, setMortageBrokerLicNoRef] = useState(
-    userData?.brokerage_Details?.mortageBrokerLicNo || ""
+    userData?.brokerageDetail?.mortageBrokerLicNo || ""
   );
 
   const [profile, setProfile] = useState(
-    userData?.brokerage_Details?.profileImage || null
+    userData?.brokerageDetail?.profileImage || null
   );
 
-  const [addressLineRef, setAddressLineRef] = useState(
-    userData?.brokerage_Details?.adressLine1 || ""
+  const [addressLineOneRef, setAddressLineOneRef] = useState(
+    userData?.brokerageDetail?.address?.addressLineOne || ""
   );
   const [addressLineTwoRef, setAddressLineTwoRef] = useState(
-    userData?.brokerage_Details?.adressLine2 || ""
+    userData?.brokerageDetail?.address?.addressLineTwo || ""
   );
 
   const [cityRef, setCityRef] = useState(
-    userData?.brokerage_Details?.city || ""
+    userData?.brokerageDetail?.address?.city || ""
   );
   const [stateRef, setStateRef] = useState(
-    userData?.brokerage_Details?.province || ""
+    userData?.brokerageDetail?.address?.province || ""
   );
-  const [zipcodeRef, setZipcodeRef] = useState(
-    userData?.brokerage_Details?.postalCode || ""
+  const [postalCodeRef, setPostalCodeRef] = useState(
+    userData?.brokerageDetail?.address?.postalCode || ""
   );
   const [phoneNumberRef, setPhoneNumberRef] = useState(
-    userData?.brokerage_Details?.phoneNumber || ""
+    userData?.brokerageDetail?.phoneNumber || ""
   );
 
   const [assistantFirstName, setAssistantFirstName] = useState(
-    userData?.brokerage_Details?.assistantFirstName || ""
+    userData?.brokerageDetail?.assistantFirstName || ""
   );
   const [assistantLastName, setAssistantLastName] = useState(
-    userData?.brokerage_Details?.assistantLastName || ""
+    userData?.brokerageDetail?.assistantLastName || ""
   );
   const [assistantPhoneNumber, setAssistantPhoneNumber] = useState(
-    userData?.brokerage_Details?.assistantPhoneNumber || ""
+    userData?.brokerageDetail?.assistantPhoneNumber || ""
   );
   const [assistantEmailAddress, setAssistantEmailAddress] = useState(
-    userData?.brokerage_Details?.assistantEmailAddress || ""
+    userData?.brokerageDetail?.assistantEmailAddress || ""
   );
 
   const [assistantTwoFirstName, setAssistantTwoFirstName] = useState(
-    userData?.brokerage_Details?.assistantTwoFirstName || ""
+    userData?.brokerageDetail?.assistantTwoFirstName || ""
   );
   const [assistantTwoLastName, setAssistantTwoLastName] = useState(
-    userData?.brokerage_Details?.assistantTwoLastName || ""
+    userData?.brokerageDetail?.assistantTwoLastName || ""
   );
 
   const [assistantTwoEmailAddress, setAssistantTwoEmailAddress] = useState(
-    userData?.brokerage_Details?.assistantTwoEmailAddress || ""
+    userData?.brokerageDetail?.assistantTwoEmailAddress || ""
   );
 
   const [assistantTwoPhoneNumber, setAssistantTwoPhoneNumber] = useState(
-    userData?.brokerage_Details?.assistantTwoPhoneNumber || ""
+    userData?.brokerageDetail?.assistantTwoPhoneNumber || ""
   );
 
   const [emailId, setEmailId] = useState(
-    userData?.brokerage_Details?.emailId || ""
+    userData?.brokerageDetail?.emailId || ""
   );
 
   const [streetName, setStreetName] = useState(
-    userData?.brokerage_Details?.streetName || ""
+    userData?.brokerageDetail?.address?.streetName || ""
   );
   const [streetNumber, setStreetNumber] = useState(
-    userData.brokerage_Details?.streetNumber || ""
+    userData.brokerageDetail?.address?.streetNumber || ""
   );
   const [unit, setUnit] = useState(
-    userData?.brokerage_Details?.apartmentNo || ""
+    userData?.brokerageDetail?.address?.apartmentNumber || ""
   );
 
-  const [apartmentNo, setApartmentNo] = useState(
-    userData?.brokerage_Details?.apartmentNo || ""
+  const [apartmentNumber, setApartmentNumber] = useState(
+    userData?.brokerageDetail?.address?.apartmentNumber || ""
   );
 
   const uploadProfile = (e) => {
@@ -146,8 +145,6 @@ const ProfileInfo = ({
 
       reader.readAsDataURL(file);
     }
-
-    console.log(typeof profilePhoto);
   };
 
   useEffect(() => {
@@ -172,7 +169,7 @@ const ProfileInfo = ({
   const [streetNumberError, setStreetNumberError] = useState(false);
   const [streetNameError, setStreetNameError] = useState(false);
   const [cityError, setCityError] = useState(false);
-  const [zipCodeError, setZipCodeError] = useState(false);
+  const [postalCodeError, setPostalCodeError] = useState(false);
   const [assistantFirstNameError, setAssistantFirstNameError] = useState(false);
   const [assistantLastNameError, setAssistantLastNameError] = useState(false);
   const [assistantTwotFirstNameError, setAssistantTwoFirstNameError] =
@@ -204,7 +201,7 @@ const ProfileInfo = ({
   const [streetNumberValid, setStreetNumberValid] = useState(false);
   const [streetNameValid, setStreetNameValid] = useState(false);
   const [cityValid, setCityValid] = useState(false);
-  const [zipCodeValid, setZipCodeValid] = useState(false);
+  const [postalCodeValid, setPostalCodeValid] = useState(false);
   const [dropdownValid, setDropdownValid] = useState(false);
   const [assistantFirstNameValid, setAssistantFirstNameValid] = useState(false);
   const [assistantLastNameValid, setAssistantLastNameValid] = useState(false);
@@ -236,7 +233,12 @@ const ProfileInfo = ({
     }
   };
 
-  const handleInputChangeCompanyName = (value, setValue, setValid, setError) => {
+  const handleInputChangeCompanyName = (
+    value,
+    setValue,
+    setValid,
+    setError
+  ) => {
     if (value.length <= 100) {
       setValue(value);
 
@@ -269,40 +271,45 @@ const ProfileInfo = ({
   const onUpdatHandler = () => {
     setIsLoading(true);
     const firstName =
-      firstNameRef !== "" ? firstNameRef : userData.brokerage_Details.firstName;
+      firstNameRef !== "" ? firstNameRef : userData.brokerageDetail.firstName;
     const lastName =
-      lastNameRef !== "" ? lastNameRef : userData.brokerage_Details.lastName;
-    const adressLine1 = addressLineRef;
-    const city = cityRef !== "" ? cityRef : userData.brokerage_Details.city;
+      lastNameRef !== "" ? lastNameRef : userData.brokerageDetail.lastName;
+    const addressLineOne = addressLineOneRef;
+    const city =
+      cityRef !== "" ? cityRef : userData.brokerageDetail.address?.city;
     const state = stateRef;
-    const zipCode =
-      zipcodeRef !== "" ? zipcodeRef : userData.brokerage_Details.zipCode;
+    const postalCode =
+      postalCodeRef !== ""
+        ? postalCodeRef
+        : userData.brokerageDetail.address?.postalCode;
     const phoneNumber =
       phoneNumberRef !== ""
         ? phoneNumberRef
-        : userData.brokerage_Details.phoneNumber;
+        : userData.brokerageDetail.phoneNumber;
     const cellNumber =
       cellNumberRef !== ""
         ? cellNumberRef
-        : userData.brokerage_Details.cellNumber;
-    const adressLine2 = addressLineTwoRef;
+        : userData.brokerageDetail.cellNumber;
+    const addressLineTwo = addressLineTwoRef;
     const middleName = middleNameRef;
     const brokerageName =
       brokerageNameRef !== ""
         ? brokerageNameRef
-        : userData.brokerage_Details.brokerageName;
+        : userData.brokerageDetail.brokerageName;
     const mortageBrokerLicNo =
       mortageBrokerLicNoRef !== ""
         ? mortageBrokerLicNoRef
-        : userData.brokerage_Details.mortageBrokerLicNo;
+        : userData.brokerageDetail.mortageBrokerLicNo;
     const mortageBrokrageLicNo =
       mortageBrokrageLicNoRef !== ""
         ? mortageBrokrageLicNoRef
-        : userData.brokerage_Details.mortageBrokerageLicNo;
+        : userData.brokerageDetail.mortageBrokerageLicNo;
     const emailIdRef =
-      emailId !== "" ? emailId : userData.brokerage_Details.emailId;
+      emailId !== "" ? emailId : userData.brokerageDetail.emailId;
     const streetNameRef =
-      streetName !== "" ? streetName : userData.brokerage_Details.streetName;
+      streetName !== ""
+        ? streetName
+        : userData.brokerageDetail.address?.streetName;
 
     const payload = {
       id: userData.userId,
@@ -311,14 +318,14 @@ const ProfileInfo = ({
       lastName: lastNameRef,
       brokerageName: brokerageNameRef,
       streetNumber: streetNumber,
-      apartmentNo: apartmentNo,
+      apartmentNumber: apartmentNumber,
       streetName: streetName,
       city: cityRef,
       province: stateRef,
-      postalCode: zipCode,
+      postalCode: postalCode,
       area: "",
       phoneNumber: phoneNumberRef,
-      cellNumber: cellNumberRef,
+      cellNumber: cellNumber,
       profileImage: SelectedImage,
       assistantEmailAddress: assistantEmailAddress,
       assistantFirstName: assistantFirstName,
@@ -328,28 +335,12 @@ const ProfileInfo = ({
       assistantTwoLastName: assistantTwoLastName,
       assistantTwoEmailAddress: assistantTwoEmailAddress,
       assistantTwoPhoneNumber: assistantTwoPhoneNumber,
-      mortageBrokerLicNo: mortageBrokerLicNoRef,
-      mortageBrokerageLicNo: mortageBrokrageLicNoRef,
+      mortageBrokerLicNo: mortageBrokerLicNo,
+      mortageBrokerageLicNo: mortageBrokrageLicNo,
       emailId: emailId,
       smsNotification: smsNotification,
       emailNotification: emailNotification,
     };
-    // if (
-    //   !payload.lastName ||
-    //   !payload.firstName ||
-    //   !payload.brokerageName ||
-    //   !payload.phoneNumber ||
-    //   !payload.emailId ||
-    //   !payload.mortageBrokerLicNo ||
-    //   !payload.mortageBrokerageLicNo ||
-    //   !payload.streetName ||
-    //   !payload.streetNumber ||
-    //   !payload.city ||
-    //   !payload.province ||
-    //   !payload.postalCode
-    // ) {
-    //   toast.error("Please fill all the required fields!");
-    // }
     const fields = [
       { key: "lastName", message: "Last Name is required!" },
       { key: "firstName", message: "First Name is required!" },
@@ -432,19 +423,6 @@ const ProfileInfo = ({
       setIsLoading(false);
       return false;
     }
-    // else if (
-    //   brokerageName.trim().length < 1 ||
-    //   brokerageName.trim().length > 30
-    // ) {
-    //   setBrokerageError(true);
-    //   toast.error("Please enter a valid brokerage name");
-    //   window.scrollTo({
-    //     top: 0,
-    //     behavior: "smooth",
-    //   });
-    //   setIsLoading(false);
-    //   return false;
-    // }
     else if (
       streetNameRef.trim().length < 1 ||
       streetNameRef.trim().length > 30 ||
@@ -535,8 +513,8 @@ const ProfileInfo = ({
       });
       setIsLoading(false);
       return false;
-    } else if (alphanumericWithSpacesRegex.test(zipCode) === false) {
-      setZipCodeError(true);
+    } else if (alphanumericWithSpacesRegex.test(postalCode) === false) {
+      setPostalCodeError(true);
       toast.error("Please enter a valid postal code");
       window.scrollTo({
         top: 0,
@@ -563,7 +541,7 @@ const ProfileInfo = ({
         !streetNumber ||
         !city ||
         !state ||
-        !zipCode ||
+        !postalCode ||
         !phoneNumber ||
         !cellNumber) &&
       !userData
@@ -571,7 +549,7 @@ const ProfileInfo = ({
       toast.error("All required fields are not filled !!");
     } else {
       let count = 9;
-      if (adressLine2) {
+      if (addressLineTwo) {
         count++;
       }
       if (middleName) {
@@ -583,7 +561,7 @@ const ProfileInfo = ({
       if (profilePhoto) {
         count++;
       }
-      if (adressLine2 === "") {
+      if (addressLineTwo === "") {
         count--;
       }
       if (middleName === "") {
@@ -606,17 +584,33 @@ const ProfileInfo = ({
         axios
           .put("/api/UpdateBrokerageCompanyProfile", encryptedData)
           .then((res) => {
-            toast.success("Successfully Updated !");
-
-            let data = userData;
-            data.brokerage_Details = res.data.userData.broker;
-            data.smsNotification = res.data.userData.isSms;
-            data.emailNotification = res.data.userData.isEmail;
-            console.log("brokerageProfile", res.data.userData.broker);
-            localStorage.removeItem("user");
-            localStorage.setItem("user", JSON.stringify(data));
-            router.push("/brokerage-dashboard");
-            setShowCard(true);
+            const {
+              success: profileSuccess,
+              data: profileData,
+              message: profileMessage,
+            } = res?.data;
+            if (profileSuccess) {
+              toast.success("Successfully Updated !");
+              let data = {};
+              try {
+                data = JSON.parse(localStorage.getItem("user")) ?? {};
+              } catch (e) {
+                console.error("Failed to parse user:", e);
+              }
+              data = {
+                ...data,
+                brokerageDetail: profileData?.brokerage,
+                smsNotification: profileData?.isSms,
+                emailNotification: profileData?.isEmail,
+              };
+              localStorage.setItem("user", JSON.stringify(data));
+              router.push("/brokerage-dashboard");
+              setShowCard(true);
+            } else {
+              toast.error(
+                message ?? "An error occurred while updating the record."
+              );
+            }
           })
           .catch((err) => {
             toast.error(err.message);
@@ -626,84 +620,8 @@ const ProfileInfo = ({
         toast.dismiss();
       }
     }
-    // Validate fields individually
-    const isFirstNameValid = validateField(
-      firstNameRef,
-      setFirstNameError
-      // firstNameInputRef
-    );
-    // const isBrokerageValid = validateField(brokerageNameRef, setBrokerageError);
-    const isLastNameValid = validateField(
-      lastNameRef,
-      setLastNameError
-      // lastNameInputRef
-    );
-    // const isPhoneNumberValid = validateFieldNumber(
-    //   phoneNumberRef,
-    //   setPhoneNumberError
-    //   // phoneNumberInputRef
-    // );
-    const isEmailValid = validateEmailField(
-      emailId,
-      setEmailError
-      // emailInputRef
-    );
-    const isMortgageLicenceValid = validateField(
-      mortageBrokrageLicNoRef,
-      setMortgageLicenceError
-      // mortgageLicenceInputRef
-    );
-    const isMortgageLicenceTwoValid = validateField(
-      mortageBrokerLicNoRef,
-      setMortgageLicenceTwoError
-      // mortgageLicenceTwoInputRef
-    );
-    const isStreetNumberValid = validateFieldStreetNumber(
-      streetNumber,
-      setStreetNumberError
-      // streetNumberInputRef
-    );
-    const isStreetNameValid = validateFieldStreetNumber(
-      streetName,
-      setStreetNameError
-      // streetNameInputRef
-    );
-    const isCityValid = validateFieldStreetNumber(
-      cityRef,
-      setCityError
-      // cityInputRef
-    );
-    const isZipCodeValid = validateFieldStreetNumber(
-      zipcodeRef,
-      setZipCodeError
-      // zipCodeInputRef
-    );
-
-    // Validate dropdown
-
-    // if (selectedOption === "") {
-    //   setDropdownError(true);
-    //   dropdownRef.current.scrollIntoView({
-    //     behavior: "smooth",
-    //     block: "center",
-    //   });
-    //   dropdownRef.current.focus();
-    // }
   };
 
-  const validateField = (value, setError, inputRef) => {
-    if (value.trim().length < 1 || value.trim().length > 30) {
-      setError(true); // Set error if field length is invalid
-      // Scroll to the top of the page
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-      return false;
-    }
-    setError(false);
-    return true;
-  };
 
   const handleInputChange = (value, setValue, setValid, setError) => {
     // Remove all non-numeric characters
@@ -718,35 +636,6 @@ const ProfileInfo = ({
     setError(!isValid);
   };
 
-  // const handleInputChange = (value, setRef, setValid, setError) => {
-  //   console.log("setError function:", setError); // Debug log
-  //   if (typeof setError !== "function") {
-  //     console.error("setError is not a function!");
-  //     return;
-  //   }
-
-  //   // Your validation logic
-  //   const isValid = /^[2-9]\d{2} \d{3}-\d{4}$/.test(value);
-  //   setRef(value); // Update value
-  //   setValid(isValid); // Update validation state
-  //   setError(!isValid); // Update error state
-  // };
-
-  // const handleInputChange = (value, setValue, setValid, setError) => {
-  //   if (value.length <= 10) {
-  //     setValue(value);
-
-  //     // Validate: Check if length is between 3 and 10
-  //     if (value.trim().length >= 10) {
-  //       setValid(true);
-  //       setError(false);
-  //     } else {
-  //       setValid(false);
-  //       setError(true);
-  //     }
-  //   }
-  // };
-
   const handleInputChangeStreet = (value, setValue, setValid, setError) => {
     if (value.length <= 30) {
       setValue(value);
@@ -759,105 +648,6 @@ const ProfileInfo = ({
         setValid(false);
         setError(true);
       }
-    }
-  };
-
-  // const validateFieldNumber = (value, setError, inputRef) => {
-  //   if (value.trim().length < 10 || value.trim().length > 10) {
-  //     setError(true); // Set error if field length is invalid
-  //     // Ensure inputRef exists before calling scrollIntoView
-  //     if (inputRef && inputRef.current) {
-  //       inputRef.current.scrollIntoView({
-  //         behavior: "smooth", // Smooth scroll to the field
-  //         block: "center", // Align the field to the center
-  //       });
-  //       inputRef.current.focus(); // Focus on the field for the user
-  //     }
-  //     return false;
-  //   }
-  //   setError(false);
-  //   return true;
-  // };
-
-  const validateFieldNumber = (value, setError, inputRef) => {
-    // Check if value contains only digits
-    const isNumeric = /^[0-9]*$/.test(value.trim());
-    if (!isNumeric) {
-      setError(true); // Set error for non-numeric input
-      // Scroll to the top of the page
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-      return false;
-    }
-
-    // Check if length is exactly 10
-    if (value.trim().length !== 10) {
-      setError(true); // Set error if field length is invalid
-      // Scroll to the top of the page
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-      return false;
-    }
-
-    setError(false); // Clear error if valid
-    return true;
-  };
-
-  const validateEmailField = (value, setError, inputRef) => {
-    // Define a basic email regex pattern for validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!emailRegex.test(value.trim())) {
-      setError(true); // Set error if the email format is invalid
-      // Scroll to the top of the page
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-      return false;
-    }
-    setError(false);
-    return true;
-  };
-
-  const validateFieldStreetNumber = (value, setError, inputRef) => {
-    if (value.trim().length < 1 || value.trim().length > 10) {
-      setError(true); // Set error if field length is invalid
-      // Scroll to the top of the page
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-      return false;
-    }
-    setError(false);
-    return true;
-  };
-
-  const handleDropdownChange = (e) => {
-    const value = e.target.value;
-    setSelectedOption(value);
-
-    // Validate: Ensure a valid option is selected
-    if (value === "") {
-      setDropdownError(true);
-    } else {
-      setDropdownError(false);
-    }
-  };
-
-  const changeEditHandler = () => {
-    setEdit(true);
-  };
-  const uploadInputRef = useRef(null);
-
-  const openWidget = () => {
-    if (uploadInputRef.current) {
-      uploadInputRef.current.click();
     }
   };
 
@@ -875,7 +665,6 @@ const ProfileInfo = ({
         const generatedUrl = await uploadFile(file);
         toast.dismiss();
         toast.success("Uploaded Successfully");
-        console.log("generatedUrl", generatedUrl);
         setSelectedImage(generatedUrl);
       } catch (err) {
         toast.dismiss();
@@ -884,91 +673,6 @@ const ProfileInfo = ({
     }
   };
 
-  const handleUpload = (result) => {
-    console.log("handleUpload called");
-    if (result.info.secure_url) {
-      setSelectedImage(result.info.secure_url);
-      setProfilePhoto(result.info.secure_url);
-    } else {
-      console.error("Image upload failed");
-    }
-  };
-
-  const handleZipCodeChange = async (val) => {
-    setZipcodeRef(val);
-
-    try {
-      const response = await axios.get(
-        `https://api.zippopotam.us/us/${zipcodeRef}`
-      );
-      const data = response.data;
-
-      console.log(response);
-
-      setStateRef(data.places[0]["state"]);
-      setCityRef(data.places[0]["place name"]);
-    } catch (error) {
-      console.error("Error fetching location data:", error);
-    }
-  };
-
-  const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
-
-    const url = uploadImage(file);
-    console.log(url);
-  };
-
-  // const handleInputChange = (e) => {
-  //   const inputValue = e.target.value;
-  //   const numericValue = inputValue.replace(/\D/g, "");
-  //   const truncatedValue = numericValue.slice(0, 10);
-  //   if (truncatedValue.length === 10) {
-  //     setPhoneNumberRef(truncatedValue);
-  //   }
-  //   setPhoneNumberRef(truncatedValue);
-  // };
-
-  const handleInputChange_01 = (e) => {
-    if (!e || !e.target) return; // Safeguard against undefined input
-    const inputValue = e.target.value;
-
-    // Remove all non-numeric characters
-    const numericValue = inputValue.replace(/\D/g, "");
-
-    // Truncate to 10 digits and update state
-    setCellNumberRef(numericValue.slice(0, 10));
-  };
-
-  // const handleInputChange_01 = (e) => {
-  //   const inputValue = e.target.value;
-  //   const numericValue = inputValue.replace(/\D/g, "");
-  //   const truncatedValue = numericValue.slice(0, 10);
-  //   if (truncatedValue.length === 10) {
-  //     setCellNumberRef(truncatedValue);
-  //   }
-  //   setCellNumberRef(truncatedValue);
-  // };
-
-  const handleInputChange_02 = (e) => {
-    const inputValue = e.target.value;
-    const numericValue = inputValue.replace(/\D/g, "");
-    const truncatedValue = numericValue.slice(0, 10);
-    if (truncatedValue.length === 10) {
-      setAssistantPhoneNumber(truncatedValue);
-    }
-    setAssistantPhoneNumber(truncatedValue);
-  };
-
-  const handleInputChange_03 = (e) => {
-    const inputValue = e.target.value;
-    const numericValue = inputValue.replace(/\D/g, "");
-    const truncatedValue = numericValue.slice(0, 10);
-    if (truncatedValue.length === 10) {
-      setAssistantTwoPhoneNumber(truncatedValue);
-    }
-    setAssistantTwoPhoneNumber(truncatedValue);
-  };
 
   return (
     <>
@@ -1072,7 +776,7 @@ const ProfileInfo = ({
                           htmlFor=""
                           style={{ paddingTop: "10px" }}
                         >
-                          Brokerage Name <span class="req-btn">*</span>
+                          Brokerage Name <span className="req-btn">*</span>
                         </label>
                       </div>
                       <div className="col-lg-7">
@@ -1115,7 +819,7 @@ const ProfileInfo = ({
                           style={{ paddingTop: "10px" }}
                         >
                           Principal Broker / Owner - First Name{" "}
-                          <span class="req-btn">*</span>
+                          <span className="req-btn">*</span>
                         </label>
                       </div>
                       <div className="col-lg-7">
@@ -1159,7 +863,7 @@ const ProfileInfo = ({
                           style={{ paddingTop: "10px" }}
                         >
                           Principal Broker / Owner - Last Name{" "}
-                          <span class="req-btn">*</span>
+                          <span className="req-btn">*</span>
                         </label>
                       </div>
                       <div className="col-lg-7">
@@ -1204,7 +908,7 @@ const ProfileInfo = ({
                           style={{ paddingTop: "5px" }}
                         >
                           Mortgage Brokerage Licence No.{" "}
-                          <span class="req-btn">*</span>{" "}
+                          <span className="req-btn">*</span>{" "}
                         </label>
                       </div>
                       <div className="col-lg-7">
@@ -1248,7 +952,7 @@ const ProfileInfo = ({
                           style={{ paddingTop: "5px" }}
                         >
                           Mortgage Broker Licence No.
-                          <span class="req-btn">*</span>{" "}
+                          <span className="req-btn">*</span>{" "}
                         </label>
                       </div>
                       <div className="col-lg-7">
@@ -1292,7 +996,8 @@ const ProfileInfo = ({
                           htmlFor=""
                           style={{ paddingTop: "10px" }}
                         >
-                          Phone Number (Primary) <span class="req-btn">*</span>
+                          Phone Number (Primary){" "}
+                          <span className="req-btn">*</span>
                         </label>
                         <div className="hover-text-01">
                           <div
@@ -1308,7 +1013,10 @@ const ProfileInfo = ({
                               </li>
                             </ul>
                           </div>
-                          <i class="fa fa-info-circle" aria-hidden="true"></i>
+                          <i
+                            className="fa fa-info-circle"
+                            aria-hidden="true"
+                          ></i>
                         </div>
                       </div>
                       <div className="col-lg-7">
@@ -1351,35 +1059,6 @@ const ProfileInfo = ({
                             Enter valid phone number.
                           </small>
                         )}
-                        {/* <input
-                          type="text"
-                          required
-                          className="form-control"
-                          id="formGroupExampleInput3"
-                          style={{
-                            backgroundColor: "#E8F0FE",
-                            borderColor: phoneNumberError
-                              ? "red"
-                              : phoneNumberValid
-                              ? ""
-                              : "",
-                          }}
-                          value={phoneNumberRef}
-                          // onChange={handleInputChange}
-                          onChange={(e) =>
-                            handleInputChange(
-                              e.target.value,
-                              setPhoneNumberRef,
-                              setPhoneNumberValid,
-                              setPhoneNumberError
-                            )
-                          }
-                        />
-                        {phoneNumberError && (
-                          <small className="text-danger">
-                            Enter valid phone number.
-                          </small>
-                        )} */}
                       </div>
                     </div>
                   </div>
@@ -1395,16 +1074,6 @@ const ProfileInfo = ({
                         </label>
                       </div>
                       <div className="col-lg-7">
-                        {/* <input
-                          type="text"
-                          required
-                          className="form-control"
-                          id="formGroupExampleInput3"
-                          style={{ backgroundColor: "#E8F0FE" }}
-                          value={cellNumberRef}
-                          // onChange={(e) => setCellNumberRef(e.target.value)}
-                          onChange={handleInputChange_01}
-                        /> */}
                         <ReactInputMask
                           mask="999 999-9999" // Canadian phone format
                           value={cellNumberRef}
@@ -1455,7 +1124,7 @@ const ProfileInfo = ({
                           htmlFor=""
                           style={{ paddingTop: "10px" }}
                         >
-                          Email Address <span class="req-btn">*</span>
+                          Email Address <span className="req-btn">*</span>
                         </label>
                       </div>
                       <div className="col-lg-7">
@@ -1536,7 +1205,10 @@ const ProfileInfo = ({
                                 </li> */}
                               </ul>
                             </div>
-                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                            <i
+                              className="fa fa-info-circle"
+                              aria-hidden="true"
+                            ></i>
                           </div>
                         </div>
                       </div>
@@ -1581,7 +1253,10 @@ const ProfileInfo = ({
                                 </li> */}
                               </ul>
                             </div>
-                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                            <i
+                              className="fa fa-info-circle"
+                              aria-hidden="true"
+                            ></i>
                           </div>
                         </div>
                       </div>
@@ -1598,7 +1273,7 @@ const ProfileInfo = ({
                           htmlFor=""
                           style={{ paddingTop: "10px" }}
                         >
-                          Street Number <span class="req-btn">*</span>
+                          Street Number <span className="req-btn">*</span>
                         </label>
                       </div>
                       <div className="col-lg-7">
@@ -1641,7 +1316,7 @@ const ProfileInfo = ({
                           htmlFor=""
                           style={{ paddingTop: "10px" }}
                         >
-                          Street Name <span class="req-btn">*</span>
+                          Street Name <span className="req-btn">*</span>
                         </label>
                       </div>
                       <div className="col-lg-7">
@@ -1689,8 +1364,8 @@ const ProfileInfo = ({
                       <div className="col-lg-7">
                         <input
                           type="text"
-                          value={apartmentNo}
-                          onChange={(e) => setApartmentNo(e.target.value)}
+                          value={apartmentNumber}
+                          onChange={(e) => setApartmentNumber(e.target.value)}
                           className="form-control"
                           style={{ backgroundColor: "#E8F0FE" }}
                           id="formGroupExampleInput3"
@@ -1710,7 +1385,7 @@ const ProfileInfo = ({
                           htmlFor=""
                           style={{ paddingTop: "10px" }}
                         >
-                          City <span class="req-btn">*</span>
+                          City <span className="req-btn">*</span>
                         </label>
                       </div>
                       <div className="col-lg-7">
@@ -1753,7 +1428,7 @@ const ProfileInfo = ({
                           htmlFor=""
                           style={{ paddingTop: "10px" }}
                         >
-                          Province <span class="req-btn">*</span>
+                          Province <span className="req-btn">*</span>
                         </label>
                       </div>
                       <div className="col-lg-7">
@@ -1788,7 +1463,10 @@ const ProfileInfo = ({
                         >
                           {province.map((item, index) => {
                             return (
-                              <option key={item.id} value={item.value}>
+                              <option
+                                key={`${item.id}-${index}`}
+                                value={item.value}
+                              >
                                 {item.type}
                               </option>
                             );
@@ -1810,7 +1488,7 @@ const ProfileInfo = ({
                           htmlFor=""
                           style={{ paddingTop: "10px" }}
                         >
-                          Postal Code <span class="req-btn">*</span>
+                          Postal Code <span className="req-btn">*</span>
                         </label>
                       </div>
                       <div className="col-lg-7">
@@ -1821,24 +1499,24 @@ const ProfileInfo = ({
                           id="formGroupExampleInput3"
                           style={{
                             backgroundColor: "#E8F0FE",
-                            borderColor: zipCodeError
+                            borderColor: postalCodeError
                               ? "red"
-                              : zipCodeValid
+                              : postalCodeValid
                               ? ""
                               : "",
                           }}
                           onChange={(e) =>
                             handleInputChangeStreet(
                               e.target.value,
-                              setZipcodeRef,
-                              setZipCodeValid,
-                              setZipCodeError
+                              setPostalCodeRef,
+                              setPostalCodeValid,
+                              setPostalCodeError
                             )
                           }
-                          value={zipcodeRef}
+                          value={postalCodeRef}
                           maxLength={10}
                         />
-                        {zipCodeError && (
+                        {postalCodeError && (
                           <small className="text-danger">
                             Enter valid postal code.
                           </small>
@@ -2244,7 +1922,7 @@ const ProfileInfo = ({
                           className="btn btn2 btn-dark"
                           onClick={onUpdatHandler}
                         >
-                          {userData?.brokerage_Details
+                          {userData?.brokerageDetail
                             ? "Update Profile"
                             : "Create Profile"}
                         </button>

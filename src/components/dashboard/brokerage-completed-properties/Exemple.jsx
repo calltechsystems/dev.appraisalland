@@ -282,7 +282,7 @@ export default function Exemple({
       if (
         bid.orderId === property.orderId &&
         bid.status === 1 &&
-        bid.orderstatus === 3
+        bid.orderStatus === 3
       ) {
         isCompleted = true;
       }
@@ -303,8 +303,8 @@ export default function Exemple({
     const getData = () => {
       properties.map((property, index) => {
         const isBidded = getBidOfProperty(property.orderId);
-        const isHold = property.isonhold;
-        const isCancel = property.isoncancel;
+        const isHold = property.isOnHold;
+        const isCancel = property.isOnCancel;
         const isStatus = getPropertyStatusHandler(property);
         const isEditable = isStatus === 0 ? true : false;
         if (isBidded.$id && isStatus === 3) {
@@ -343,9 +343,9 @@ export default function Exemple({
                 <button className="btn btn-warning w-100">
                   {isHold ? "N.A." : "N.A."}
                 </button>
-              ) : isBidded.orderstatus !== 1 &&
-                isBidded.orderstatus !== null &&
-                isBidded.orderstatus !== undefined ? (
+              ) : isBidded.orderStatus !== 1 &&
+                isBidded.orderStatus !== null &&
+                isBidded.orderStatus !== undefined ? (
                 <div className="hover-text">
                   <div
                     className="tooltip-text"
@@ -356,23 +356,23 @@ export default function Exemple({
                   >
                     <ul>
                       <li style={{ fontSize: "15px" }}>
-                        {getOrderValue(isBidded.orderstatus)}
+                        {getOrderValue(isBidded.orderStatus)}
                       </li>
                     </ul>
                   </div>
                   <button
-                    className={getStatusButtonClass(isBidded.orderstatus)}
+                    className={getStatusButtonClass(isBidded.orderStatus)}
                   >
                     Status
                     <span className="m-1">
-                      <i class="fa fa-info-circle" aria-hidden="true"></i>
+                      <i className="fa fa-info-circle" aria-hidden="true"></i>
                     </span>
                   </button>
                 </div>
               ) : isBidded.$id &&
                 isBidded.status === 1 &&
-                isBidded.orderstatus === 1 &&
-                isBidded.orderstatus !== undefined ? (
+                isBidded.orderStatus === 1 &&
+                isBidded.orderStatus !== undefined ? (
                 <div className="hover-text">
                   <div
                     className="tooltip-text"
@@ -383,17 +383,17 @@ export default function Exemple({
                   >
                     <ul>
                       <li style={{ fontSize: "15px" }}>
-                        {getOrderValue(isBidded.orderstatus)} -{" "}
-                        {formatDateTime(isBidded.statusdate)}
+                        {getOrderValue(isBidded.orderStatus)} -{" "}
+                        {formatDateTime(isBidded.statusDate)}
                       </li>
                     </ul>
                   </div>
                   <button
-                    className={getStatusButtonClass(isBidded.orderstatus)}
+                    className={getStatusButtonClass(isBidded.orderStatus)}
                   >
                     Status
                     <span className="m-1">
-                      <i class="fa fa-info-circle" aria-hidden="true"></i>
+                      <i className="fa fa-info-circle" aria-hidden="true"></i>
                     </span>
                   </button>
                 </div>
@@ -402,7 +402,7 @@ export default function Exemple({
                   <span>N.A.</span>
                 </button>
               ),
-            address: `${property.streetNumber}, ${property.streetName}, ${property.city}, ${property.province}, ${property.zipCode}`,
+            address: `${property.streetNumber}, ${property.streetName}, ${property.city}, ${property.province}, ${property.postalCode}`,
             remarkButton: (
               <li
                 className="list-inline-item"
@@ -444,15 +444,6 @@ export default function Exemple({
               <ul className="mb0 d-flex gap-1">
                 {/* {!isEditable && ( */}
                 <li title="Property Details" className="">
-                  {/* <Link href={"#"}>
-                      <span
-                        className="btn btn-color w-100 mb-1"
-                        onClick={() => openPopupModal(property)}
-                      >
-                        {" "}
-                        Property Details{" "}
-                      </span>
-                    </Link>{" "} */}
                   <span
                     className="btn btn-color-table"
                     onClick={() => openPopupModal(property)}
@@ -466,9 +457,6 @@ export default function Exemple({
 
                 {!isEditable && !isCancel && (
                   <li title="Quotes">
-                    {/* <Link href={`/my-property-bids/${property.propertyId}`}>
-                      <span className="btn btn-color w-100 mb-1"> Quotes </span>
-                    </Link>{" "} */}
                     <Link
                       className="btn btn-color-table"
                       // style={{ marginLeft: "4.3rem" }}
@@ -494,7 +482,7 @@ export default function Exemple({
 
                 {/* End li */}
 
-                {!isCancel && isStatus !== 3 && isBidded.orderstatus !== 4 && (
+                {!isCancel && isStatus !== 3 && isBidded.orderStatus !== 4 && (
                   <li title={!isHold ? "On Hold" : "Remove Hold"}>
                     <button
                       className="btn btn-color-table "
@@ -524,59 +512,14 @@ export default function Exemple({
                     <span
                       className="btn btn-color-table"
                       style={{ border: "1px solid grey" }}
-                      // onClick={() =>
-                      //   onCancelHandler(property.propertyId, !isCancel)
-                      // }
                       onClick={() => openModal(property.orderId, 2, property)}
                     >
                       <Link href="#">
-                        {/* <img
-                          width="25px"
-                          style={{ backgroundColor: "white" }}
-                          src="https://static.thenounproject.com/png/225895-200.png"
-                          alt=""
-                        /> */}
                         <i className="fa fa-times text-light"></i>
                       </Link>
                     </span>
                   </li>
                 )}
-                {/* )} */}
-
-                {/* {isEditable && (
-                  <li title="Edit Property">
-                    <Link href="#">
-                      <span className="btn btn-color w-100 mb-1">
-                        {" "}
-                        On Hold{" "}
-                      </span>
-                    </Link>{" "}
-                    <Link
-                      className="btn btn-color-table"
-                      href={`/create-listing/${property.propertyId}`}
-                    >
-                      <span className="flaticon-edit"></span>
-                    </Link>
-                  </li>
-                )} */}
-
-                {/* {!isEditable && (
-                <li
-                  className="list-inline-item"
-                  data-toggle="tooltip"
-                  data-placement="top"
-                  title="Archive Property"
-                >
-                  <span
-                    className="btn btn-color-table"
-                    onClick={() => archievePropertyHandler(property.propertyId)}
-                  >
-                    <Link className="color-light" href={`/archive-property`}>
-                      <span className="flaticon-box"></span>
-                    </Link>
-                  </span>
-                </li>
-              )} */}
               </ul>
             ),
           };
@@ -610,16 +553,19 @@ export default function Exemple({
       .then((res) => {
         toast.dismiss();
         setDataFetched(true);
-        const temp = res.data.data.properties.$values;
-        let tempProperties = [];
-        tempProperties = temp.filter((prop, index) => {
-          if (String(prop.userId) === String(data.userId)) {
-            return true;
-          } else {
-            return false;
-          }
-        });
-        setProperties(tempProperties);
+        const { success, data: propData, message } = res?.data;
+        if (success) {
+          const temp = propData?.properties?.$values;
+          let tempProperties = [];
+          tempProperties = temp?.filter((prop, index) => {
+            if (String(prop?.userId) === String(data.userId)) {
+              return true;
+            } else {
+              return false;
+            }
+          });
+          setProperties(tempProperties);
+        }
       })
       .catch((err) => {
         toast.dismiss();
@@ -635,8 +581,15 @@ export default function Exemple({
         },
       })
       .then((res) => {
-        tempBids = res.data.data.$values;
-        setBids(tempBids);
+        const {
+          success: bidSuccess,
+          data: bidData,
+          message: bidMessage,
+        } = res?.data;
+        if (bidSuccess) {
+          tempBids = bidData?.$values;
+          setBids(tempBids);
+        }
       })
       .catch((err) => {
         toast.error(err);

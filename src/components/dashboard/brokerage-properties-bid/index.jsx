@@ -52,7 +52,6 @@ const Index = ({ propertyId }) => {
   }
 
   const len = properties.length > 5 ? properties.length : 5;
-  console.log(len);
 
   const [end, setEnd] = useState(len);
 
@@ -76,8 +75,6 @@ const Index = ({ propertyId }) => {
       token: data.token,
     };
 
-    console.log(propertyId);
-
     const encryptedBody = encryptionData(payload);
     axios
       .post("/api/acceptBid", encryptedBody, {
@@ -89,8 +86,15 @@ const Index = ({ propertyId }) => {
       .then((res) => {
         toast.dismiss();
         setIsLoading(false);
-        toast.success("Successfully accepted the Quote");
-        router.push("/brokerage-properties");
+        const { success, data, message } = res?.data;
+        if (success) {
+          toast.success("Successfully accepted the Quote");
+          router.push("/brokerage-properties");
+        } else {
+          toast.error(
+            message ?? "An error occurred while updating the record."
+          );
+        }
       })
       .catch((err) => {
         setIsLoading(false);
@@ -102,36 +106,9 @@ const Index = ({ propertyId }) => {
           toast.dismiss();
           toast.error(err.message);
         }
-        // toast.dismiss();
-        // console.log(err);
-        // toast.error(err?.response?.data?.error);
       });
   };
 
-  const rejectRequestHandler = (id) => {
-    const data = JSON.parse(localStorage.getItem("user"));
-    toast.loading("Declining the Quote ...");
-    const payload = {
-      bidId: id,
-    };
-    const encryptedBody = encryptionData(payload);
-    axios
-      .post("/api/declineBid", encryptedBody, {
-        headers: {
-          Authorization: `Bearer ${data?.token}`,
-          "Content-Type": "application/json",
-        },
-      })
-      .then((res) => {
-        toast.dismiss();
-        toast.success("Successfully declined the Quote");
-        router.push("/brokerage-properties");
-      })
-      .catch((err) => {
-        toast.dismiss();
-        toast.error(err?.response?.data?.error);
-      });
-  };
 
   useEffect(() => {
     const activityHandler = () => {
@@ -169,7 +146,6 @@ const Index = ({ propertyId }) => {
   }, [lastActivityTimestamp]);
 
   const openModal = (property) => {
-    console.log("inside");
     setProperty(property);
     setIsModalOpenBid(true);
   };
@@ -193,7 +169,7 @@ const Index = ({ propertyId }) => {
         return (
           //implment search over this only
           String(property.orderId).toLowerCase().includes(searchTerm) ||
-            String(property.zipCode).toLowerCase().includes(searchTerm) ||
+          String(property.postalCode).toLowerCase().includes(searchTerm) ||
             String(property.city).toLowerCase().includes(searchTerm) ||
             String(property.province).toLowerCase().includes(searchTerm)
         );
@@ -243,29 +219,6 @@ const Index = ({ propertyId }) => {
     setProperties(tmpData);
   }, [filterQuery]);
 
-  const handleDelete = () => {
-    const data = JSON.parse(localStorage.getItem("user"));
-
-    toast.loading("deleting this property");
-    axios
-      .delete("/api/deleteBrokerPropertyById", {
-        headers: {
-          Authorization: `Bearer ${data.token}`,
-          "Content-Type": "application/json",
-        },
-        params: {
-          propertyId: property.propertyId,
-        },
-      })
-      .then((res) => {
-        setRerender(true);
-      })
-      .catch((err) => {
-        toast.error(err);
-      });
-    toast.dismiss();
-    closeModal();
-  };
 
   const [userData, setUserData] = useState({});
 
@@ -273,7 +226,7 @@ const Index = ({ propertyId }) => {
     const data = JSON.parse(localStorage.getItem("user"));
     if (!data) {
       router.push("/login");
-    } else if (!data?.brokerage_Details?.firstName) {
+    } else if (!data?.brokerageDetail?.firstName) {
       router.push("/brokerage-profile");
     }
     if (!data) {
@@ -287,11 +240,7 @@ const Index = ({ propertyId }) => {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    console.log(property);
-  }, [property]);
-
-  console.log(appInfo);
+  useEffect(() => {}, [property]);
 
   const formatPhoneNumber = (number) => {
     if (!number) return ""; // Handle empty input
@@ -734,14 +683,6 @@ const Index = ({ propertyId }) => {
                     </table>
                   </div>
                   <div className="d-flex justify-content-center mt-3 gap-2">
-                    {/* <button
-                      className="btn btn-color"
-                      style={{ width: "100px" }}
-                      onClick={() => handlePrint()}
-                      title="Download Pdf"
-                    >
-                      <FaDownload />
-                    </button> */}
                     <button
                       className="btn btn-color"
                       style={{ width: "100px" }}

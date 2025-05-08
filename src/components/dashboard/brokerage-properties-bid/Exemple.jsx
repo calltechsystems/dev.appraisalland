@@ -116,10 +116,8 @@ export default function Exemple({
   let tempData = [];
 
   const openPopupModal = (prop, id) => {
-    // console.log(prop);
     setProperty(prop);
     setId(id);
-
     setIsModalOpenBid(true);
   };
 
@@ -151,7 +149,7 @@ export default function Exemple({
     let currentProperty = {};
     const url = window.location.pathname;
     const propertyOrderId = url.split("/brokerage-properties-bid/")[1];
-    allProperties.map((prop, index) => {
+    allProperties?.map((prop, index) => {
       if (String(prop.orderId) === String(propertyOrderId)) {
         currentProperty = prop;
       }
@@ -175,7 +173,8 @@ export default function Exemple({
   const reAssign = (QuoteId) => {
     setIsLoading(true);
     toast.loading("Re-Assigning the appraiser....");
-    const userData = JSON.parse(localStorage.getItem("user"));
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+
     const payload = {
       QuoteId: QuoteId,
       token: userData.token,
@@ -185,13 +184,19 @@ export default function Exemple({
     axios
       .put("/api/reAssignAppraiser", encryptedBpdy)
       .then((res) => {
-        console.log(res);
         toast.dismiss();
         setIsLoading(false);
-        toast.success("Successfully Re assigned Appraiser");
-        setTimeout(() => {
-          window.location.reload(); // Reload after the success message is shown
-        }, 1000); // Add a slight delay to allow the success message to show
+        const { success, data, message } = res?.data;
+        if (success) {
+          toast.success("Successfully Re assigned Appraiser");
+          setTimeout(() => {
+            window.location.reload(); // Reload after the success message is shown
+          }, 1000); // Add a slight delay to allow the success message to show
+        } else {
+          toast.error(
+            message ?? "An error occurred while updating the record."
+          );
+        }
       })
       .catch((err) => {
         toast.dismiss();
@@ -250,7 +255,6 @@ export default function Exemple({
 
   useEffect(() => {
     const prop = getCurrentPropertyInfoHandler();
-    console.log(prop);
     const getData = () => {
       properties.map((propertyWhole, index) => {
         const property = propertyWhole.bid;
@@ -391,7 +395,7 @@ export default function Exemple({
               <div>
                 <h5 className="btn btn-danger m-1">Declined</h5>
                 {property?.appraiserAssign === false &&
-                  prop?.orderstatus !== 3 && (
+                  prop?.orderStatus !== 3 && (
                     <div
                       className="list-inline-item"
                       onClick={() => confirmReassign(property.bidId)}
@@ -408,23 +412,6 @@ export default function Exemple({
                       </li>
                     </div>
                   )}
-                {/* {property?.appraiserAssign === false && (
-                  <div
-                    className="list-inline-item"
-                    onClick={() => confirmReassign(property.bidId)}
-                  >
-                    <li
-                      className="list-inline-item"
-                      data-toggle="tooltip"
-                      data-placement="top"
-                      title="Change Appraiser"
-                    >
-                      <div className="btn btn-color">
-                        <FaUserEdit style={{ width: "20px" }} />
-                      </div>
-                    </li>
-                  </div>
-                )} */}
               </div>
             ),
         };
@@ -481,9 +468,8 @@ export default function Exemple({
               Authorization: `Bearer ${data.token}`,
               "Content-Type": "application/json",
             },
-            params: { OrderId: propertyOrderId },
+            params: { orderId: propertyOrderId },
           });
-
           setProperties(quotesRes.data.data.$values);
         }
 
@@ -500,85 +486,6 @@ export default function Exemple({
     fetchData();
   }, [refresh]);
 
-  // useEffect(() => {
-  //   const data = JSON.parse(localStorage.getItem("user"));
-
-  //   axios
-  //     .get("/api/getAllAppraiser", {
-  //       headers: {
-  //         Authorization: `Bearer ${data.token}`,
-  //       },
-  //     })
-  //     .then((res) => {
-  //       let allbroker = res.data.data.result.$values;
-  //       axios
-  //         .get("/api/getAllAppraiserCompany", {
-  //           headers: {
-  //             Authorization: `Bearer ${data.token}`,
-  //           },
-  //         })
-  //         .then((res2) => {
-  //           const allbrokerage = res2.data.data.result.$values;
-  //           let updated = allbroker;
-  //           allbrokerage.map((user, index) => {
-  //             updated.push(user);
-  //           });
-
-  //           console.log(updated);
-  //           setAppraisers(updated);
-  //         })
-  //         .catch((err) => {
-  //           toast.error(err);
-  //         });
-  //     })
-  //     .catch((err) => {
-  //       toast.error(err?.response?.data?.error);
-  //       // (true);
-  //     });
-
-  //   //
-  //   axios
-  //     .get("/api/getAllListedProperties", {
-  //       headers: {
-  //         Authorization: `Bearer ${data?.token}`,
-  //         "Content-Type": "application/json",
-  //       },
-  //     })
-  //     .then((result) => {
-  //       // console.log(result);
-  //       setDataFetched(true);
-  //       // setAllProperties(result.data.data.properties.$values);
-  //       const url = window.location.pathname;
-  //       const propertyOrderId = url.split("/brokerage-properties-bid/")[1];
-  //       axios
-  //         .get("/api/getAllQuotesForProperty", {
-  //           headers: {
-  //             Authorization: `Bearer ${data?.token}`,
-  //             "Content-Type": "application/json",
-  //           },
-  //           params: {
-  //             OrderId: propertyOrderId,
-  //           },
-  //         })
-  //         .then((res) => {
-  //           toast.dismiss();
-  //           const tempBids = res.data.data.$values;
-
-  //           setAllProperties(result.data.data.properties.$values);
-  //           setProperties(tempBids);
-  //         })
-  //         .catch((err) => {
-  //           toast.dismiss();
-  //           setDataFetched(false);
-  //           toast.error(err?.response?.data?.error);
-  //         });
-  //     })
-  //     .catch((err) => {
-  //       toast.dismiss();
-  //     });
-
-  //   setRefresh(false);
-  // }, [refresh]);
   return (
     <>
       {updatedData && (

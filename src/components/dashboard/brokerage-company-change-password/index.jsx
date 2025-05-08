@@ -10,7 +10,8 @@ import Image from "next/image";
 import CommonLoader from "../../common/CommonLoader/page";
 
 const Index = () => {
-  // const userData = JSON.parse(localStorage.getItem("user"));
+  // const userData = JSON.parse(localStorage.getItem("user") || "{}");
+
   const [userData, setUserData] = useState({});
   const data = JSON.parse(localStorage.getItem("user"));
   const router = useRouter();
@@ -115,7 +116,7 @@ const Index = () => {
                         <h4>Personal Information</h4>
                       </div> */}
                       <div className="col-xl-12">
-                        <ChangePassword setIsLoading={setIsLoading}/>
+                        <ChangePassword setIsLoading={setIsLoading} />
                       </div>
                     </div>
                   </div>

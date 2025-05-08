@@ -13,7 +13,6 @@ const ChangePassword = () => {
   const emailRef = useRef("");
 
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const [passwordVisible_01, setPasswordVisible_01] = useState(false);
 
   const userData = JSON.parse(localStorage.getItem("user")) || {};
 
@@ -23,17 +22,12 @@ const ChangePassword = () => {
     setPasswordVisible(!passwordVisible);
   };
 
-  const togglePasswordVisibility_01 = () => {
-    setPasswordVisible_01(!passwordVisible_01);
-  };
-
   const submitHandler = async () => {
     const email = userData.userEmail;
     const newPassword = newPasswordRef.current.value;
     const oldPassword = oldPasswordRef.current.value;
     const confirmPassword = confirmPasswordRef.current.value;
 
-    console.log(oldPassword, newPassword, confirmPassword);
     if (String(newPassword) !== String(confirmPassword)) {
       toast.error("Both the passwords should be same ");
     } else {
@@ -48,20 +42,38 @@ const ChangePassword = () => {
         const encryptedData = encryptionData(payload);
 
         toast.loading("Changing the password");
-        const response = await axios.post(
-          "/api/change-broker-password",
-          encryptedData
-        );
-        if (!response) {
-          toast.dismiss();
-          toast.error("Failed Try Again");
+        const res = await axios.post("/api/changePassword", encryptedData);
+
+        console.log("Change pwd brokerage company");
+        const response = res?.data;
+
+        if (response) {
+          const { success, message } = response;
+
+          if (success) {
+            toast.success(message);
+            localStorage.removeItem("user");
+            router.push("/login");
+          } else {
+            toast.dismiss();
+            toast.error(message || "Password change failed.");
+          }
         } else {
-          toast.dismiss();
-          localStorage.removeItem("user");
-          router.push("/login");
+          toast.error("Unexpected server response.");
+          console.warn("Backend response was:", res.data);
         }
       } catch (err) {
-        toast.error(err.response.data.error);
+        toast.dismiss();
+        if (err.response?.status === 401) {
+          toast.error("Invalid old password. Please try again.");
+        } else {
+          toast.error(
+            err.response?.data?.error || "An unexpected error occurred."
+          );
+        }
+        setIsLoading(false);
+      } finally {
+        toast.dismiss();
       }
     }
   };
@@ -69,11 +81,11 @@ const ChangePassword = () => {
     <>
       <div className="row">
         {/* <h4 className="mb-3">Manage Password</h4> */}
-        <div class="accordion" id="accordionExample">
-          <div class="accordion-item">
-            <h2 class="accordion-header" id="headingThree">
+        <div className="accordion" id="accordionExample">
+          <div className="accordion-item">
+            <h2 className="accordion-header" id="headingThree">
               <button
-                class="accordion-button collapsed"
+                className="accordion-button collapsed"
                 type="button"
                 data-bs-toggle="collapse"
                 data-bs-target="#collapseThree"
@@ -85,11 +97,11 @@ const ChangePassword = () => {
             </h2>
             <div
               id="collapseThree"
-              class="accordion-collapse collapse show"
+              className="accordion-collapse collapse show"
               aria-labelledby="headingThree"
               data-bs-parent="#accordionExample"
             >
-              <div class="accordion-body">
+              <div className="accordion-body">
                 <div className="row">
                   <div className="col-lg-6 col-xl-3">
                     <div className="my_profile_setting_input form-group">
