@@ -8,7 +8,7 @@ import Captcha from "../common/Captcha";
 import { encryptionData } from "../../utils/dataEncryption";
 import { useRouter } from "next/router";
 import toast from "react-hot-toast";
-import { handleResponseData } from "./function";
+import { handleResponseData } from "../login/function";
 
 const Form = ({ user }) => {
   const [showhide, setShowhide] = useState("");
@@ -56,8 +56,7 @@ const Form = ({ user }) => {
           const { success, data, message } = res.data;
           if (success) {
             toast.success(message);
-            const redirectionUrl = handleResponseData(data);
-            router.push(redirectionUrl);
+            handleResponseData(data, router);
           } else {
             toast.error(message);
           }

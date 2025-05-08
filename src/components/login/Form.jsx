@@ -118,8 +118,7 @@ const Form = ({ setModalIsOpenError, setErrorMessage, setLoading }) => {
           const { success, data, message } = res.data;
           if (success) {
             toast.success(message);
-            const redirectionUrl = handleResponseData(data);
-            router.push(redirectionUrl);
+            handleResponseData(data, router);
           } else {
             toast.error(message);
           }
