@@ -77,7 +77,7 @@ const Index = () => {
     userData = JSON.parse(localStorage.getItem("user"));
     if (!userData) {
       router.push("/login");
-    } else if (!userData?.brokerage_Details?.firstName) {
+    } else if (!userData?.brokerageDetail?.firstName) {
       router.push("/brokerage-profile");
     }
 
@@ -88,15 +88,22 @@ const Index = () => {
           Authorization: `Bearer ${userData?.token}`,
           "Content-Type": "application/json",
         },
+        validateStatus: () => true,
         params: {
           userId: userData?.userId,
         },
       })
       .then((res) => {
         toast.dismiss();
-        console.log(res.data.data);
-        setData(res?.data.data?.transactions?.$values);
-        setRerender(false);
+        const { success, data: tranData, message } = res?.data;
+        if (success) {
+          setData(tranData?.transactions?.$values);
+          setRerender(false);
+        } else {
+          toast.error(
+            message ?? "An error occurred while updating the record."
+          );
+        }
       })
       .catch((err) => {
         toast.dismiss();

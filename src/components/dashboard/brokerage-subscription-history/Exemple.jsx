@@ -61,36 +61,6 @@ const headCells = [
   },
 ];
 
-const data = [
-  {
-    _id: "6144e83a966145976c75cdfe",
-    email: "minagerges123@gmail.com",
-    name: "Pending",
-    date: "2021-09-17 19:10:50",
-    subject: "23456",
-    phone: "+96170345114",
-    message: "ahlannn",
-  },
-  {
-    _id: "61439914086a4f4e9f9d87cd",
-    email: "amineamine1996@gmail.com",
-    name: "Completed",
-    phone: "+96176466341",
-    subject: "12345",
-    message: "121212121212121",
-    date: "2021-09-16 22:20:52",
-  },
-  {
-    _id: "61439887086a4f4e9f9d87cc",
-    email: "as@a.com",
-    name: "Progress",
-    phone: "+96176466341",
-    subject: "54321",
-    message: "as",
-    date: "2021-09-16 22:18:31",
-  },
-];
-
 export default function Exemple({
   userData,
   data,

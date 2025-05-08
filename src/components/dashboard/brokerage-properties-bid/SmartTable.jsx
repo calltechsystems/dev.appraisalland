@@ -78,7 +78,6 @@ function SmartTable(props) {
     tableWidthFunc,
     fetchData,
   ]);
-  console.log(props.data);
 
   const buildQueryString = (search, page, rowsPerPage) => {
     const queries = [];
@@ -92,19 +91,9 @@ function SmartTable(props) {
     return queryString ? `?${queryString}` : "";
   };
 
-  const debounce = (func, timeout = 300) => {
-    let timer;
-    return (...args) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        func.apply(this, args);
-      }, timeout);
-    };
-  };
-
   const handlePrint = async () => {
     const staticHeaders = [
-      ["appraiser","Appraiser / Appraiser Company"],
+      ["appraiser", "Appraiser / Appraiser Company"],
       ["quote", "Quote Amount ($)"],
       ["description", "Remark"],
       ["date", "Quote Submitted Date"],
@@ -114,7 +103,7 @@ function SmartTable(props) {
     const allData = props.properties;
 
     getTheDownloadView(
-      "brokerage_Details",
+      "brokerageDetail",
       allData,
       "Mortgage Brokerage Provided Bids",
       staticHeaders
@@ -127,66 +116,6 @@ function SmartTable(props) {
       });
   };
 
-  const handleExcelPrint = () => {
-    const twoDData = props.data.map((item, index) => {
-      return [item.bid, item.date, item.title, item.urgency];
-    });
-
-    // Remove empty arrays from twoDData
-    const filteredTwoDData = twoDData.filter((row) => row.length > 0);
-
-    // Create a workbook and add a worksheet
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.aoa_to_sheet(filteredTwoDData);
-    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-
-    // Create a blob from the workbook
-    const blob = XLSX.write(wb, {
-      bookType: "xlsx",
-      bookSST: false,
-      type: "blob",
-    });
-
-    // Create a new window for downloading Excel
-    const excelWindow = window.open("", "_blank");
-
-    // Write the Excel blob to the new window
-    excelWindow.document.write(
-      "<html><head><title>AllBrokerProperties</title></head><body>"
-    );
-    excelWindow.document.write("<h1>" + props.title + "</h1>");
-    excelWindow.document.write(
-      '<a id="download-link" download="your_excel_file.xlsx" href="#">Download Excel</a>'
-    );
-
-    // Create a download link and trigger a click event to download the file
-    const url = URL.createObjectURL(blob);
-    const downloadLink = excelWindow.document.getElementById("download-link");
-    downloadLink.href = url;
-    downloadLink.click();
-
-    // Close the new window after the file is downloaded
-    excelWindow.document.write("</body></html>");
-    excelWindow.document.close();
-  };
-
-  const handleSearch = debounce((event) => {
-    const { value } = event.target;
-    setSearch(value);
-    if (props.url) {
-      fetchData(buildQueryString(value, page, rowsPerPage));
-    } else {
-      let bool = false;
-      let tempData = props.data.filter((row) => {
-        bool = false;
-        Object.keys(row).forEach((key) => {
-          if (row[key].toLowerCase().includes(value.toLowerCase())) bool = true;
-        });
-        return bool;
-      });
-      setData(tempData);
-    }
-  }, props.searchDebounceTime ?? 800);
 
   const sortData = (cell) => {
     let tempData = [...data];
@@ -215,8 +144,6 @@ function SmartTable(props) {
           <div className="col-lg-1 mt-1">
             <div className="row">
               <div className="d-flex gap-1">
-                {/* <span>{console.log("orderid",props.propertyId)}</span>
-                <p>{propertyId}</p> */}
                 <button
                   className="btn btn-color"
                   onClick={() => handlePrint()}
@@ -234,8 +161,6 @@ function SmartTable(props) {
               </div>
             </div>
           </div>
-          {/* </li> */}
-          {/* </ul> */}
         </div>
         <div className="col-12">
           {props.data.length > 0 ? (
@@ -418,7 +343,7 @@ function SmartTable(props) {
 }
 
 SmartTable.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.Object),
+  data: PropTypes.arrayOf(PropTypes.object),
   rowsPerPage: PropTypes.number,
   rowsPerPageOptions: PropTypes.arrayOf(PropTypes.number),
   total: PropTypes.number,

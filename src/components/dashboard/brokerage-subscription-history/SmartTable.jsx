@@ -25,6 +25,7 @@ function SmartTable(props) {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(props.total ?? 0);
 
+  // console.log(props.data);
   const fetchData = useCallback(
     async (queryString) => {
       setLoading(true);
@@ -62,7 +63,7 @@ function SmartTable(props) {
     ];
 
     getTheDownloadView(
-      "brokerage_Details",
+      "brokerageDetail",
       props.data,
       "Brokerage Transaction History",
       headers
@@ -94,7 +95,6 @@ function SmartTable(props) {
     tableWidthFunc,
     fetchData,
   ]);
-  console.log(props.data);
 
   const buildQueryString = (search, page, rowsPerPage) => {
     const queries = [];
@@ -108,33 +108,6 @@ function SmartTable(props) {
     return queryString ? `?${queryString}` : "";
   };
 
-  const debounce = (func, timeout = 300) => {
-    let timer;
-    return (...args) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        func.apply(this, args);
-      }, timeout);
-    };
-  };
-
-  const handleSearch = debounce((event) => {
-    const { value } = event.target;
-    setSearch(value);
-    if (props.url) {
-      fetchData(buildQueryString(value, page, rowsPerPage));
-    } else {
-      let bool = false;
-      let tempData = props.data.filter((row) => {
-        bool = false;
-        Object.keys(row).forEach((key) => {
-          if (row[key].toLowerCase().includes(value.toLowerCase())) bool = true;
-        });
-        return bool;
-      });
-      setData(tempData);
-    }
-  }, props.searchDebounceTime ?? 800);
 
   const sortData = (cell) => {
     let tempData = [...data];
@@ -169,13 +142,6 @@ function SmartTable(props) {
           <ul className="mb0 text-end_01 mt-2">
             <li className="list-inline-item">
               <div className="d-flex justify-content-center gap-1">
-                {/* <button
-                                  className="btn btn-color w-100"
-                                  onClick={() => props.refreshHandler()}
-                                  title="Refresh"
-                                >
-                                  <FaRedo />
-                                </button> */}
                 <button
                   className="btn btn-color w-100"
                   onClick={() => handlePrint()}
@@ -349,7 +315,7 @@ function SmartTable(props) {
 }
 
 SmartTable.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.Object),
+  data: PropTypes.arrayOf(PropTypes.object),
   rowsPerPage: PropTypes.number,
   rowsPerPageOptions: PropTypes.arrayOf(PropTypes.number),
   total: PropTypes.number,

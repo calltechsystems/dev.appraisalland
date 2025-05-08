@@ -173,20 +173,6 @@ export default function Exemple({
     }
   }, [searchInput]);
 
-  const sortObjectsByOrderIdDescending = (data) => {
-    return data.sort((a, b) => b.order_id - a.order_id);
-  };
-
-  const getOrderValue = (val) => {
-    let title = "Applicant Contacted by appraiser";
-    AppraiserStatusOptions?.map((status) => {
-      if (String(status.id) === String(val)) {
-        title = status.type;
-      }
-    });
-    return title;
-  };
-
   const openModal = (propertyId, value, toggle) => {
     if (String(value) === String(1)) {
       setIsHoldProperty(true);

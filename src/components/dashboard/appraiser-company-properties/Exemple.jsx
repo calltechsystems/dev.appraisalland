@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SmartTable from "./SmartTable";
 import Link from "next/link";
 import toast from "react-hot-toast";
@@ -10,11 +10,14 @@ import { FaArchive, FaDownload, FaEye } from "react-icons/fa";
 import { AppraiserStatusOptions } from "../create-listing/data";
 import millify from "millify";
 import Image from "next/image";
+import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import {
-  sortData,
-  sortTheDataList,
-} from "../../common/PaginationControls/functions";
+  extractNumericValue,
+  extractTextContent,
+  extractTextContentFromDate,
+} from "./functions";
+import { DevOpsGuru } from "aws-sdk";
 
 const headCells = [
   {
@@ -27,8 +30,7 @@ const headCells = [
     id: "address",
     numeric: false,
     label: "Property Address",
-    width: 250,
-    sortable: false,
+    width: 200,
   },
 
   {
@@ -36,7 +38,6 @@ const headCells = [
     numeric: false,
     label: "Assigned Status",
     width: 200,
-    sortable: false,
   },
   {
     id: "status",
@@ -49,55 +50,48 @@ const headCells = [
     numeric: false,
     label: "Appraisal Status",
     width: 160,
-    sortable: false,
   },
   {
     id: "remarkButton",
     numeric: false,
     label: "Appraisal Remark",
     width: 160,
-    sortable: false,
   },
   {
     id: "urgency",
     numeric: false,
     label: "Request Type",
-    width: 120,
+    width: 200,
   },
   {
     id: "date",
     numeric: false,
     label: "Order Submission Date",
     width: 200,
-    sortable: false,
   },
   {
     id: "quote_required_by",
     numeric: false,
     label: "Appraisal Report Required By",
     width: 200,
-    sortable: false,
   },
   {
     id: "type_of_building",
     numeric: false,
     label: "Type of Property",
     width: 200,
-    sortable: false,
   },
   {
     id: "estimated_value",
     numeric: false,
     label: "Estimated Property Value ($)",
     width: 200,
-    sortable: false,
   },
   {
     id: "type_of_appraisal",
     numeric: false,
     label: "Type Of Appraisal",
     width: 200,
-    sortable: false,
   },
 
   {
@@ -105,7 +99,6 @@ const headCells = [
     numeric: false,
     label: "Purpose",
     width: 200,
-    sortable: false,
   },
 
   {
@@ -113,7 +106,6 @@ const headCells = [
     numeric: false,
     label: "Lender Information",
     width: 200,
-    sortable: false,
   },
 
   {
@@ -121,14 +113,12 @@ const headCells = [
     numeric: false,
     label: "Broker Info",
     width: 200,
-    sortable: false,
   },
   {
     id: "property",
     numeric: false,
     label: "Property Info",
     width: 200,
-    sortable: false,
   },
 
   {
@@ -136,7 +126,6 @@ const headCells = [
     numeric: false,
     label: "Action",
     width: 210,
-    sortable: false,
   },
 ];
 
@@ -175,7 +164,6 @@ export default function Exemple({
   refresh,
   setSelectedPropertyNew,
   setIsLoading,
-  setfilteredPropertiesCount,
 }) {
   const [updatedData, setUpdatedData] = useState([]);
   const [wishlist, setWishlist] = useState([]);
@@ -1064,16 +1052,52 @@ export default function Exemple({
           tempData.push(updatedRow);
         }
       });
-      setfilteredPropertiesCount(tempData?.length);
-      const filteredData = sortTheDataList(tempData, sortDesc);
-      setUpdatedData(filteredData);
+      setPropertiesPerPage(tempData.slice(start, end));
+      setUpdatedData(tempData);
     };
     getData();
-  }, [properties, wishlist, bids, assignedProperties, sortDesc]);
+  }, [properties, wishlist, bids, assignedProperties]);
 
   useEffect(() => {
     setPropertiesPerPage(updatedData.slice(start, end));
   }, [start, end, updatedData]);
+
+  useEffect(() => {
+    setUpdatedCode(true);
+  }, [updatedData]);
+
+  const sortData = (cell) => {
+    let tempData = [...updatedData];
+
+    const newSortDesc = { ...sortDesc };
+    newSortDesc[cell] = !newSortDesc[cell];
+
+    tempData.sort((a, b) => {
+      let valueA = extractTextContent(a[cell]);
+      let valueB = extractTextContent(b[cell]);
+
+      if (String(cell) === "date" || String(cell) === "quote_required_by") {
+        valueA = extractTextContentFromDate(a[cell]);
+        valueB = extractTextContentFromDate(b[cell]);
+      }
+
+      if (String(cell) === "estimated_value") {
+        valueA = extractNumericValue(a[cell]);
+        valueB = extractNumericValue(b[cell]);
+      }
+
+      // Perform comparison based on the sorting order
+      if (newSortDesc[cell]) {
+        return valueA < valueB ? 1 : -1;
+      } else {
+        return valueA > valueB ? 1 : -1;
+      }
+    });
+
+    setSortDesc(newSortDesc);
+    setUpdatedData([...tempData]);
+    // setData(tempData);
+  };
 
   const refreshHandler = () => {
     setRefresh(true);
@@ -1089,6 +1113,9 @@ export default function Exemple({
 
     const data = JSON.parse(localStorage.getItem("user"));
     if (!data?.token) return;
+    debugger;
+    // try {
+    // Fetch archived properties
     axios
       .get("/api/getArchiveAppraiserProperty", {
         headers: {
@@ -1186,6 +1213,7 @@ export default function Exemple({
       const responseData = wishlistRaw?.filter(
         (prop) => String(prop.userId) === String(data.userId)
       );
+      debugger;
       setWishlist(responseData);
     }
 
@@ -1241,6 +1269,12 @@ export default function Exemple({
       message: appraiserMessage,
     } = appraiserRes?.data;
     setAssignAppraiser(appraiserData?.$values);
+    // } catch (err) {
+    //   console.error("Error loading dashboard data:", err);
+    //   setErrorMessage(err?.response?.data?.error || "Unexpected error");
+    //   setModalIsOpenError(true);
+    //   setDataFetched(false);
+    // }
 
     setRefresh(false);
   };
@@ -1263,7 +1297,7 @@ export default function Exemple({
           title=""
           setSearchInput={setSearchInput}
           setFilterQuery={setFilterQuery}
-          data={propertiesPerPage}
+          data={sortObjectsByOrderIdDescending(propertiesPerPage)}
           headCells={headCells}
           setRefresh={setRefresh}
           setProperties={setProperties}
@@ -1284,7 +1318,7 @@ export default function Exemple({
         />
       )}
 
-      {archiveModal ? (
+      {archiveModal && (
         <div className="modal">
           <div className="modal-content" style={{ width: "30%" }}>
             <div className="row">
@@ -1358,11 +1392,9 @@ export default function Exemple({
             </div>
           </div>
         </div>
-      ) : (
-        ""
       )}
 
-      {wishlistModal ? (
+      {wishlistModal && (
         <div className="modal">
           <div className="modal-content" style={{ width: "35%" }}>
             <div className="row">
@@ -1427,7 +1459,7 @@ export default function Exemple({
                 // disabled={disable}
                 className="btn btn-color w-25"
                 onClick={() => {
-                  onWishlistHandler(selectedProperty.propertyId);
+                  onWishlistHandler(selectedProperty?.propertyId);
                   setWishlistModal(false);
                 }}
               >
@@ -1436,11 +1468,9 @@ export default function Exemple({
             </div>
           </div>
         </div>
-      ) : (
-        ""
       )}
 
-      {isWishlistProperty ? (
+      {isWishlistProperty && (
         <div className="modal">
           <div className="modal-content" style={{ width: "35%" }}>
             <div className="row">
@@ -1512,11 +1542,9 @@ export default function Exemple({
             </div>
           </div>
         </div>
-      ) : (
-        ""
       )}
 
-      {remarkModal ? (
+      {remarkModal && (
         <div className="modal">
           <div className="modal-content" style={{ width: "35%" }}>
             <div className="row">
@@ -1579,12 +1607,10 @@ export default function Exemple({
             </div>
           </div>
         </div>
-      ) : (
-        ""
       )}
 
       {/* Modal */}
-      {isLimitModalOpen ? (
+      {isLimitModalOpen && (
         <div className="modal">
           <div className="modal-content" style={{ width: "25%" }}>
             <div className="row">
@@ -1647,8 +1673,6 @@ export default function Exemple({
             </div>
           </div>
         </div>
-      ) : (
-        ""
       )}
     </>
   );

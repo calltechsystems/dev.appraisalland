@@ -8,7 +8,7 @@ import Captcha from "../common/Captcha";
 import { encryptionData } from "../../utils/dataEncryption";
 import { useRouter } from "next/router";
 import toast from "react-hot-toast";
-import { handleResponseData } from "../login/function";
+import { handleResponseData } from "./function";
 
 const Form = ({ user }) => {
   const [showhide, setShowhide] = useState("");

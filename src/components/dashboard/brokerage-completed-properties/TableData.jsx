@@ -112,8 +112,11 @@ const TableData = ({
       })
       .then((res) => {
         toast.dismiss();
-        setProperties(res.data.data.properties.$values);
-        setRerender(false);
+        const { success, data: propData, message } = res?.data;
+        if (success) {
+          setProperties(propData?.properties?.$values);
+          setRerender(false);
+        }
       })
       .catch((err) => {
         toast.dismiss();
@@ -150,7 +153,14 @@ const TableData = ({
         },
       })
       .then((res) => {
-        setRerender(true);
+        const { success, data, message } = res?.data;
+        if (success) {
+          setRerender(true);
+        } else {
+          toast.error(
+            message ?? "An error occurred while deleting the record."
+          );
+        }
       })
       .catch((err) => {
         setErrorMessage(err.response.data.error);
@@ -169,7 +179,8 @@ const TableData = ({
               <h4>{item.title}</h4>
               <p>
                 <span className="flaticon-placeholder"></span>
-                {item.area} {item.city} {item.state} zipCode-{item.zipCode}
+                {item.area} {item.city} {item.state} postalCode-
+                {item.postalCode}
               </p>
               <Link className="fp_price text-thm" href="#">
                 ${item.bidLowerRange} - ${item.bidUpperRange}

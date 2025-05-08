@@ -133,18 +133,12 @@ const Index = () => {
     fetchUserPlan();
   }, []);
 
-  const planDetails = Array.isArray(userData?.plans?.$values)
-    ? userData.plans.$values
-    : [];
 
   const closePlanErrorModal = () => {
     // setModalIsPlaneError(false);
     router.push("/brokerage-plans");
   };
 
-  const closeModal = () => {
-    setShowNotification(false);
-  };
 
   const [lastActivityTimestamp, setLastActivityTimestamp] = useState(
     Date.now()
@@ -205,7 +199,7 @@ const Index = () => {
     setUserData(data);
     if (!data) {
       router.push("/login");
-    } else if (!data?.brokerage_Details?.firstName) {
+    } else if (!data?.brokerageDetail?.firstName) {
       router.push("/brokerage-profile");
     }
 
@@ -283,11 +277,11 @@ const Index = () => {
                       }}
                     >
                       <span style={{ color: "#2e008b" }}>Welcome</span>{" "}
-                      {userData?.brokerage_Details?.firstName
-                        ? userData?.brokerage_Details?.firstName
+                      {userData?.brokerageDetail?.firstName
+                        ? userData?.brokerageDetail?.firstName
                         : "firstName"}{" "}
-                      {userData?.brokerage_Details?.lastName
-                        ? userData?.brokerage_Details?.lastName
+                      {userData?.brokerageDetail?.lastName
+                        ? userData?.brokerageDetail?.lastName
                         : "lastName"}
                     </h2>
                     {/* <p>We are glad to see you again!</p> */}

@@ -60,12 +60,6 @@ const Index = () => {
     setModalIsOpenError(false);
   };
 
-  const handleStatusUpdateHandler = () => {};
-
-  const closeStatusUpdateHandler = () => {
-    setOpenDate(false);
-    setIsStatusModal(false);
-  };
 
   const [openBrokerModal, setOpenBrokerModal] = useState(false);
   const [broker, setBroker] = useState({});
@@ -84,13 +78,6 @@ const Index = () => {
   };
 
   const [openDate, setOpenDate] = useState(false);
-  const [statusDate, setStatusDate] = useState("");
-
-  const handleStatusSelect = (value) => {
-    if (String(value) === "Appraisal Visit Confirmed") {
-      setOpenDate(true);
-    }
-  };
 
   const openModalBroker = (property, value) => {
     setBroker(property);
@@ -167,7 +154,7 @@ const Index = () => {
           return (
             //implment search over this only
             String(property.orderId).toLowerCase().includes(searchTerm) ||
-            String(property.zipCode).toLowerCase().includes(searchTerm) ||
+            String(property.postalCode).toLowerCase().includes(searchTerm) ||
             String(property.city).toLowerCase().includes(searchTerm) ||
             String(property.province).toLowerCase().includes(searchTerm)
           );
@@ -190,7 +177,6 @@ const Index = () => {
     const estimatedDiff =
       gettingDiff + getMonthsFDiff * 30 + gettingYearDiff * 365;
 
-    console.log("dayss", diff, newDateObj.getDate(), currentObj.getDate());
     return estimatedDiff <= diff;
   };
 
@@ -223,29 +209,6 @@ const Index = () => {
     setFilterProperty(tmpData);
   }, [filterQuery]);
 
-  const handleDelete = () => {
-    const data = JSON.parse(localStorage.getItem("user"));
-
-    toast.loading("deleting this property");
-    axios
-      .delete("/api/deleteBrokerPropertyById", {
-        headers: {
-          Authorization: `Bearer ${data.token}`,
-          "Content-Type": "application/json",
-        },
-        params: {
-          propertyId: property.propertyId,
-        },
-      })
-      .then((res) => {
-        setRerender(true);
-      })
-      .catch((err) => {
-        toast.error(err);
-      });
-    toast.dismiss();
-    closeModal();
-  };
 
   useEffect(() => {
     setIsLoading(false);
@@ -258,7 +221,7 @@ const Index = () => {
     if (!data) {
       router.push("/login");
     }
-    // else if (!data?.brokerage_Details.firstName) {
+    // else if (!data?.brokerageDetail.firstName) {
     //   router.push("/appraiser-profile");
     // }
     if (!data) {
@@ -322,55 +285,6 @@ const Index = () => {
     };
   };
 
-  const PropertyInfoHandler = (orderId) => {
-    const printWindow = window.open("", "_blank");
-    printWindow.document.write(
-      "<html><head><title>Property Information</title></head><body>"
-    );
-    printWindow.document.write(
-      "<h1>" + `Property info of order ${orderId}` + "</h1>"
-    );
-    printWindow.document.write(
-      '<button style="display:none;" onclick="window.print()">Print</button>'
-    );
-
-    // Clone the table-container and remove the action column
-    const tableContainer = document.getElementById("property-info-container");
-    const table = tableContainer.querySelector("table");
-    const clonedTable = table.cloneNode(true);
-    const rows = clonedTable.querySelectorAll("tr");
-    rows.forEach((row) => {
-      const lastCell = row.querySelector("td:last-child");
-    });
-
-    // Remove the action heading from the table
-    const tableHead = clonedTable.querySelector("thead");
-    const tableHeadRows = tableHead.querySelectorAll("tr");
-    tableHeadRows.forEach((row) => {
-      const lastCell = row.querySelector("th:last-child");
-    });
-
-    // Make the table responsive for all fields
-    const tableRows = clonedTable.querySelectorAll("tr");
-    tableRows.forEach((row) => {
-      const firstCell = row.querySelector("td:first-child");
-      if (firstCell) {
-        const columnHeading = tableHeadRows[0].querySelector(
-          "th:nth-child(" + (firstCell.cellIndex + 1) + ")"
-        ).innerText;
-        firstCell.setAttribute("data-th", columnHeading);
-      }
-    });
-
-    printWindow.document.write(clonedTable.outerHTML);
-    printWindow.document.write("</body></html>");
-    printWindow.document.close();
-    printWindow.print();
-    printWindow.onafterprint = () => {
-      printWindow.close();
-      toast.success("Saved the data");
-    };
-  };
 
   const participateHandler = (val, id) => {
     setLowRangeBid(val);
@@ -379,7 +293,7 @@ const Index = () => {
   };
 
   const onWishlistHandler = (id) => {
-    const userData = JSON.parse(localStorage.getItem("user"));
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
 
     const formData = {
       userId: userData.userId,
@@ -394,8 +308,13 @@ const Index = () => {
       .post("/api/addToWishlist", payload)
       .then((res) => {
         toast.dismiss();
-        toast.success("Successfully added !!! ");
-        window.location.reload();
+        const { success, data, message } = res?.data;
+        if (success) {
+          toast.success("Successfully added !!! ");
+          window.location.reload();
+        } else {
+          toast.error(message ?? "An error occurred while adding the record.");
+        }
       })
       .catch((err) => {
         toast.dismiss();
@@ -404,7 +323,6 @@ const Index = () => {
   };
 
   useEffect(() => {
-    console.log(searchQuery);
     const tempData = properties;
     if (searchInput === "") {
       return;
@@ -428,7 +346,7 @@ const Index = () => {
       setSearchResult(newProperties);
     } else {
       const newProperties = tempData.filter((item) => {
-        if (item.zipCode.toLowerCase() === searchInput.toLowerCase()) {
+        if (item.postalCode.toLowerCase() === searchInput.toLowerCase()) {
           return true;
         } else {
           return false;
@@ -440,10 +358,8 @@ const Index = () => {
 
   return (
     <>
-      {/* <!-- Main Header Nav --> */}
       <Header userData={userData} />
 
-      {/* <!--  Mobile Menu --> */}
       <MobileMenu />
 
       <div className="dashboard_sidebar_menu">
@@ -456,9 +372,6 @@ const Index = () => {
           <SidebarMenu userData={userData} />
         </div>
       </div>
-      {/* End sidebar_menu */}
-
-      {/* <!-- Our Dashbord --> */}
       <section className="our-dashbord dashbord bgc-f7 pb50 dashboard-height">
         <div
           className="container-fluid ovh table-padding container-padding"
@@ -696,7 +609,7 @@ const Index = () => {
                                           {currentProperty.streetName}{" "}
                                           {currentProperty.city}{" "}
                                           {currentProperty.province}{" "}
-                                          {currentProperty.zipCode}
+                                          {currentProperty.postalCode}
                                         </td>
                                       </tr>
 
@@ -985,17 +898,6 @@ const Index = () => {
                                 </div>
                                 <div className="row text-center mt-3">
                                   <div className="col-lg-12">
-                                    <div
-                                      className="btn btn-color w-25 m-1"
-                                      onClick={() =>
-                                        PropertyInfoHandler(
-                                          currentProperty.orderId
-                                        )
-                                      }
-                                      title="Download Pdf"
-                                    >
-                                      Download
-                                    </div>
                                     <button
                                       className="btn btn-color w-25 text-center"
                                       onClick={() => setModalIsPopupOpen(false)}
