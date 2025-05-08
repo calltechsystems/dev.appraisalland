@@ -163,7 +163,7 @@ export default function Exemple({
 
   const getBrokerName = (id) => {
     let selectedAppraiser = {};
-    AllBrokers.map((appraiser, index) => {
+    AllBrokers?.map((appraiser, index) => {
       if (String(appraiser.userId) === String(id)) {
         selectedAppraiser = appraiser;
       }
@@ -179,7 +179,7 @@ export default function Exemple({
 
   const getBroker = (id) => {
     let selectedBroker = {};
-    AllBrokers.map((appraiser, index) => {
+    AllBrokers?.map((appraiser, index) => {
       if (String(appraiser.userId) === String(id)) {
         selectedBroker = appraiser;
       }
@@ -209,11 +209,6 @@ export default function Exemple({
       setPropValue(toggle);
     }
     setModalOpen(true);
-  };
-
-  const openArchiveModal = (property) => {
-    setSelectedProperty(property); // Store the selected property
-    setArchiveModal(true);
   };
 
   const closeArchiveModal = () => {
@@ -297,7 +292,7 @@ export default function Exemple({
       if (
         bid.orderId === property?.orderId &&
         bid.status === 1 &&
-        bid.orderstatus === 3
+        bid.orderStatus === 3
       ) {
         isCompleted = true;
       }
@@ -310,16 +305,6 @@ export default function Exemple({
     return isCompleted ? 3 : isAccepted ? 2 : isQuoteProvided ? 1 : 0;
   };
 
-  const getPropertyInfoById = (userId) => {
-    let selectedProperty = {};
-    allListedProperties.map((prop, index) => {
-      if (String(prop.userId) === String(userId)) {
-        selectedProperty = prop;
-      }
-    });
-    return selectedProperty;
-  };
-
   const openPopupModal = (property) => {
     setModalIsPopupOpen(true);
     setCurrentProperty(property);
@@ -329,8 +314,8 @@ export default function Exemple({
       const tempData = []; // Make sure this is defined to hold the updated data.
       properties.map((property, index) => {
         const isBidded = getBidOfProperty(property?.orderId);
-        const isHold = property?.isonhold;
-        const isCancel = property?.isoncancel;
+        const isHold = property?.isOnHold;
+        const isCancel = property?.isOnCancel;
         const isStatus = getPropertyStatusHandler(property);
         const isEditable = isStatus === 0 ? true : false;
         if (isStatus !== 3) {
@@ -388,9 +373,9 @@ export default function Exemple({
                 <button className="btn btn-warning w-100">
                   {isHold ? "N.A." : "N.A."}
                 </button>
-              ) : isBidded.orderstatus !== 1 &&
-                isBidded.orderstatus !== null &&
-                isBidded.orderstatus !== undefined ? (
+              ) : isBidded.orderStatus !== 1 &&
+                isBidded.orderStatus !== null &&
+                isBidded.orderStatus !== undefined ? (
                 <div className="hover-text">
                   <div
                     className="tooltip-text"
@@ -401,23 +386,23 @@ export default function Exemple({
                   >
                     <ul>
                       <li style={{ fontSize: "15px" }}>
-                        {getOrderValue(isBidded.orderstatus)}
+                        {getOrderValue(isBidded.orderStatus)}
                       </li>
                     </ul>
                   </div>
                   <button
-                    className={getStatusButtonClass(isBidded.orderstatus)}
+                    className={getStatusButtonClass(isBidded.orderStatus)}
                   >
                     Status
                     <span className="m-1">
-                      <i class="fa fa-info-circle" aria-hidden="true"></i>
+                      <i className="fa fa-info-circle" aria-hidden="true"></i>
                     </span>
                   </button>
                 </div>
               ) : isBidded.$id &&
                 isBidded.status === 1 &&
-                isBidded.orderstatus === 1 &&
-                isBidded.orderstatus !== undefined ? (
+                isBidded.orderStatus === 1 &&
+                isBidded.orderStatus !== undefined ? (
                 <div className="hover-text">
                   <div
                     className="tooltip-text"
@@ -428,17 +413,17 @@ export default function Exemple({
                   >
                     <ul>
                       <li style={{ fontSize: "15px" }}>
-                        {getOrderValue(isBidded.orderstatus)} -{" "}
-                        {formatDateTime(isBidded.statusdate)}
+                        {getOrderValue(isBidded.orderStatus)} -{" "}
+                        {formatDateTime(isBidded.statusDate)}
                       </li>
                     </ul>
                   </div>
                   <button
-                    className={getStatusButtonClass(isBidded.orderstatus)}
+                    className={getStatusButtonClass(isBidded.orderStatus)}
                   >
                     Status
                     <span className="m-1">
-                      <i class="fa fa-info-circle" aria-hidden="true"></i>
+                      <i className="fa fa-info-circle" aria-hidden="true"></i>
                     </span>
                   </button>
                 </div>
@@ -447,7 +432,7 @@ export default function Exemple({
                   <span>N.A.</span>
                 </button>
               ),
-            address: `${property.streetNumber} ${property.streetName}, ${property.city}, ${property.province}, ${property.zipCode}`,
+            address: `${property.streetNumber} ${property.streetName}, ${property.city}, ${property.province}, ${property.postalCode}`,
             remarkButton: (
               <li
                 className="list-inline-item"
@@ -475,11 +460,6 @@ export default function Exemple({
                 </div>
               </li>
             ),
-            // remark: isCancel
-            //   ? "N.A."
-            //   : isBidded.remark
-            //   ? isBidded.remark
-            //   : "N.A.",
             type_of_building: property.typeOfBuilding,
             amount: ` $ ${addCommasToNumber(property.estimatedValue)}`,
             purpose: property.purpose,
@@ -516,35 +496,6 @@ export default function Exemple({
                     </Link>
                   </li>
                 )}
-                {/* <li
-                className="list-inline-item"
-                data-toggle="tooltip"
-                data-placement="top"
-                title="Property Details"
-              >
-                <span
-                  className="btn btn-color-table"
-                  onClick={() => openPopupModal(property)}
-                >
-                  <Link href={"#"}>
-                    <span className="flaticon-view"></span>
-                  </Link>
-                </span>
-              </li>
-
-              <li
-                className="list-inline-item"
-                data-toggle="tooltip"
-                data-placement="top"
-                title="Bids"
-              >
-                <Link
-                  className="btn btn-color-table"
-                  href={`/my-property-bids/${property.propertyId}`}
-                >
-                  <span className="flaticon-invoice"></span>
-                </Link>
-              </li> */}
 
                 {(isEditable || isStatus === 1) && !isCancel && (
                   <li title="Edit Property">
@@ -598,57 +549,6 @@ export default function Exemple({
                     </span>
                   </li>
                 )}
-                {/* )} */}
-
-                {/* {isEditable && (
-                  <li title="Edit Property">
-                    <Link href="#">
-                      <span className="btn btn-color w-100 mb-1">
-                        {" "}
-                        On Hold{" "}
-                      </span>
-                    </Link>{" "}
-                    <Link
-                      className="btn btn-color-table"
-                      href={`/create-listing/${property.propertyId}`}
-                    >
-                      <span className="flaticon-edit"></span>
-                    </Link>
-                  </li>
-                )} */}
-
-                {/* {!isEditable && (
-                <li
-                  className="list-inline-item"
-                  data-toggle="tooltip"
-                  data-placement="top"
-                  title="Archive Property"
-                >
-                  <span
-                    className="btn btn-color-table"
-                    onClick={() => archievePropertyHandler(property.propertyId)}
-                  >
-                    <Link className="color-light" href={`/archive-property`}>
-                      <span className="flaticon-box"></span>
-                    </Link>
-                  </span>
-                </li>
-              )} */}
-
-                {/* <li title="Archive Property">
-                  <span
-                    className="btn btn-color-table"
-                    onClick={() => openArchiveModal(property)}
-                  >
-                    <Link className="color-light" href="#">
-                      <span className="text-light">
-                        <FaArchive />
-                      </span>
-                    </Link>
-                  </span>
-                </li> */}
-
-                {/* End li */}
               </ul>
             ),
           };
@@ -685,7 +585,14 @@ export default function Exemple({
       .then((res) => {
         toast.dismiss();
         setDataFetched(true);
-        setAllListedProperties(res.data.data.properties.$values);
+        const {
+          success: listedSuccess,
+          data: listedData,
+          message: listedMessage,
+        } = res?.data;
+        if (listedSuccess) {
+          setAllListedProperties(listedData?.properties?.$values);
+        }
       })
       .catch((err) => {
         toast.error(err);
@@ -699,38 +606,67 @@ export default function Exemple({
           "Content-Type": "application/json",
         },
         params: {
-          userId: data?.brokerage_Details?.id,
+          userId: data?.brokerageDetail?.id,
         },
       })
       .then((res) => {
         toast.dismiss();
-        const temp = res.data.data.$values;
-        let allbroker = [];
-        let requiredRows = [];
-        temp.map((row, index) => {
-          allbroker.push(row.broker);
-          const data = row?.properties.$values;
-          data.map((prop, idx) => {
-            requiredRows.push(prop);
+        const {
+          success: brokerageSuccess,
+          data: brokerageData,
+          message: brokerageMessage,
+        } = res?.data;
+        if (brokerageSuccess) {
+          const temp = brokerageData?.$values;
+          let requiredRows = [];
+          temp?.map((row, index) => {
+            const data = row?.properties?.$values;
+            data?.map((prop, idx) => {
+              requiredRows.push(prop);
+            });
           });
-        });
-        setAllBrokers(allbroker);
 
-        axios
-          .get("/api/getAllBids", {
-            headers: {
-              Authorization: `Bearer ${data.token}`,
-            },
-          })
-          .then((res) => {
-            tempBids = res.data.data.$values;
-            setProperties(requiredRows);
-            setBids(tempBids);
-          })
-          .catch((err) => {
-            toast.error(err);
-          });
+          axios
+            .get("/api/getAllBids", {
+              headers: {
+                Authorization: `Bearer ${data.token}`,
+              },
+            })
+            .then((res) => {
+              const {
+                success: bidSuccess,
+                data: bidData,
+                message: bidMessage,
+              } = res?.data;
+              if (bidSuccess) {
+                tempBids = bidData?.$values;
+                setProperties(requiredRows);
+                setBids(tempBids);
+              }
+            })
+            .catch((err) => {
+              toast.error(err);
+            });
+        }
       });
+    axios
+      .get("/api/getAllBrokers", {
+        headers: {
+          Authorization: `Bearer ${data.token}`,
+        },
+      })
+      .then((res) => {
+        const {
+          success: brokerSuccess,
+          data: brokerData,
+          message: brokerMessage,
+        } = res?.data;
+        if (brokerSuccess) {
+          let allbroker = brokerData?.$values;
+          setAllBrokers(allbroker);
+        }
+      })
+      .catch((err) => {});
 
     let tempBids = [];
 

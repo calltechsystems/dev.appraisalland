@@ -54,8 +54,15 @@ const Modal = ({
         .post("/api/setBid", payload)
         .then((res) => {
           toast.dismiss();
-          toast.success("Successfully set the bid ");
-          window.location.reload();
+          const { success, data, message } = res?.data;
+          if (success) {
+            toast.success("Successfully set the bid ");
+            window.location.reload();
+          } else {
+            toast.error(
+              message ?? "An error occurred while updating the record."
+            );
+          }
         })
         .catch((err) => {
           toast.dismiss();
@@ -111,7 +118,7 @@ const Modal = ({
                               fontWeight: "lighter",
                             }}
                           >
-                            Appraisal Quote <span class="req-btn">*</span> :
+                            Appraisal Quote <span className="req-btn">*</span> :
                           </label>
                         </div>
                         <div className="col-lg-7">

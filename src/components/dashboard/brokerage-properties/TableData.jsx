@@ -35,7 +35,6 @@ const TableData = ({
   currentPage,
   totalPages,
   handlePageChange,
-  setfilteredPropertiesCount,
 }) => {
   const [Id, setId] = useState(-1);
 
@@ -109,7 +108,6 @@ const TableData = ({
           currentPage={currentPage} // Pass current page
           totalPages={totalPages} // Pass total pages
           handlePageChange={handlePageChange} // Pass function
-          setfilteredPropertiesCount={setfilteredPropertiesCount}
         />
       )}
     </>
