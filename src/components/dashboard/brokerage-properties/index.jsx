@@ -215,24 +215,35 @@ const Index = () => {
 
     toast.loading("Archiving this property....");
     axios
-      .get("/api/propertyArcheive", {
-        headers: {
-          Authorization: `Bearer ${data.token}`,
-          "Content-Type": "application/json",
-        },
-        params: {
-          orderId: id,
-          status: true,
-          userId: data.userId,
-        },
-      })
+      .post(
+        "/api/propertyArcheive",
+        {},
+        {
+          params: {
+            orderId: id,
+            status: true,
+            userId: data.userId,
+          },
+          headers: {
+            Authorization: `Bearer ${data.token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      )
       .then((res) => {
         toast.dismiss();
         setIsLoading(false);
-        toast.success("Successfully Added to Archived Properties!!");
-        location.reload();
-        // router.push("/brokerage-archive-properties");
-        // setRefresh(true);
+        const { success, data, message } = res?.data;
+        if (success) {
+          toast.success("Successfully Added to Archived Properties!!");
+          location.reload();
+          // router.push("/brokerage-archive-properties");
+          // setRefresh(true);
+        } else {
+          toast.error(
+            message ?? "An error occurred while updating the record."
+          );
+        }
       })
       .catch((err) => {
         toast.error(err);
@@ -266,8 +277,15 @@ const Index = () => {
         toast.dismiss();
         setIsHoldProperty(false);
         setIsLoading(false);
-        toast.success("Successfully Changed the Order Status !");
-        window.location.reload();
+        const { success, data, message } = res?.data;
+        if (success) {
+          toast.success("Successfully Changed the Order Status !");
+          window.location.reload();
+        } else {
+          toast.error(
+            message ?? "An error occurred while updating the record."
+          );
+        }
       })
       .catch((err) => {
         toast.error(err);
@@ -300,9 +318,16 @@ const Index = () => {
       .then((res) => {
         toast.dismiss();
         setIsLoading(false);
-        toast.success("Successfully Changed the Order Status !");
-        setIsCancelProperty(false);
-        window.location.reload();
+        const { success, data, message } = res?.data;
+        if (success) {
+          toast.success("Successfully Changed the Order Status !");
+          setIsCancelProperty(false);
+          window.location.reload();
+        } else {
+          toast.error(
+            message ?? "An error occurred while updating the record."
+          );
+        }
       })
       .catch((err) => {
         toast.error(err);
@@ -336,7 +361,7 @@ const Index = () => {
           return (
             //implment search over this only
             String(property.orderId).toLowerCase().includes(searchTerm) ||
-            String(property.zipCode).toLowerCase().includes(searchTerm) ||
+            String(property.postalCode).toLowerCase().includes(searchTerm) ||
             String(property.city).toLowerCase().includes(searchTerm) ||
             String(property.province).toLowerCase().includes(searchTerm)
           );
@@ -359,7 +384,6 @@ const Index = () => {
     const estimatedDiff =
       gettingDiff + getMonthsFDiff * 30 + gettingYearDiff * 365;
 
-    console.log("dayss", diff, newDateObj.getDate(), currentObj.getDate());
     return estimatedDiff <= diff;
   };
 
@@ -389,7 +413,6 @@ const Index = () => {
 
   useEffect(() => {
     const tmpData = filterData(properties);
-    console.log("filterQuery", filterQuery, tmpData, tmpData.length);
     setFilterProperty(tmpData);
   }, [filterQuery]);
 
@@ -408,7 +431,14 @@ const Index = () => {
         },
       })
       .then((res) => {
-        setRerender(true);
+        const { success, data, message } = res?.data;
+        if (success) {
+          setRerender(true);
+        } else {
+          toast.error(
+            message ?? "An error occurred while deleting the record."
+          );
+        }
       })
       .catch((err) => {
         toast.error(err);
@@ -439,117 +469,6 @@ const Index = () => {
     fetchData();
   }, []);
 
-  const brokerInfoHandler = (orderId) => {
-    const printWindow = window.open("", "_blank");
-    printWindow.document.write(
-      "<html><head><title>Broker Information</title></head><body>"
-    );
-    printWindow.document.write(
-      "<h1>" + `Broker info of order ${orderId}` + "</h1>"
-    );
-    printWindow.document.write(
-      '<button style="display:none;" onclick="window.print()">Print</button>'
-    );
-
-    // Clone the table-container and remove the action column
-    const tableContainer = document.getElementById("broker-info-container");
-    const table = tableContainer.querySelector("table");
-    const clonedTable = table.cloneNode(true);
-    const rows = clonedTable.querySelectorAll("tr");
-    rows.forEach((row) => {
-      const lastCell = row.querySelector("td:last-child");
-    });
-
-    // Remove the action heading from the table
-    const tableHead = clonedTable.querySelector("thead");
-    const tableHeadRows = tableHead.querySelectorAll("tr");
-    tableHeadRows.forEach((row) => {
-      const lastCell = row.querySelector("th:last-child");
-    });
-
-    // Make the table responsive for all fields
-    const tableRows = clonedTable.querySelectorAll("tr");
-    tableRows.forEach((row) => {
-      const firstCell = row.querySelector("td:first-child");
-      if (firstCell) {
-        const columnHeading = tableHeadRows[0].querySelector(
-          "th:nth-child(" + (firstCell.cellIndex + 1) + ")"
-        ).innerText;
-        firstCell.setAttribute("data-th", columnHeading);
-      }
-    });
-
-    printWindow.document.write(clonedTable.outerHTML);
-    printWindow.document.write("</body></html>");
-    printWindow.document.close();
-    printWindow.print();
-    printWindow.onafterprint = () => {
-      printWindow.close();
-      toast.success("Saved the data");
-    };
-  };
-
-  const PropertyInfoHandler = (orderId) => {
-    const printWindow = window.open("", "_blank");
-    printWindow.document.write(
-      "<html><head><title>Property Information</title></head><body>"
-    );
-    printWindow.document.write(
-      ' <img width="60" height="45" class="logo1 img-fluid" style="" src="/assets/images/Appraisal_Land_Logo.png" alt="header-logo2.png"/> <span style="color: #2e008b font-weight: bold; font-size: 24px;">Appraisal</span><span style="color: #97d700; font-weight: bold; font-size: 24px;">Land</span>'
-    );
-    printWindow.document.write(
-      "<h3>" +
-        `Properties Information of Order ID ${orderId}` +
-        "</h3>" +
-        "<style>" +
-        "h3{text-align:center;}" +
-        "</style>"
-    );
-    // printWindow.document.write(
-    //   "<h1>" + `Property info of order ${orderId}` + "</h1>"
-    // );
-    printWindow.document.write(
-      '<button style="display:none;" onclick="window.print()">Print</button>'
-    );
-
-    // Clone the table-container and remove the action column
-    const tableContainer = document.getElementById("property-info-container");
-    const table = tableContainer.querySelector("table");
-    const clonedTable = table.cloneNode(true);
-    const rows = clonedTable.querySelectorAll("tr");
-    rows.forEach((row) => {
-      const lastCell = row.querySelector("td:last-child");
-    });
-
-    // Remove the action heading from the table
-    const tableHead = clonedTable.querySelector("thead");
-    const tableHeadRows = tableHead.querySelectorAll("tr");
-    tableHeadRows.forEach((row) => {
-      const lastCell = row.querySelector("th:last-child");
-    });
-
-    // Make the table responsive for all fields
-    const tableRows = clonedTable.querySelectorAll("tr");
-    tableRows.forEach((row) => {
-      const firstCell = row.querySelector("td:first-child");
-      if (firstCell) {
-        const columnHeading = tableHeadRows[0].querySelector(
-          "th:nth-child(" + (firstCell.cellIndex + 1) + ")"
-        ).innerText;
-        firstCell.setAttribute("data-th", columnHeading);
-      }
-    });
-
-    printWindow.document.write(clonedTable.outerHTML);
-    printWindow.document.write("</body></html>");
-    printWindow.document.close();
-    printWindow.print();
-    printWindow.onafterprint = () => {
-      printWindow.close();
-      toast.success("Saved the data");
-    };
-  };
-
   const participateHandler = (val, id) => {
     setLowRangeBid(val);
     setPropertyId(id);
@@ -572,8 +491,13 @@ const Index = () => {
       .post("/api/addToWishlist", payload)
       .then((res) => {
         toast.dismiss();
-        toast.success("Successfully added !!! ");
-        window.location.reload();
+        const { success, data, message } = res?.data;
+        if (success) {
+          toast.success("Successfully added !!! ");
+          window.location.reload();
+        } else {
+          toast.error(message ?? "An error occurred while adding the record.");
+        }
       })
       .catch((err) => {
         toast.dismiss();
@@ -582,7 +506,6 @@ const Index = () => {
   };
 
   useEffect(() => {
-    console.log(searchQuery);
     const tempData = properties;
     if (searchInput === "") {
       return;
@@ -606,7 +529,7 @@ const Index = () => {
       setSearchResult(newProperties);
     } else {
       const newProperties = tempData.filter((item) => {
-        if (item.zipCode.toLowerCase() === searchInput.toLowerCase()) {
+        if (item.postalCode.toLowerCase() === searchInput.toLowerCase()) {
           return true;
         } else {
           return false;
@@ -775,7 +698,7 @@ const Index = () => {
                                           {currentProperty.streetName},{" "}
                                           {currentProperty.city},{" "}
                                           {currentProperty.province}{" "}
-                                          {currentProperty.zipCode}
+                                          {currentProperty.postalCode}
                                         </td>
                                       </tr>
 
@@ -927,18 +850,6 @@ const Index = () => {
                                   </table>
                                 </div>
                                 <div className="d-flex justify-content-center gap-2 mt-3">
-                                  {/* <button
-                                    className="btn btn-color"
-                                    style={{ width: "100px" }}
-                                    onClick={() =>
-                                      PropertyInfoHandler(
-                                        currentProperty.orderId
-                                      )
-                                    }
-                                    title="Download Pdf"
-                                  >
-                                    <FaDownload />
-                                  </button> */}
                                   <button
                                     className="btn btn-color"
                                     style={{ width: "100px" }}

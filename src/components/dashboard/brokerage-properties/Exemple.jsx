@@ -173,20 +173,6 @@ export default function Exemple({
     }
   }, [searchInput]);
 
-  const sortObjectsByOrderIdDescending = (data) => {
-    return data.sort((a, b) => b.order_id - a.order_id);
-  };
-
-  const getOrderValue = (val) => {
-    let title = "Applicant Contacted by appraiser";
-    AppraiserStatusOptions?.map((status) => {
-      if (String(status.id) === String(val)) {
-        title = status.type;
-      }
-    });
-    return title;
-  };
-
   const openModal = (propertyId, value, toggle) => {
     if (String(value) === String(1)) {
       setIsHoldProperty(true);
@@ -255,8 +241,8 @@ export default function Exemple({
 
   const openRemarkModal = (property) => {
     const isBidded = getBidOfProperty(property.orderId); // Get the isBidded data
-    const isCancel = property.isoncancel;
-    const isHold = property.isonhold;
+    const isCancel = property.isOnCancel;
+    const isHold = property.isOnHold;
     setRemark(
       isCancel || isHold ? "N.A." : isBidded.remark ? isBidded.remark : "N.A."
     );
@@ -276,7 +262,7 @@ export default function Exemple({
     setRefresh(true);
   };
 
-  useState(() => {
+  useEffect(() => {
     if (searchInput === "") {
       setProperties([]);
       setBids([]);
@@ -294,7 +280,7 @@ export default function Exemple({
       if (
         bid.orderId === property.orderId &&
         bid.status === 1 &&
-        bid.orderstatus === 3
+        bid.orderStatus === 3
       ) {
         isCompleted = true;
       }
@@ -322,11 +308,14 @@ export default function Exemple({
 
       properties.map((property, index) => {
         const isBidded = getBidOfProperty(property.orderId);
-        const isHold = property.isonhold;
-        const isCancel = property.isoncancel;
+        const isHold = property.isOnHold;
+        const isCancel = property.isOnCancel;
         const isStatus = getPropertyStatusHandler(property);
-        console.log(isStatus);
         const isEditable = isStatus === 0 ? true : false;
+
+        // if (isStatus === 3) {
+        //   return; // This will skip adding the completed property to the table
+        // }
         if (!property.isArchive && isStatus !== 3) {
           const updatedRow = {
             order_id: property.orderId,
@@ -363,9 +352,9 @@ export default function Exemple({
                 <button className="btn btn-warning w-100">
                   {isHold ? "N.A." : "N.A."}
                 </button>
-              ) : isBidded.orderstatus !== 1 &&
-                isBidded.orderstatus !== null &&
-                isBidded.orderstatus !== undefined ? (
+              ) : isBidded.orderStatus !== 1 &&
+                isBidded.orderStatus !== null &&
+                isBidded.orderStatus !== undefined ? (
                 <div className="hover-text">
                   <div
                     className="tooltip-text"
@@ -376,23 +365,23 @@ export default function Exemple({
                   >
                     <ul>
                       <li style={{ fontSize: "15px" }}>
-                        {getOrderValue(isBidded.orderstatus)}
+                        {getOrderValue(isBidded.orderStatus)}
                       </li>
                     </ul>
                   </div>
                   <button
-                    className={getStatusButtonClass(isBidded.orderstatus)}
+                    className={getStatusButtonClass(isBidded.orderStatus)}
                   >
                     Status
                     <span className="m-1">
-                      <i class="fa fa-info-circle" aria-hidden="true"></i>
+                      <i className="fa fa-info-circle" aria-hidden="true"></i>
                     </span>
                   </button>
                 </div>
               ) : isBidded.$id &&
                 isBidded.status === 1 &&
-                isBidded.orderstatus === 1 &&
-                isBidded.orderstatus !== undefined ? (
+                isBidded.orderStatus === 1 &&
+                isBidded.orderStatus !== undefined ? (
                 <div className="hover-text">
                   <div
                     className="tooltip-text"
@@ -403,17 +392,17 @@ export default function Exemple({
                   >
                     <ul>
                       <li style={{ fontSize: "15px" }}>
-                        {getOrderValue(isBidded.orderstatus)} - {""}
-                        {formatDateTime(isBidded.statusdate)}
+                        {getOrderValue(isBidded.orderStatus)} - {""}
+                        {formatDateTime(isBidded.statusDate)}
                       </li>
                     </ul>
                   </div>
                   <button
-                    className={getStatusButtonClass(isBidded.orderstatus)}
+                    className={getStatusButtonClass(isBidded.orderStatus)}
                   >
                     Status
                     <span className="m-1">
-                      <i class="fa fa-info-circle" aria-hidden="true"></i>
+                      <i className="fa fa-info-circle" aria-hidden="true"></i>
                     </span>
                   </button>
                 </div>
@@ -422,7 +411,7 @@ export default function Exemple({
                   <span>N.A.</span>
                 </button>
               ),
-            address: `${property.streetNumber} ${property.streetName}, ${property.city}, ${property.province}, ${property.zipCode}`,
+            address: `${property.streetNumber} ${property.streetName}, ${property.city}, ${property.province}, ${property.postalCode}`,
             remarkButton: (
               <li
                 className="list-inline-item"
@@ -585,7 +574,7 @@ export default function Exemple({
 
                 {/* End li */}
 
-                {!isCancel && isStatus !== 3 && isBidded.orderstatus !== 4 && (
+                {!isCancel && isStatus !== 3 && isBidded.orderStatus !== 4 && (
                   <li title={!isHold ? "On Hold" : "Remove Hold"}>
                     <button
                       className="btn btn-color-table "
@@ -677,37 +666,51 @@ export default function Exemple({
           "Content-Type": "application/json",
         },
         params: {
-          UserID: data?.userId,
+          userId: data?.userId,
         },
       })
       .then((res) => {
         toast.dismiss();
         setDataFetched(true);
-        const temp = res.data.data.property.$values;
-        let tempProperties = [];
-        tempProperties = temp.filter((prop, index) => {
-          if (String(prop.userId) === String(data.userId)) {
-            return true;
-          } else {
-            return false;
-          }
-        });
-        axios
-          .get("/api/getAllBids", {
-            headers: {
-              Authorization: `Bearer ${data.token}`,
-            },
-          })
-          .then((res) => {
-            tempBids = res.data.data.$values;
-            setProperties(tempProperties);
-            setBids(tempBids);
-          })
-          .catch((err) => {
-            toast.error(err);
-            setDataFetched(false);
-            // setModalIsOpenError(true);
+        const {
+          success: listedSuccess,
+          data: listedData,
+          message: listedMessage,
+        } = res?.data;
+        if (listedSuccess) {
+          const temp = listedData?.properties?.$values;
+          let tempProperties = [];
+          tempProperties = temp?.filter((prop, index) => {
+            if (String(prop?.userId) === String(data.userId)) {
+              return true;
+            } else {
+              return false;
+            }
           });
+          axios
+            .get("/api/getAllBids", {
+              headers: {
+                Authorization: `Bearer ${data.token}`,
+              },
+            })
+            .then((res) => {
+              const {
+                success: bidSuccess,
+                data: bidData,
+                message: bidMessage,
+              } = res?.data;
+              if (bidSuccess) {
+                tempBids = bidData?.$values;
+                setProperties(tempProperties);
+                setBids(tempBids);
+              }
+            })
+            .catch((err) => {
+              toast.error(err);
+              setDataFetched(false);
+              // setModalIsOpenError(true);
+            });
+        }
       })
       .catch((err) => {
         toast.dismiss();
