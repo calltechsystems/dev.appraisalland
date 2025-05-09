@@ -14,11 +14,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useModal } from "../../../context/ModalContext";
 import { uploadFile } from "./functions";
-import LoadingSpinner from "../../common/LoadingSpinner";
 import CommonLoader from "../../common/CommonLoader/page";
-import { Modal } from "react-bootstrap";
-import Button from "react-bootstrap/Button";
-// import { useLocation } from "react-router-dom";
 
 const Index = ({ isView, propertyData }) => {
   const router = useRouter();

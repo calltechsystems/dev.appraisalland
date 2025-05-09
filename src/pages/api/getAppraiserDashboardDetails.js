@@ -10,7 +10,7 @@ async function handler(request, response) {
     const userId = request.query.userId;
     const noOfDays = request.query.noOfDays;
 
-    const userResponse = await axios.get(
+    const responseData = await axios.get(
       `${domain}/Dashboard/getAppraisalDashboardDetails`,
       {
         headers: {
@@ -21,10 +21,11 @@ async function handler(request, response) {
           userId,
           noOfDays,
         },
+        validateStatus: () => true,
       }
     );
 
-    return response.status(200).json({ msg: "OK", data: userResponse.data });
+    return response.status(responseData.status).json(responseData.data);
   } catch (err) {
     console.error(err?.response?.data || err.message);
     return response.status(500).json({ error: "Internal Server Error" });

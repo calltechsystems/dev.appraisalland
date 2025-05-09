@@ -1,3 +1,4 @@
+
 import Header from "../../common/header/dashboard/HeaderBrokerage";
 import SidebarMenu from "../../common/header/dashboard/SidebarMenuBrokerage";
 import MobileMenu from "../../common/header/MobileMenu_02";
@@ -16,15 +17,9 @@ const Index = () => {
   const [showNotification, setShowNotification] = useState(false);
   const [data, setData] = useState([]);
   const [bids, setBids] = useState([]);
-  const [unfilteredData, setUnfilteredData] = useState([]);
-  const [showLineGraph, setShowLineGraph] = useState(false);
   const [filterQuery, setFilterQuery] = useState(1000);
-  const [wishlist, setWishlist] = useState([]);
   const [lineData, setLineData] = useState([]);
   const [acceptedBids, setAcceptedBids] = useState(0);
-  const [allQuotesBids, setAllQuotesBids] = useState(0);
-  const [allProperties, setAllProperties] = useState([]);
-  const [chartData, setChartData] = useState([]);
   const [refresh, setRefresh] = useState(false);
   const router = useRouter();
   const [modalIsPlanError, setModalIsPlaneError] = useState(false);
@@ -51,8 +46,10 @@ const Index = () => {
           },
         })
         .then((res) => {
-          const dashboardData = res.data.data;
-          setDashboardCount(dashboardData);
+          const {success, data: dashboardData, message} = res.data;
+          if(success){
+          setDashboardCount(dashboardData || {});
+          }
         })
         .catch((err) => {
           toast.error(err?.response?.data?.error || "Dashboard fetch failed");
@@ -133,12 +130,18 @@ const Index = () => {
     fetchUserPlan();
   }, []);
 
+  const planDetails = Array.isArray(userData?.plans?.$values)
+    ? userData.plans.$values
+    : [];
 
   const closePlanErrorModal = () => {
     // setModalIsPlaneError(false);
     router.push("/brokerage-plans");
   };
 
+  const closeModal = () => {
+    setShowNotification(false);
+  };
 
   const [lastActivityTimestamp, setLastActivityTimestamp] = useState(
     Date.now()
@@ -205,31 +208,6 @@ const Index = () => {
 
     setRefresh(false);
   }, [refresh]);
-
-  useEffect(() => {
-    const categorizeDataByMonth = (data) => {
-      if (data.length === 0) {
-        return Array(12).fill(0);
-      }
-
-      const currentMonth = new Date().getMonth();
-
-      const countsByMonth = Array(currentMonth + 1).fill(0);
-
-      data.forEach((property) => {
-        const createdAtDate = new Date(property.addedDatetime);
-        const month = createdAtDate.getMonth();
-
-        if (month <= currentMonth) {
-          countsByMonth[month]++;
-        }
-      });
-
-      return countsByMonth;
-    };
-    const temp = categorizeDataByMonth(chartData);
-    setLineData(temp);
-  }, [chartData]);
 
   return (
     <>

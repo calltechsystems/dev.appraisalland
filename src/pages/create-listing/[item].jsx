@@ -4,6 +4,7 @@ import Seo from "../../components/common/seo";
 import CreateListing from "../../components/dashboard/create-listing";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const Index = () => {
   const router = useRouter();
@@ -26,24 +27,28 @@ const Index = () => {
             item: propertyOrderId,
           },
         });
-        setPropertyData(response.data.data); // Update state with the fetched data
+        const { success, message, data: propertyInfo } = response.data;
+        if (success) {
+          setPropertyData(propertyInfo);
+        } else {
+          toast.error(message);
+        }
       } catch (err) {
-        alert(err.message);
+        toast.error(err.message);
       }
     };
 
-    // Check if item is defined before making the API call
     if (item) {
-      fetchPropertyData(); // Call the fetch function
+      fetchPropertyData();
     }
-  }, [item]); // Add item as a dependency to trigger the effect when it changes
+  }, [item]);
 
   return (
     <>
       <Seo pageTitle="Create Listing" />
 
       {propertyData && (
-        <CreateListing isView={true} propertyData={propertyData.property} />
+        <CreateListing isView={true} propertyData={propertyData} />
       )}
     </>
   );

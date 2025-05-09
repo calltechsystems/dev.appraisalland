@@ -17,7 +17,7 @@ const SidebarMenu = () => {
     const userData = JSON.parse(localStorage.getItem("user") || "{}");
 
     setUserData(userData);
-    if (userData?.brokerDetail?.brokerageid !== null) {
+    if (userData?.brokerDetail?.brokerageId !== null) {
       setIsBrokerByBrokerage(true);
     }
 

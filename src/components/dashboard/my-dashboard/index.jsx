@@ -1,3 +1,4 @@
+
 import Header from "../../common/header/dashboard/Header";
 import SidebarMenu from "../../common/header/dashboard/SidebarMenu";
 import MobileMenu from "../../common/header/MobileMenu_02";
@@ -35,7 +36,7 @@ const Index = () => {
   useEffect(() => {
     const fetchUserPlan = async () => {
       try {
-        const userData = JSON.parse(localStorage.getItem("user") || {});
+        const userData = JSON.parse(localStorage.getItem("user"));
         const planDetails = userData?.plans?.$values;
         setPlanData(planDetails);
         if (!userData) {
@@ -71,6 +72,7 @@ const Index = () => {
   }, []);
 
   const closePlanErrorModal = () => {
+    // setModalIsPlaneError(false);
     router.push("/my-plans");
   };
 
@@ -157,9 +159,9 @@ const Index = () => {
           },
         })
         .then((res) => {
-          const { success, data: dashboardData, message } = res?.data;
-          if (success) {
-            setDashboardCount(dashboardData);
+          const {success, data: dashboardData, message} = res.data;
+          if(success){
+          setDashboardCount(dashboardData || {});
           }
         })
         .catch((err) => {
@@ -256,9 +258,11 @@ const Index = () => {
                   />
                 </div>
               </div>
-
+              
               <div className="row">
-                <AllStatistics dashboardCount={dashboardCount} />
+                <AllStatistics
+                  dashboardCount={dashboardCount}
+                />
               </div>
 
               {modalIsPlanError && (

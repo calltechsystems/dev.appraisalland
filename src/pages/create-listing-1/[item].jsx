@@ -26,9 +26,14 @@ const Index = () => {
             item: propertyOrderId,
           },
         });
-        setPropertyData(response.data.data); // Update state with the fetched data
+        const { success, message, data: propertyInfo } = response.data;
+        if (success) {
+          setPropertyData(propertyInfo);
+        } else {
+          toast.error(message);
+        }
       } catch (err) {
-        alert(err.message);
+        toast.error(err.message);
       }
     };
 
@@ -43,7 +48,7 @@ const Index = () => {
       <Seo pageTitle="Create Listing" />
 
       {propertyData && (
-        <CreateListing isView={true} propertyData={propertyData.property} />
+        <CreateListing isView={true} propertyData={propertyData} />
       )}
     </>
   );

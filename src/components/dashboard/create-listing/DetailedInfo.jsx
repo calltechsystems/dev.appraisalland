@@ -497,7 +497,7 @@ const DetailedInfo = ({
                 (propertyData ? (
                   <button
                     disabled={disable}
-                    className={`btn btn5 ${isButtonDisabled ? "disabled" : ""}`}
+                    className={`btn btn5`}
                     onClick={submitHandler}
                   >
                     Update
