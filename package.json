@@ -49,6 +49,7 @@
     "react-cloudinary": "^0.4.1",
     "react-datepicker": "^4.25.0",
     "react-dom": "18.2.0",
+    "react-error-boundary": "^6.0.0",
     "react-google-recaptcha": "^3.1.0",
     "react-hot-toast": "^2.4.1",
     "react-i18next": "^13.3.1",
