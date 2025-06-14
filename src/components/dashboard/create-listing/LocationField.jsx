@@ -36,7 +36,7 @@ const LocationField = ({
 
   const checkIsError = (value) => {
     let isError = false;
-    errorLabel.map((err, index) => {
+    errorLabel?.map((err, index) => {
       if (String(err) === String(value)) {
         isError = true;
       }
@@ -216,7 +216,7 @@ const LocationField = ({
                         }
                   }
                 >
-                  {province.map((item, index) => {
+                  {province?.map((item, index) => {
                     return (
                       <option key={`${item.id}-${index}`} value={item.value}>
                         {item.type}

@@ -191,7 +191,7 @@ const DetailedInfo = ({
 
   const checkIsError = (value) => {
     let isError = false;
-    errorLabel.map((err, index) => {
+    errorLabel?.map((err, index) => {
       if (String(err) === String(value)) {
         isError = true;
       }

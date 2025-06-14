@@ -761,7 +761,7 @@ const Index = ({ isView, propertyData }) => {
       toast.loading(`${updateView ? "Updating the data" : "Saving the data"}`);
 
       // Create an array of promises only for files that need uploading
-      const uploadPromises = attachment.map(async (file) => {
+      const uploadPromises = attachment?.map(async (file) => {
         if (file.uploadedUrl === "") {
           const generatedURL = await uploadFile(file.file);
           uploadedUrlList += generatedURL + ",";

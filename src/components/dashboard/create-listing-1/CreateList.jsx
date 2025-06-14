@@ -45,7 +45,7 @@ const CreateList = ({
 
   const checkIsError = (value) => {
     let isError = false;
-    errorLabel.map((err, index) => {
+    errorLabel?.map((err, index) => {
       if (String(err) === String(value)) {
         isError = true;
       }
@@ -120,7 +120,7 @@ const CreateList = ({
                         }
                   }
                 >
-                  {typeOfBuilding.map((item, index) => {
+                  {typeOfBuilding?.map((item, index) => {
                     return (
                       <option key={item.id} value={item.value}>
                         {item.type}
@@ -224,7 +224,7 @@ const CreateList = ({
                         }
                   }
                 >
-                  {Purpose.map((item, index) => {
+                  {Purpose?.map((item, index) => {
                     return (
                       <option key={item.id} value={item.value}>
                         {item.type}
@@ -293,7 +293,7 @@ const CreateList = ({
                         }
                   }
                 >
-                  {typeOfAppraisal.map((item, index) => {
+                  {typeOfAppraisal?.map((item, index) => {
                     return (
                       <option key={item.id} value={item.value}>
                         {item.type}
@@ -406,7 +406,7 @@ const CreateList = ({
                         }
                   }
                 >
-                  {Urgency.map((item, index) => {
+                  {Urgency?.map((item, index) => {
                     return (
                       <option key={item.id} value={item.value}>
                         {item.type}
