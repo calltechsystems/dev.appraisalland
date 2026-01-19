@@ -297,7 +297,7 @@ const Checkout = ({
             style={{
               layout: "vertical",
               color: "blue",
-              shape: "pill",
+              shape: "rect",
               label: paymentType === "oneTime" ? "pay" : "subscribe",
             }}
             {...(paymentType === "oneTime"
